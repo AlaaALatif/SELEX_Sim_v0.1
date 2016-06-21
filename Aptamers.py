@@ -17,7 +17,7 @@ class Aptamers:
             for totalseqs, l in enumerate(f): #calculate total num of seqs
                 pass
             totalseqs+=1
-        print("optimumseqs 1st loop passed")
+        f.close()
         print(totalseqs)
         optimseqs_idx={}
         optimseqs={}
@@ -26,9 +26,8 @@ class Aptamers:
             optimseq_idx=random.randint(0,totalseqs) #random seq index
             if optimseq_idx not in optimseqs_idx:
                 optimseqs_idx.setdefault(optimseq_idx, [])                          
-                optimseq = str(linecache.getline(init_pool_file, optimseq_idx))
+                optimseq = str(open(init_pool_file).readlines()[optimseq_idx])
                 optimseqs.setdefault(optimseq, [])
             i+=1
-        print("optimumseqs 2nd loop passed")
         print(optimseqs)
         return optimseqs, totalseqs
