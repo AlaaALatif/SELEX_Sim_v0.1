@@ -14,9 +14,12 @@ from sklearn.mixture import VBGMM
 from sklearn.mixture import DPGMM
 from matplotlib import rcParams
 
+#Allow LaTeX in plots
 rcParams['text.usetex'] = True
 rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 
+
+#Initiate class
 class Amplification:
 
 #pcr modelled as ideal process that doubles each sequence per cycle
@@ -118,18 +121,20 @@ class Amplification:
       ax.set_xlabel('Sequence Count')
       ax.set_ylabel('p(x)')
       ax.set_title('GMM Best-fit to Population Distribution')
-      # plot annotation
+      # create annotation
       annot = " \mu & \sigma^{2} & \omega \\"+"\\"
       for i, mu in enumerate(bestModel.means_):
           annot += str(np.round(bestModel.means_[i][0], 2))+" & "+str(np.round(bestModel.covars_[i][0], 2))+" & "+str(np.round(bestModel.weights_[i], 2))+" \\"+"\\ "
       
-      ax.text(0.95, 0.95, r"PCR conditions: i="+str(initialCount)+"n="+str(pcrCycles)+"y="+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=13)
-      ax.text(0.8, 0.8, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=13)
+      #add plot annotations
+      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=13)
+      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=14)
 
 
-      
-      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield), format='pdf')
-      plt.show()
+      # save plot
+      plt.grid()
+      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.show()
       return bestModel
 
 # TEST AREA - TO BE DELETED
@@ -154,7 +159,7 @@ amp.BruteGMM(3, 5, 0.85, 10000, 20)
       plt.xlabel('Sequence Count')
       plt.ylabel('p(x)')
       plt.title('GMM Best-fit')
-      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield), format='pdf')
+      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
       plt.show()
 # TEST AREA - TO BE DELETED
 #amp = Amplification()
