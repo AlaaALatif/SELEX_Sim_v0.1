@@ -138,8 +138,8 @@ class Amplification:
       return bestModel
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-amp.BruteGMM(3, 5, 0.85, 10000, 20)
+#amp = Amplification()
+#amp.BruteGMM(3, 5, 0.85, 10000, 20)
 
 
    def bruteHist(self, initialCount, pcrCycles, pcrYield, dataPoints, binsNum):
