@@ -81,11 +81,12 @@ class Amplification:
 
     #train each GMM model on the generated data
       for i in range(len(N)):
-          gmmModels[i] = GMM(N[i]).fit(amplfdSeqs)
+          gmmModels[i] = GMM(n_components=N[i], n_init=10, n_iter=100).fit(amplfdSeqs)
       
     #calculate AIC and BIC for each trained model
       gmmAIC = [m.aic(amplfdSeqs) for m in gmmModels]
       gmmBIC = [m.bic(amplfdSeqs) for m in gmmModels]
+
 
     #pick best trained model based on AIC
       bestModel = gmmModels[np.argmin(gmmAIC)]
@@ -127,13 +128,14 @@ class Amplification:
           annot += str(np.round(bestModel.means_[i][0], 2))+" & "+str(np.round(bestModel.covars_[i][0], 2))+" & "+str(np.round(bestModel.weights_[i], 2))+" \\"+"\\ "
       
       #add plot annotations
-      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=13)
-      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=14)
+      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
 
 
       # save plot
       plt.grid()
       plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.close()
       #plt.show()
       return bestModel
 
@@ -380,7 +382,6 @@ class Amplification:
       pdf = np.exp(logProbs)
       individualPDFs = weights * pdf[:, np.newaxis]
 
-      n, bins, patches = plt.hist(amplfdSeqsHist, (dataPoints/100), normed=True, facecolor='green', alpha=0.75)
       plt.plot(space, pdf, '-k', color='b')
       plt.plot(space, individualPDFs, '--k')
       plt.xlabel('Sequence Count')
