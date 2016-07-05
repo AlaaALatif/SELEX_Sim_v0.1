@@ -143,6 +143,92 @@ class Amplification:
 #amp = Amplification()
 #amp.BruteGMM(3, 5, 0.85, 10000, 20)
 
+   def GMMTest(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum):
+      amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
+      amplfdSeqsHist = np.zeros(dataPoints)
+      for i in range(dataPoints):
+        amplfdSeqs[i] = initialCount #assign init count to each seq
+        amplfdSeqsHist[i] = initialCount
+        for n in range(pcrCycles): #model each cycle as Bernoulli test
+            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+
+            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+      
+    #transform training data into appropriate dimensions   
+      amplfdSeqs = amplfdSeqs.reshape(-1, 1)
+      #N = np.arange(1, gaussNum)
+
+    #generate models with varying number of gaussian components (i.e. from 1 to N gaussians)  
+      #gmmModels = [None for i in range(len(N))]
+
+    #train each GMM model on the generated data
+      #for i in range(len(N)):
+      gmmModel = GMM(n_components=gaussNum, n_init=10, n_iter=100).fit(amplfdSeqs)
+      
+    #calculate AIC and BIC for each trained model
+      gmmAIC = gmmModel.aic(amplfdSeqs)
+      gmmBIC = gmmModel.bic(amplfdSeqs)
+
+
+    #pick best trained model based on AIC
+      #bestModel = gmmModels[np.argmin(gmmAIC)]
+
+
+      
+    #calculate exact solutions to the expectation and variance of the dist
+      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
+      varSeqNum = pcrYield*(1-pcrYield)*(initialCount*(1+pcrYield)**(pcrCycles - 1))*((initialCount*(1+pcrYield)**(pcrCycles))-1)/(initialCount*(1+pcrYield)-1)
+
+      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
+    #declare sample space 
+      space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
+      space = space.reshape(-1, 1)
+    #calculate log likelihood of sample space using trained model
+      logProbs, resps = gmmModel.score_samples(space)
+    #calculate prob density func of the model
+      pdf = np.exp(logProbs)
+    #calculate prob density func of each component gaussian
+      individualPDFs = resps * pdf[:, np.newaxis]
+
+     # this was added for histogram visualization purposes
+      binsNum = dataPoints*5/1000
+      weights = np.ones_like(amplfdSeqsHist)/dataPoints
+      
+      fig = plt.figure()
+      ax = fig.add_subplot(111)
+
+
+      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
+      ax.plot(space, pdf, '-k', color='b')
+      ax.plot(space, individualPDFs, '--k', color='r')
+      ax.set_xlabel('Sequence Count')
+      ax.set_ylabel('p(x)')
+      ax.set_title('GMM Best-fit to Population Distribution')
+      # create annotation
+      annot = " \mu & \sigma^{2} & \omega \\"+"\\"
+      for i, mu in enumerate(gmmModel.means_):
+          annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
+      
+      #add plot annotations
+      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+
+
+      # save plot
+      plt.grid()
+      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.close()
+      #plt.show()
+      return gmmModel
+
+# TEST AREA - TO BE DELETED
+amp = Amplification()
+amp.GMMTest(3, 5, 0.85, 10000, 8)
+
+
+
+
+
 
    def bruteHist(self, initialCount, pcrCycles, pcrYield, dataPoints, binsNum):
       amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
