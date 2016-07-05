@@ -6,6 +6,8 @@ import operator
 from collections import OrderedDict
 from scipy import stats
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import math
@@ -222,8 +224,8 @@ class Amplification:
       return gmmModel
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-amp.GMMTest(3, 5, 0.85, 10000, 8)
+#amp = Amplification()
+#amp.GMMTest(3, 5, 0.85, 10000, 8)
 
 
 
