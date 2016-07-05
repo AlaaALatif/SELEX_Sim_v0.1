@@ -28,7 +28,7 @@ sampleNum, outputDim = (maxInitialCount*maxPCRcycles*(maxYield/yieldInc)), (maxG
 dimension = outputDim + inputDim
 
 #initialize input vectors
-data = np.zeros((size+1, sampleNum, dimension))
+data = np.zeros((size+1, (sampleNum/size), dimension))
 
 y = float() #initialize yield index
 y = 0.0
@@ -53,9 +53,9 @@ if rank == 0:
     subOutfile = open(subOutfileName, 'w')
     writeString = str()
 
-    
+
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 1:
@@ -78,10 +78,9 @@ if rank == 1:
     subOutfile = open(subOutfileName, 'w')
     writeString = str()
 
-    
-    
+
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 2:
@@ -104,9 +103,9 @@ if rank == 2:
     subOutfile = open(subOutfileName, 'w')
     writeString = str()
 
-    
+
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 3:
@@ -130,7 +129,7 @@ if rank == 3:
     writeString = str()
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 4:
@@ -154,7 +153,7 @@ if rank == 4:
     writeString = str()
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 5:
@@ -179,7 +178,7 @@ if rank == 5:
 
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 6:
@@ -193,7 +192,7 @@ if rank == 6:
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
             for k, mu in enumerate(gmmModel.means_):
-                data[rank+1][j][(k+1)*3] = gmmModel.means_[i][k]
+                data[rank+1][j][(k+1)*3] = gmmModel.means_[k][0]
                 data[rank+1][j][((k+1)*3)+1] = gmmModel.covars_[k][0]
                 data[rank+1][j][((k+1)*3)+2] = gmmModel.weights_[k]
             j+=1 #increment sample index
@@ -204,7 +203,7 @@ if rank == 6:
 
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 7:
@@ -229,7 +228,7 @@ if rank == 7:
 
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 8:
@@ -253,7 +252,7 @@ if rank == 8:
     writeString = str()
 
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
 if rank == 9:
@@ -262,8 +261,8 @@ if rank == 9:
 
     for i in range(maxInitialCount):
         for n in range(maxPCRcycles):
-            gmmModel = amp.GMMTest(i+1, n+1, 1.0, 10000, maxGaussNum)
-            data[rank+1][j][2] = 1.0
+            gmmModel = amp.GMMTest(i+1, n+1, 0.95, 10000, maxGaussNum)
+            data[rank+1][j][2] = 0.95
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
             for k, mu in enumerate(gmmModel.means_):
@@ -276,8 +275,7 @@ if rank == 9:
     subOutfile = open(subOutfileName, 'w')
     writeString = str()
 
-
     for l, param in enumerate(data[rank+1]):
-        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+str(param[27])+'\t'+str(param[28])+'\t'+str(param[29])+'\t'+str(param[30])+'\t'+str(param[31])+'\t'+str(param[32])+'\t'+'\n')
+        subOutfile.write(str(param[0])+'\t'+str(param[1])+'\t'+str(param[2])+'\t'+str(param[3])+'\t'+str(param[4])+'\t'+str(param[5])+'\t'+str(param[6])+'\t'+str(param[7])+'\t'+str(param[8])+'\t'+str(param[9])+'\t'+str(param[10])+'\t'+str(param[11])+'\t'+str(param[12])+'\t'+str(param[13])+'\t'+str(param[14])+'\t'+str(param[15])+'\t'+str(param[16])+'\t'+str(param[17])+'\t'+str(param[18])+'\t'+str(param[19])+'\t'+str(param[20])+'\t'+str(param[21])+'\t'+str(param[22])+'\t'+str(param[23])+'\t'+str(param[24])+'\t'+str(param[25])+'\t'+str(param[26])+'\t'+'\n')
 
     subOutfile.close()
