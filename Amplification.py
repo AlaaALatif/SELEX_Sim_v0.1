@@ -21,6 +21,16 @@ rcParams['text.usetex'] = True
 rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 
 
+##PASTE THIS INTO TRAINING SET GENERATOR V6
+## This script is used to generate a data set of frequency dists after PCR under different 
+#   initial conditions. It then approximates each dist using a Gaussian Mixture model (GMM).
+#   A histogram plot of the dist and GMM fitting is generated.
+#   It follows the design of trainingSetGenerator.py but normalises
+#   the gmm parameters based on expectation (see BruteGMMnormed). It also sorts the 
+#   parameters of each gmm according to mean magnitudes
+
+
+
 #Initiate class
 class Amplification:
 
@@ -144,6 +154,107 @@ class Amplification:
 # TEST AREA - TO BE DELETED
 #amp = Amplification()
 #amp.BruteGMM(3, 5, 0.85, 10000, 20)
+
+
+   def BruteGMMnormed(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum):
+      amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
+      amplfdSeqsHist = np.zeros(dataPoints)
+
+    
+    #calculate exact solutions to the expectation and variance of the dist
+      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
+      varSeqNum = pcrYield*(1-pcrYield)*(initialCount*(1+pcrYield)**(pcrCycles - 1))*((initialCount*(1+pcrYield)**(pcrCycles))-1)/(initialCount*(1+pcrYield)-1)
+
+
+      for i in range(dataPoints):
+        amplfdSeqs[i] = initialCount #assign init count to each seq
+        amplfdSeqsHist[i] = initialCount
+        for n in range(pcrCycles): #model each cycle as Bernoulli test
+            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+
+            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+      
+      for i in range(dataPoints):
+          amplfdSeqs[i] = amplfdSeqs[i]/(2*expctdSeqNum)
+
+    #transform training data into appropriate dimensions   
+      amplfdSeqs = amplfdSeqs.reshape(-1, 1)
+      #N = np.arange(1, gaussNum)
+
+    #generate models with varying number of gaussian components (i.e. from 1 to N gaussians)  
+      #gmmModels = [None for i in range(len(N))]
+
+    #train each GMM model on the generated data
+      #for i in range(len(N)):
+      gmmModel = GMM(n_components=gaussNum, n_init=10, n_iter=100).fit(amplfdSeqs)
+
+      modelParams = np.zeros((gaussNum, 3))
+
+      for i, mu in enumerate(gmmModel.means_):
+          modelParams[i][0] = gmmModel.means_[i][0]
+          modelParams[i][1] = gmmModel.covars_[i][0]
+          modelParams[i][2] = gmmModel.weights_[i]
+
+      modelParams = modelParams[modelParams[:, 0].argsort()]
+    #calculate AIC and BIC for each trained model
+      gmmAIC = gmmModel.aic(amplfdSeqs)
+      gmmBIC = gmmModel.bic(amplfdSeqs)
+
+
+    #pick best trained model based on AIC
+      #bestModel = gmmModels[np.argmin(gmmAIC)]
+
+
+      
+      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
+    #declare sample space 
+      space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
+      normedSpace = np.linspace((1/(2*expctdSeqNum)), ((expctdSeqNum + (np.sqrt(varSeqNum)*10))/(2*expctdSeqNum)), dataPoints/100)
+      space = space.reshape(-1, 1)
+      normedSpace = normedSpace.reshape(-1, 1)
+    #calculate log likelihood of sample space using trained model
+      logProbs, resps = gmmModel.score_samples(normedSpace)
+    #calculate prob density func of the model
+      pdf = np.exp(logProbs)/(2*expctdSeqNum)
+    #calculate prob density func of each component gaussian
+      individualPDFs = resps * pdf[:, np.newaxis]
+
+     # this was added for histogram visualization purposes
+      binsNum = dataPoints*5/1000
+      weights = np.ones_like(amplfdSeqsHist)/dataPoints
+      
+      fig = plt.figure()
+      ax = fig.add_subplot(111)
+
+
+      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
+      ax.plot(space, pdf, '-k', color='b')
+      ax.plot(space, individualPDFs, '--k', color='r')
+      ax.set_xlabel('Sequence Count')
+      ax.set_ylabel('p(x)')
+      ax.set_title('GMM Best-fit to Population Distribution')
+      # create annotation
+      annot = " \mu & \sigma^{2} & \omega \\"+"\\"
+      for i, mu in enumerate(gmmModel.means_):
+          annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
+      
+      #add plot annotations
+      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+
+
+      # save plot
+      plt.grid()
+      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.close()
+      #plt.show()
+      return modelParams
+
+# TEST AREA - TO BE DELETED
+amp = Amplification()
+gmm, pdf, params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
+
+
 
    def GMMTest(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum):
       amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
