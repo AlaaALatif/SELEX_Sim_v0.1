@@ -50,7 +50,7 @@ if rank == 0:
             data[rank+1][j][2] = 0.1
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -75,7 +75,7 @@ if rank == 1:
             data[rank+1][j][2] = 0.2
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -100,7 +100,7 @@ if rank == 2:
             data[rank+1][j][2] = 0.3
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -125,7 +125,7 @@ if rank == 3:
             data[rank+1][j][2] = 0.4
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -149,7 +149,7 @@ if rank == 4:
             data[rank+1][j][2] = 0.5
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -173,7 +173,7 @@ if rank == 5:
             data[rank+1][j][2] = 0.6
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -198,7 +198,7 @@ if rank == 6:
             data[rank+1][j][2] = 0.7
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -223,7 +223,7 @@ if rank == 7:
             data[rank+1][j][2] = 0.8
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -248,7 +248,7 @@ if rank == 8:
             data[rank+1][j][2] = 0.9
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
@@ -272,7 +272,7 @@ if rank == 9:
             data[rank+1][j][2] = 0.95
             data[rank+1][j][0] = i+1
             data[rank+1][j][1] = n+1
-            for k, mu in enumerate(gmmModel.means_):
+            for k, mu in enumerate(modelParams):
                 data[rank+1][j][(k+1)*3] = modelParams[k][0]
                 data[rank+1][j][((k+1)*3)+1] = modelParams[k][1]
                 data[rank+1][j][((k+1)*3)+2] = modelParams[k][2]
