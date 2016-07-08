@@ -251,8 +251,8 @@ class Amplification:
       return modelParams
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-gmm, pdf, params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
+#amp = Amplification()
+#gmm, pdf, params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
 
 
 
