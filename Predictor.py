@@ -4,8 +4,10 @@ import math
 import numpy as np
 from sklearn import linear_model
 from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import explained_variance_score, mean_absolute_error, mean_squared_error, median_absolute_error, r2_score
 
-
+##
 sampleNum = 100
 
 # generate fake data set for testing multiple mutlivariate regression
@@ -30,6 +32,40 @@ Y_test = Y[:int(sampleNum*0.5)]
 
 # Machine learning: regression models
 class Predictors:
+
+    def decisionTreeRegression(self, x, y, xTest, yTest):
+
+        model = DecisionTreeRegressor(max_depth=6)
+        
+
+
+        model.fit(x, y)
+
+        preds = model.predict(xTest)
+        print('Decision Tree Regression')
+    # model learning rate
+        #print(["learning rate: alpha = %.2f " % models[j].alpha_ for j in range(len(models))])
+    # model coefficients
+       # print('Coefficient: \n', model.coef_)
+    # overall mean square error
+        print("Residual sum-of-squares: %.2f" % np.mean((preds - yTest)**2))
+    # overall max square error
+        print("max residual sum-of-squares: %.2f" % np.amax((preds - yTest)**2))
+    # overall variance score
+        print("Variance score: %.2f" % explained_variance_score(yTest, preds, multioutput='uniform_average'))
+    # Mean absolute error
+        print("Mean absolute error: %.2f" % mean_absolute_error(yTest, preds))
+    # Mean squared error
+        print("Mean squared error: %.2f" % mean_squared_error(yTest, preds))
+    # Median absolute error #THIS DOES NOT SUPPORT MULTIPLE OUTPUTS
+        #print("Median absolute error: %.2f" % median_absolute_error(yTest, preds))
+    # R^2 score
+        print("R squared score: %.2f" % r2_score(yTest, preds))
+        return model, yTest, preds
+
+
+
+
 
     
     def supportVectorRegression(self, x, y, xTest, yTest):
