@@ -97,23 +97,23 @@ plt.savefig('pcr_logmean_g1_i1_3_y4_8.pdf', format='pdf')
 class Visualizations:
 
     def gmmValidation(self, xTest, yTest, preds, maxGauss):
-        realPDF = np.zeros((xTest.shape[0], 100))
-        predPDF = np.zeros((xTest.shape[0], 100))
-        individual_realPDFs = np.zeros((xTest.shape[0], maxGauss, 100))
-        individual_predPDFs = np.zeros((xTest.shape[0], maxGauss, 100))
+        realPDF = np.zeros((xTest.shape[0], 10000))
+        predPDF = np.zeros((xTest.shape[0], 10000))
+        individual_realPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
+        individual_predPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
         for i, sample in enumerate(xTest):
             initialCount = int(sample[0])
             cycleNum = int(sample[1])
             yld = sample[2]
     #calculate exact solutions to the expectation and variance of the dist
             expctdSeqNum = initialCount*(1+yld)**(cycleNum)
-            varSeqNum = yld*(1-yld)*(initialCount*(1+yld)**(cycleNum - 1))*((initialCount*(1+yld)**(cycleNum))-1)/(initialCount*(1+yld)-1)
-            space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), 100)
-            normedSpace = np.linspace((1/(2*expctdSeqNum)), ((expctdSeqNum + (np.sqrt(varSeqNum)*10))/(2*expctdSeqNum)), 100)
+            varSeqNum = -1*initialCount*(1-yld)*(1+yld)**(cycleNum-1)*(1-(1+yld)**(cycleNum+1))       
+            space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000)
+            normedSpace = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000)
             for j in xrange(0, (maxGauss*3), 3):
-                individual_realPDFs[i][j/3] = yTest[i][j+2]*norm.pdf(normedSpace, yTest[i][j], np.sqrt(yTest[i][j+1]))
+                individual_realPDFs[i][j/3] = yTest[i][j+2]*norm.pdf(space, yTest[i][j], np.sqrt(yTest[i][j+1]))
                 realPDF[i] += individual_realPDFs[i][j/3]
-                individual_predPDFs[i][j/3] = preds[i][j+2]*norm.pdf(normedSpace, preds[i][j], np.sqrt(preds[i][j+1]))
+                individual_predPDFs[i][j/3] = preds[i][j+2]*norm.pdf(space, preds[i][j], np.sqrt(preds[i][j+1]))
                 predPDF[i] += individual_predPDFs[i][j/3]
 
             fig = plt.figure()
@@ -121,11 +121,11 @@ class Visualizations:
 
 
             #ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
-            ax.plot(space, (realPDF[i]/(2*expctdSeqNum)), '-k', color='b', label='real GMM')
-            ax.plot(space, (predPDF[i]/(2*expctdSeqNum)), '-k', color='g', label='predicted GMM')
+            ax.plot(space, (realPDF[i]), '-k', color='b', label='real GMM')
+            ax.plot(space, (predPDF[i]), '-k', color='g', label='predicted GMM')
             for k in xrange(individual_realPDFs.shape[1]):
-                ax.plot(space, (individual_realPDFs[i][k]/(2*expctdSeqNum)), '--k', color='r')
-                ax.plot(space, (individual_predPDFs[i][k]/(2*expctdSeqNum)), '--k', color='y')
+                ax.plot(space, (individual_realPDFs[i][k]), '--k', color='r')
+                ax.plot(space, (individual_predPDFs[i][k]), '--k', color='y')
             ax.set_xlabel('Sequence Count')
             ax.set_ylabel('p(x)')
             ax.set_title('GMM of PCR Population Distribution (real vs predicted model)')
