@@ -220,32 +220,32 @@ class Amplification:
       individualPDFs = resps * pdf[:, np.newaxis]
 
      # this was added for histogram visualization purposes
-      binsNum = dataPoints*5/1000
-      weights = np.ones_like(amplfdSeqsHist)/dataPoints
+      #binsNum = dataPoints*5/1000
+      #weights = np.ones_like(amplfdSeqsHist)/dataPoints
       
-      fig = plt.figure()
-      ax = fig.add_subplot(111)
+      #fig = plt.figure()
+      #ax = fig.add_subplot(111)
 
 
-      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
-      ax.plot(space, pdf, '-k', color='b')
-      ax.plot(space, individualPDFs, '--k', color='r')
-      ax.set_xlabel('Sequence Count')
-      ax.set_ylabel('p(x)')
-      ax.set_title('GMM Best-fit to Population Distribution')
+      #ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
+      #ax.plot(space, pdf, '-k', color='b')
+      #ax.plot(space, individualPDFs, '--k', color='r')
+      #ax.set_xlabel('Sequence Count')
+      #ax.set_ylabel('p(x)')
+      #ax.set_title('GMM Best-fit to Population Distribution')
       # create annotation
-      annot = " \mu & \sigma^{2} & \omega \\"+"\\"
-      for i, mu in enumerate(gmmModel.means_):
-          annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
+      #annot = " \mu & \sigma^{2} & \omega \\"+"\\"
+      #for i, mu in enumerate(gmmModel.means_):
+          #annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
       
       #add plot annotations
-      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
-      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      #ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      #ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
 
 
       # save plot
-      plt.grid()
-      plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.grid()
+      #plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
       #plt.close()
       #plt.show()
       return modelParams
