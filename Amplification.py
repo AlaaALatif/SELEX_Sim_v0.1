@@ -5,6 +5,7 @@ from itertools import izip, imap
 import operator
 from collections import OrderedDict
 from scipy import stats
+from scipy.stats import norm
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -251,8 +252,8 @@ class Amplification:
       return modelParams
 
 # TEST AREA - TO BE DELETED
-#amp = Amplification()
-#gmm, pdf, params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
+amp = Amplification()
+params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
 
 
 
@@ -289,12 +290,15 @@ class Amplification:
 
       
     #calculate exact solutions to the expectation and variance of the dist
-      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
-      varSeqNum = pcrYield*(1-pcrYield)*(initialCount*(1+pcrYield)**(pcrCycles - 1))*((initialCount*(1+pcrYield)**(pcrCycles))-1)/(initialCount*(1+pcrYield)-1)
-
+      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles) #expectation of amplification
+      varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))
+      #varSeqNum = initialCount*(1-pcrYield)(1+pcrYield)**(pcrCycles-1)(1-(1+pcrYield)**(pcrCycles+1))
+      #varSeqNum = (1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*((1+pcrYield)**(pcrCycles)-1) #variance of amplification
       dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
+    #generate theoretical Gaussian pdf
+      approxPDF = norm.pdf(space, expctdSeqNum, np.sqrt(varSeqNum))
       space = space.reshape(-1, 1)
     #calculate log likelihood of sample space using trained model
       logProbs, resps = gmmModel.score_samples(space)
@@ -311,32 +315,34 @@ class Amplification:
       ax = fig.add_subplot(111)
 
 
-      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
-      ax.plot(space, pdf, '-k', color='b')
-      ax.plot(space, individualPDFs, '--k', color='r')
+      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75, label='Brute-force')
+      ax.plot(space, approxPDF, '-k', color='y', label='Theoretical Gaussian')
+      ax.plot(space, pdf, '-k', color='b',label='Gaussian Mixture')
+      ax.plot(space, individualPDFs, '--k', color='r', label='Gaussian components')
       ax.set_xlabel('Sequence Count')
       ax.set_ylabel('p(x)')
-      ax.set_title('GMM Best-fit to Population Distribution')
+      ax.set_title('GMM Best-fit to Population Distribution' )
       # create annotation
       annot = " \mu & \sigma^{2} & \omega \\"+"\\"
       for i, mu in enumerate(gmmModel.means_):
           annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
       
       #add plot annotations
-      ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(pcrCycles)+'\n'+"Yield = "+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      ax.text(0.95, 0.95, r"$E[Y_{0}] = $"+str(initialCount)+'\n'+"$N = $"+str(pcrCycles)+'\n'+"$\lambda = $"+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
       ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
 
 
       # save plot
       plt.grid()
+      plt.legend(loc=2, prop={'size':6})
       plt.savefig('pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
       #plt.close()
       #plt.show()
       return gmmModel
 
 # TEST AREA - TO BE DELETED
-#amp = Amplification()
-#amp.GMMTest(3, 5, 0.85, 10000, 8)
+amp = Amplification()
+amp.GMMTest(1, 15, 0.85, 10000, 4)
 
 
 
@@ -494,6 +500,40 @@ class Amplification:
       return amplfd_seqs, mutatedPool
 
 
+   def mathApproxHist(self, initialCount, pcrCycles, pcrYield, dataPoints, binsNum):
+      amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
+      amplfdSeqsHist = np.zeros(dataPoints)
+      for i in range(dataPoints):
+        amplfdSeqs[i] = initialCount #assign init count to each seq
+        amplfdSeqsHist[i] = initialCount
+        for n in range(pcrCycles): #model each cycle as Bernoulli test
+            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+
+            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles) #expectation of amplification
+      varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))
+    #declare sample space 
+      space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
+      approxPDF = norm.pdf(space, expctdSeqNum, np.sqrt(varSeqNum))
+
+      fig = plt.figure()
+      ax = fig.add_subplot(111)
+
+
+      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75, label='Brute-force')
+      ax.plot(space, approxPDF, '-k', color='y', label='Theoretical Gaussian')
+      ax.set_xlabel('Sequence Count')
+      ax.set_ylabel('p(x)')
+      ax.set_title('Theoretical Gaussian Approximation') 
+      ax.text(0.95, 0.95, r"$E[Y_{0}] = $"+str(initialCount)+'\n'+"$N = $"+str(pcrCycles)+'\n'+"$\lambda = $"+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      plt.legend(loc=2, prop={'size':6})
+      plt.grid()
+      plt.savefig('gauss_pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      return space
+
+##TEST AREA
+amp = Amplification()
+space = amp.mathApproxHist(1, 15, 0.85, 10000, 50)
 
    def BruteVBGMM(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum, a, r):
       amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
