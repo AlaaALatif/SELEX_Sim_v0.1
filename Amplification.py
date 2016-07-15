@@ -108,9 +108,8 @@ class Amplification:
       
     #calculate exact solutions to the expectation and variance of the dist
       expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
-      varSeqNum = pcrYield*(1-pcrYield)*(initialCount*(1+pcrYield)**(pcrCycles - 1))*((initialCount*(1+pcrYield)**(pcrCycles))-1)/(initialCount*(1+pcrYield)-1)
-
-      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
+      varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
+       dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
       space = space.reshape(-1, 1)
@@ -156,6 +155,102 @@ class Amplification:
 #amp = Amplification()
 #amp.BruteGMM(3, 5, 0.85, 10000, 20)
 
+   def BruteGMMlogged(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum):
+      amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
+      amplfdSeqsHist = np.zeros(dataPoints)
+
+    
+    #calculate exact solutions to the expectation and variance of the dist
+      expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
+
+      varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
+ 
+      for i in range(dataPoints):
+        amplfdSeqs[i] = initialCount #assign init count to each seq
+        amplfdSeqsHist[i] = initialCount
+        for n in range(pcrCycles): #model each cycle as Bernoulli test
+            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+
+            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+      
+      for i in range(dataPoints):
+          amplfdSeqs[i] = np.log(amplfdSeqs[i])
+
+    #transform training data into appropriate dimensions   
+      amplfdSeqs = amplfdSeqs.reshape(-1, 1)
+      #N = np.arange(1, gaussNum)
+
+    #generate models with varying number of gaussian components (i.e. from 1 to N gaussians)  
+      #gmmModels = [None for i in range(len(N))]
+
+    #train each GMM model on the generated data
+      #for i in range(len(N)):
+      gmmModel = GMM(n_components=gaussNum, n_init=10, n_iter=100).fit(amplfdSeqs)
+
+      modelParams = np.zeros((gaussNum, 3))
+
+      for i, mu in enumerate(gmmModel.means_):
+          modelParams[i][0] = gmmModel.means_[i][0]
+          modelParams[i][1] = gmmModel.covars_[i][0]
+          modelParams[i][2] = gmmModel.weights_[i]
+
+      modelParams = modelParams[modelParams[:, 0].argsort()]
+    #calculate AIC and BIC for each trained model
+      gmmAIC = gmmModel.aic(amplfdSeqs)
+      gmmBIC = gmmModel.bic(amplfdSeqs)
+
+
+    #pick best trained model based on AIC
+      #bestModel = gmmModels[np.argmin(gmmAIC)]
+    #declare sample space 
+      space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), dataPoints)
+      loggedSpace = np.linspace(0, np.log(expctdSeqNum + (np.sqrt(varSeqNum)*5)), dataPoints)
+      space = space.reshape(-1, 1)
+      loggedSpace = normedSpace.reshape(-1, 1)
+    #calculate log likelihood of sample space using trained model
+      logProbs, resps = gmmModel.score_samples(loggedSpace)
+    #calculate prob density func of the model
+      pdf = np.exp(logProbs)
+    #calculate prob density func of each component gaussian
+      individualPDFs = resps * pdf[:, np.newaxis]
+     
+      fig = plt.figure()
+      ax = fig.add_subplot(111)
+
+
+      ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75, label='Brute-force')
+      ax.plot(space, pdf, '-k', color='b', label='GMM')
+      ax.plot(space, individualPDFs, '--k', color='r', label='component')
+      ax.set_xlabel('Sequence Count')
+      ax.set_ylabel('p(x)')
+      ax.set_title('GMM Best-fit to Population Distribution')
+      # create annotation
+      annot = " \mu & \sigma^{2} & \omega \\"+"\\"
+      for i, mu in enumerate(gmmModel.means_):
+          annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
+      
+      #add plot annotations
+      ax.text(0.95, 0.95, r"$Y_{0} = $"+str(initialCount)+'\n'+"$N = $"+str(pcrCycles)+'\n'+"$ \lambda = $"+str(pcrYield), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+
+
+      # save plot
+      plt.grid()
+      plt.legend(loc=2, prop={'size': 6})
+      plt.savefig('logGMM_pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
+      #plt.close()
+      #plt.show()
+      return modelParams
+
+# TEST AREA - TO BE DELETED
+amp = Amplification()
+params = amp.BruteGMMlogged(3, 5, 0.85, 10000, 8)
+
+
+
+
+
+
 
    def BruteGMMnormed(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum):
       amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
@@ -164,9 +259,9 @@ class Amplification:
     
     #calculate exact solutions to the expectation and variance of the dist
       expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
-      varSeqNum = pcrYield*(1-pcrYield)*(initialCount*(1+pcrYield)**(pcrCycles - 1))*((initialCount*(1+pcrYield)**(pcrCycles))-1)/(initialCount*(1+pcrYield)-1)
 
-
+      varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
+ 
       for i in range(dataPoints):
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
@@ -409,8 +504,9 @@ amp.GMMTest(1, 15, 0.85, 10000, 4)
    def ampEfficiencyStochastic(self, slctd_seqs, pcr_cycles, pcr_yld):
       for seq in slctd_seqs:
          mean_seq_num = (slctd_seqs[seq][0]*(1+pcr_yld))**(pcr_cycles) #expectation
-         var_seq_num = ((slctd_seqs[seq][0]*(1+pcr_yld)**(pcr_cycles - 1))*slctd_seqs[seq][0]*pcr_yld*(1-pcr_yld)*((slctd_seqs[seq][0]*(1+pcr_yld))**(pcr_cycles)-1))/(slctd_seqs[seq][0] - 1) #variance
-         slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, var_seq_num)) #draw number from Gaussian dist  
+
+         varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
+         slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, np.sqrt(var_seq_num))) #draw number from Gaussian dist  
       amplfd_seqs = slctd_seqs
       print("sequence amplification has been carried out")
       return amplfd_seqs
@@ -435,8 +531,9 @@ amp.GMMTest(1, 15, 0.85, 10000, 4)
 # PCR Amplification
       for seq in slctd_seqs:
         mean_seq_num = slctd_seqs[seq][0]*(1+pcr_yld)**(pcr_cycles) #expectation of amplification
-        var_seq_num = (1-pcr_yld)*(1+pcr_yld)**(pcr_cycles-1)*((1+pcr_yld)**(pcr_cycles)-1) #variance of amplification
-        slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, var_seq_num)) #draw int from Gaussian dist
+
+        varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
+        slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, np.sqrt(var_seq_num))) #draw int from Gaussian dist
         m = mutDist.rvs(size=slctd_seqs[seq][0]) #draw no. of mutations for each seq copy
         muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
         for mutNum, i in enumerate(muts): # for each mutation instance
