@@ -20,7 +20,8 @@ from matplotlib import rcParams
 #Allow LaTeX in plots
 rcParams['text.usetex'] = True
 rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
-
+#Turn off interactive mode for plots
+plt.ioff()
 
 ##PASTE THIS INTO TRAINING SET GENERATOR V6
 ## This script is used to generate a data set of frequency dists after PCR under different 
@@ -109,7 +110,7 @@ class Amplification:
     #calculate exact solutions to the expectation and variance of the dist
       expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
       varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
-       dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
+      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
       space = space.reshape(-1, 1)
@@ -204,13 +205,14 @@ class Amplification:
       #bestModel = gmmModels[np.argmin(gmmAIC)]
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), dataPoints)
-      loggedSpace = np.linspace(0, np.log(expctdSeqNum + (np.sqrt(varSeqNum)*5)), dataPoints)
+      loggedSpace = np.log(space)
       space = space.reshape(-1, 1)
-      loggedSpace = normedSpace.reshape(-1, 1)
+      loggedSpace = loggedSpace.reshape(-1, 1)
     #calculate log likelihood of sample space using trained model
       logProbs, resps = gmmModel.score_samples(loggedSpace)
+      loggedSpace = np.log(np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), dataPoints))
     #calculate prob density func of the model
-      pdf = np.exp(logProbs)
+      pdf = np.exp(logProbs)/np.exp(loggedSpace)
     #calculate prob density func of each component gaussian
       individualPDFs = resps * pdf[:, np.newaxis]
      
@@ -243,8 +245,8 @@ class Amplification:
       return modelParams
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-params = amp.BruteGMMlogged(3, 5, 0.85, 10000, 8)
+#amp = Amplification()
+#params, loggedSpace, pdf = amp.BruteGMMlogged(3, 5, 0.85, 10000, 4)
 
 
 
@@ -347,8 +349,8 @@ params = amp.BruteGMMlogged(3, 5, 0.85, 10000, 8)
       return modelParams
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
+#amp = Amplification()
+#params = amp.BruteGMMnormed(3, 5, 0.85, 10000, 8)
 
 
 
@@ -629,8 +631,8 @@ amp.GMMTest(1, 15, 0.85, 10000, 4)
       return space
 
 ##TEST AREA
-amp = Amplification()
-space = amp.mathApproxHist(1, 15, 0.85, 10000, 50)
+#amp = Amplification()
+#space = amp.mathApproxHist(1, 15, 0.85, 10000, 50)
 
    def BruteVBGMM(self, initialCount, pcrCycles, pcrYield, dataPoints, gaussNum, a, r):
       amplfdSeqs = np.zeros((dataPoints, 1)) #create vector for seqs
