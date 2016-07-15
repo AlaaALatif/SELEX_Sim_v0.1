@@ -121,8 +121,8 @@ class Visualizations:
 
 
             #ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
-            ax.plot(space, (realPDF[i]/(2*expctdSeqNum)), '-k', color='b')
-            ax.plot(space, (predPDF[i]/(2*expctdSeqNum)), '-k', color='g')
+            ax.plot(space, (realPDF[i]/(2*expctdSeqNum)), '-k', color='b', label='real GMM')
+            ax.plot(space, (predPDF[i]/(2*expctdSeqNum)), '-k', color='g', label='predicted GMM')
             for k in xrange(individual_realPDFs.shape[1]):
                 ax.plot(space, (individual_realPDFs[i][k]/(2*expctdSeqNum)), '--k', color='r')
                 ax.plot(space, (individual_predPDFs[i][k]/(2*expctdSeqNum)), '--k', color='y')
@@ -135,12 +135,13 @@ class Visualizations:
           #annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
       
       #add plot annotations
-            ax.text(0.95, 0.95, r"Initial count = "+str(initialCount)+'\n'+"No. of cycles = "+str(cycleNum)+'\n'+"Yield = "+str(yld), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+            ax.text(0.95, 0.95, r"$E[Y_{0}] = $"+str(initialCount)+'\n'+"$N = $"+str(cycleNum)+'\n'+"$ \lambda = $"+str(yld), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
       #ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
 
 
       # save plot
             plt.grid()
+            plt.legend(loc=2, prop={'size':6})
             plt.savefig('gmmPredictor_n'+str(cycleNum)+'_i'+str(initialCount)+'_y'+str(yld)+'.pdf', format='pdf')
       #plt.close()
       #plt.show()
