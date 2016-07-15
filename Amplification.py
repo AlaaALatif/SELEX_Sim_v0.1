@@ -438,8 +438,8 @@ class Amplification:
       return gmmModel
 
 # TEST AREA - TO BE DELETED
-amp = Amplification()
-amp.GMMTest(1, 15, 0.85, 10000, 4)
+#amp = Amplification()
+#amp.GMMTest(1, 15, 0.85, 10000, 4)
 
 
 
