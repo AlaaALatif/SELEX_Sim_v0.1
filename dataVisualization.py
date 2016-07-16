@@ -10,6 +10,69 @@ matplotlib.use('Agg')
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
+plt.ioff()
+
+class Visualizations:
+
+    def loggedGMMvalidation(self, xTest, yTest, preds, maxGauss):
+        realPDF = np.zeros((xTest.shape[0], 10000))
+        predPDF = np.zeros((xTest.shape[0], 10000))
+        individual_realPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
+        individual_predPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
+        for i, sample in enumerate(xTest):
+            initialCount = int(sample[0])
+            cycleNum = int(sample[1])
+            yld = sample[2]
+    #calculate exact solutions to the expectation and variance of the dist
+            expctdSeqNum = initialCount*(1+yld)**(cycleNum)
+            varSeqNum = -1*initialCount*(1-yld)*(1+yld)**(cycleNum-1)*(1-(1+yld)**(cycleNum+1))       
+            space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000)
+            loggedSpace = np.log(np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000))
+            for j in xrange(0, (maxGauss*3), 3):
+                individual_realPDFs[i][j/3] = yTest[i][j+2]*norm.pdf(loggedSpace, yTest[i][j], np.sqrt(yTest[i][j+1]))
+                realPDF[i] += individual_realPDFs[i][j/3]
+                individual_predPDFs[i][j/3] = preds[i][j+2]*norm.pdf(loggedSpace, preds[i][j], np.sqrt(preds[i][j+1]))
+                predPDF[i] += individual_predPDFs[i][j/3]
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+
+            #ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
+            ax.plot(space, (realPDF[i]/np.exp(loggedSpace)), '-k', color='b', label='real GMM')
+            ax.plot(space, (predPDF[i]/np.exp(loggedSpace)), '-k', color='g', label='predicted GMM')
+            for k in xrange(individual_realPDFs.shape[1]):
+                ax.plot(space, (individual_realPDFs[i][k]/np.exp(loggedSpace)), '--k', color='r')
+                ax.plot(space, (individual_predPDFs[i][k]/np.exp(loggedSpace)), '--k', color='y')
+            ax.set_xlabel('Sequence Count')
+            ax.set_ylabel('p(x)')
+            ax.set_title('GMM of PCR Population Distribution (real vs predicted model)')
+      # create annotation
+      #annot = " \mu & \sigma^{2} & \omega \\"+"\\"
+      #for i, mu in enumerate(gmmModel.means_):
+          #annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
+      
+      #add plot annotations
+            ax.text(0.95, 0.95, r"$E[Y_{0}] = $"+str(initialCount)+'\n'+"$N = $"+str(cycleNum)+'\n'+"$ \lambda = $"+str(yld), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+      #ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
+
+
+      # save plot
+            plt.grid()
+            plt.legend(loc=2, prop={'size':6})
+            plt.savefig('logGMMpredictor_n'+str(cycleNum)+'_i'+str(initialCount)+'_y'+str(yld)+'.pdf', format='pdf')
+      #plt.close()
+      #plt.show()
+            plt.clf()
+        return realPDF, predPDF
+
+viz = Visualizations()
+
+realPDF, predPDF = viz.loggedGMMvalidation(xTest, yTest, predsSVR, 4)
+
+
+
+
 ## USER INPUT PARAMETERS
 firstDatafile = str(sys.argv[1])
 
@@ -91,67 +154,6 @@ ax.set_title('Effect of cycle number on log normed mean of 1st GMM component')
 
 plt.grid()
 plt.savefig('pcr_logmean_g1_i1_3_y4_8.pdf', format='pdf')
-
-
-
-class Visualizations:
-
-    def gmmValidation(self, xTest, yTest, preds, maxGauss):
-        realPDF = np.zeros((xTest.shape[0], 10000))
-        predPDF = np.zeros((xTest.shape[0], 10000))
-        individual_realPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
-        individual_predPDFs = np.zeros((xTest.shape[0], maxGauss, 10000))
-        for i, sample in enumerate(xTest):
-            initialCount = int(sample[0])
-            cycleNum = int(sample[1])
-            yld = sample[2]
-    #calculate exact solutions to the expectation and variance of the dist
-            expctdSeqNum = initialCount*(1+yld)**(cycleNum)
-            varSeqNum = -1*initialCount*(1-yld)*(1+yld)**(cycleNum-1)*(1-(1+yld)**(cycleNum+1))       
-            space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000)
-            normedSpace = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*5)), 10000)
-            for j in xrange(0, (maxGauss*3), 3):
-                individual_realPDFs[i][j/3] = yTest[i][j+2]*norm.pdf(space, yTest[i][j], np.sqrt(yTest[i][j+1]))
-                realPDF[i] += individual_realPDFs[i][j/3]
-                individual_predPDFs[i][j/3] = preds[i][j+2]*norm.pdf(space, preds[i][j], np.sqrt(preds[i][j+1]))
-                predPDF[i] += individual_predPDFs[i][j/3]
-
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-
-
-            #ax.hist(amplfdSeqsHist, bins=50, normed=True, facecolor='green', alpha=0.75)
-            ax.plot(space, (realPDF[i]), '-k', color='b', label='real GMM')
-            ax.plot(space, (predPDF[i]), '-k', color='g', label='predicted GMM')
-            for k in xrange(individual_realPDFs.shape[1]):
-                ax.plot(space, (individual_realPDFs[i][k]), '--k', color='r')
-                ax.plot(space, (individual_predPDFs[i][k]), '--k', color='y')
-            ax.set_xlabel('Sequence Count')
-            ax.set_ylabel('p(x)')
-            ax.set_title('GMM of PCR Population Distribution (real vs predicted model)')
-      # create annotation
-      #annot = " \mu & \sigma^{2} & \omega \\"+"\\"
-      #for i, mu in enumerate(gmmModel.means_):
-          #annot += str(np.round(gmmModel.means_[i][0], 2))+" & "+str(np.round(gmmModel.covars_[i][0], 2))+" & "+str(np.round(gmmModel.weights_[i], 2))+" \\"+"\\ "
-      
-      #add plot annotations
-            ax.text(0.95, 0.95, r"$E[Y_{0}] = $"+str(initialCount)+'\n'+"$N = $"+str(cycleNum)+'\n'+"$ \lambda = $"+str(yld), verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
-      #ax.text(0.935, 0.65, r"$ \begin{pmatrix} %s  \end{pmatrix}$" % annot, verticalalignment='top', horizontalalignment='right', transform=ax.transAxes, color='black', fontsize=10)
-
-
-      # save plot
-            plt.grid()
-            plt.legend(loc=2, prop={'size':6})
-            plt.savefig('gmmPredictor_n'+str(cycleNum)+'_i'+str(initialCount)+'_y'+str(yld)+'.pdf', format='pdf')
-      #plt.close()
-      #plt.show()
- 
-        return realPDF, predPDF
-
-viz = Visualizations()
-
-
-
 
 
 
