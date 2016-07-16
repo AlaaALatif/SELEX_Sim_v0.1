@@ -40,11 +40,13 @@ class Predictors:
         preds = np.zeros((yTest.shape[0], yTest.shape[1]))
 
     # learning
-        for i in range(y.shape[1]/3):
-            
+        for i in range((y.shape[1]/3)):
+            #models[i*3] = SVR(kernel = kernelTypeMean)
+            models[(i*3)+1] = DecisionTreeRegressor(max_depth=kernelTypeVariance)
+            models[(i*3)+2] = DecisionTreeRegressor(max_depth=kernelTypeWeights)
             models[i*3] = GridSearchCV(SVR(kernel=kernelTypeMean, gamma=0.1), cv=5, param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)})
-            models[(i*3)+1] = GridSearchCV(SVR(kernel=kernelTypeVariance, gamma=0.1), cv=5, param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)})
-            models[(i*3)+2] = GridSearchCV(SVR(kernel=kernelTypeWeights, gamma=0.1), cv=5, param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)})
+            #models[(i*3)+1] = GridSearchCV(SVR(kernel=kernelTypeVariance, gamma=0.1), cv=5, param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)})
+            #models[(i*3)+2] = GridSearchCV(SVR(kernel=kernelTypeWeights, gamma=0.1), cv=5, param_grid={"C": [1e0, 1e1, 1e2, 1e3], "gamma": np.logspace(-2, 2, 5)})
 
 
         for i in xrange(y.shape[1]):
@@ -57,6 +59,7 @@ class Predictors:
             print("max residual sum-of-squares y"+str(i)+": %.2f" % np.amax((preds[:, i] - yTest[:, i])**2))
     # R squared coefficient        
             print("R squared score: %.2f" % r2_score(yTest[:, i], preds[:, i]))
+
         print('Support Vector Regression')
     # model learning rate
         #print(["learning rate: alpha = %.2f " % models[j].alpha_ for j in range(len(models))])
@@ -72,7 +75,7 @@ class Predictors:
         return models, preds
 
 pred = Predictors()
-svrModel, predsSVR = pred.supportVectorRegression(xTrain, yTrain, xTest, yTest, "rbf", "linear", "linear")
+svrModel, predsSVR = pred.supportVectorRegression(xTrain, yTrain, xTest, yTest, "rbf", 9, 9)
 
 ## LINEAR MODELS
 
