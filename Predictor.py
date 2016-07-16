@@ -34,18 +34,10 @@ Y_test = Y[:int(sampleNum*0.5)]
 class Predictors:
 
     def decisionTreeRegression(self, x, y, xTest, yTest):
-
         model = DecisionTreeRegressor(max_depth=6)
-        
-
-
         model.fit(x, y)
-
         preds = model.predict(xTest)
         print('Decision Tree Regression')
-    # model learning rate
-        #print(["learning rate: alpha = %.2f " % models[j].alpha_ for j in range(len(models))])
-    # model coefficients
        # print('Coefficient: \n', model.coef_)
     # overall mean square error
         print("Residual sum-of-squares: %.2f" % np.mean((preds - yTest)**2))
