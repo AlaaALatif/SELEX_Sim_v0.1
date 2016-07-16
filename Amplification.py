@@ -240,7 +240,8 @@ class Amplification:
       plt.grid()
       plt.legend(loc=2, prop={'size': 6})
       plt.savefig('logGMM_pcrDistEst_n'+str(pcrCycles)+'_i'+str(initialCount)+'_y'+str(pcrYield)+'.pdf', format='pdf')
-      #plt.close()
+      #release memory dedicated for this plot
+      plt.clf()
       #plt.show()
       return modelParams
 
