@@ -57,6 +57,63 @@ class Amplification:
       return amplfd_seqs
 
 
+   def gaussianTimed(self, scale):
+       start_time = time.time()
+       for seq in xrange(scale):
+           stats.norm.rvs(5, np.sqrt(4))
+       
+       
+       print("Random Gaussian took %s seconds" % (time.time() - start_time))
+       
+       return 0
+
+##This method is designed to measure the time performance of random PCR
+# using the Brute-force approach
+#pcr modelled as bernoulli test per cycle
+   def bruteRandomPCRtimed(self, scale, initialCount, pcrCycles, pcrYield):
+      start_time = time.time()
+      print("scale is "+str(scale))
+      for seq in xrange(scale):
+        currentCount = initialCount
+        for n in xrange(pcrCycles):
+             currentCount += np.random.binomial(initialCount, pcrYield)
+      print("sequence amplification has been carried out")
+      print("brute random PCR took %s seconds" % (time.time() - start_time))
+      return 0
+
+
+#This method is designed to test the time performance of random PCR using 
+# the Gaussian Mixture Emitting model.
+   def machineRandomPCRtimed(self, machine, scale, initialCount, pcrCycles, pcrYield, maxGauss):
+      start_time = time.time()
+      conditions = np.array([initialCount, pcrCycles, pcrYield])
+      conditions = conditions.reshape(1, -1)
+      gmmParams = np.zeros(12)
+      gmm = GMM(n_components=maxGauss)
+      initData = np.zeros((maxGauss, 1))
+      gmm.fit(initData)
+      print("scale is "+str(scale))
+      for i in xrange(maxGauss):
+          gmm.means_[i][0] = machine[i*3].predict(conditions)[0]
+          gmm.covars_[i][0] = machine[(i*3)+1].predict(conditions)[0]
+          gmm.weights_[i] = machine[(i*3)+2].predict(conditions)[0]
+      currentCount = 0
+      currentCount = gmm.sample(scale)
+      print("sequence amplification has been carried out")
+      print("machine random PCR took %s seconds" % (time.time() - start_time))
+      return currentCount
+   def dataWriteTest(self, scale, fileName):
+      start_time = time.time()
+      with open(fileName, 'w') as f:
+          for i in range(scale):
+              f.write(str(i)+"\n")
+      print("Writing data to file took %s seconds" % (time.time() - start_time))
+      return 0
+       
+
+##  TEST AREA
+#amp = Amplification()
+#amp.machineRandomPCRtimed(svrModel, 100, 1, 25, 0.5, 4)
 
 # This method is intended to generate sequence population data after PCR
 # This uses a brute-force method that models each individual cycle as Bernoulli test
