@@ -32,7 +32,7 @@ class Predictors:
         print("R squared score: %.2f" % r2_score(yTest, preds))
         return model, yTest, preds
     
-    def supportVectorRegression(self, x, y, xTest, yTest, kernelTypeMean, kernelTypeVariance, kernelTypeWeights):
+    def supportVectorRegression(self, x, y, xTest, yTest, kernelTypeMean, kernelTypeVariance, kernelTypeWeights, pickleFile):
         #model = linear_model.BayesianRidge()
         #a model for each ouput component
         models = [None for i in range(y.shape[1])]
@@ -71,11 +71,14 @@ class Predictors:
         print("max residual sum-of-squares: %.2f" % np.amax((preds - yTest)**2))
     # overall variance score
        # print("Variance score: %.2f" % model.score(xTest, yTest))
+        for i in range(len(models)):
+            with open(pickleFile+str(i), 'wb') as fid:
+               cPickle.dump(models[i], fid)
 
         return models, preds
 
-pred = Predictors()
-svrModel, predsSVR = pred.supportVectorRegression(xTrain, yTrain, xTest, yTest, "rbf", 9, 9)
+#pred = Predictors()
+#svrModel, predsSVR = pred.supportVectorRegression(xTrain, yTrain, xTest, yTest, "rbf", 9, 9, "svrModel")
 
 ## LINEAR MODELS
 
