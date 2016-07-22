@@ -1,12 +1,8 @@
 import time
-import random
-import linecache
-from itertools import izip, imap
-import operator
-from collections import OrderedDict
 from scipy import stats
 from scipy.stats import norm
 import numpy as np
+from numpy.random import binomial as binom
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.mlab as mlab
@@ -36,6 +32,57 @@ plt.ioff()
 #Initiate class
 class Amplification:
 
+# This method simulates PCR under stochastic effects with Mutations and Biased amplification
+# Amplifications done using brute-force approach
+   def randomPCRwithMuts_and_Bias(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
+      mutatedPool = {} #initialize pool of seqs to be mutated
+      gamma = np.arange(seqLength) #initialize vector of gamma values 
+      mut_m = np.arange(seqLength) #initialize vector of mut no. (0-seqLen)
+      prob_m = np.arange(seqLength) #initialize corresponding vector of probs
+# Mutation Distribution
+      for i in mut_m: # for each possible no. of muts, compute corresponding probability
+        for j in range(pcrCycles): # for each pcr cycle
+          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcrCycles)/(math.factorial(j)*math.factorial(pcrCycles - j))*(j)**(i)*pcrYld**(j) #calculate sum (SEE PAPER)
+          prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcrYld)**(pcrCycles)) #compute prob of m[i] muts
+      mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #compute discrete mutation distribution
+      print("Discrete Mutation Distribution has been computed")
+# PCR Amplification
+      for seq in slctdSeqs:
+        for nt in seq:
+            if (nt == 'C') or (nt == 'T'):
+                slctdSeqs[seq][1] += 1 #increment no. of pyrimidines
+        slctdSeqs[seq][1] = (0.1*(2*slctdSeqs[seq][1] - seqLength))/seqLength #compute bias
+    # random PCR with bias using brute force        
+        for n in range(pcrCycles):
+            slctdSeqs[seq][0] += binom(slctdSeqs[seq][0], (pcrYld + slctdSeqs[seq][1]))
+        m = mutDist.rvs(size=slctdSeqs[seq][0]) #draw no. of mutations for each seq copy
+        muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
+        for mutNum, i in enumerate(muts): # for each mutation instance
+          randPos = np.random.randint(seqLength, size=mutNum) #pick random nt positions for mutation  ##add seqLen as argumant to function
+          if seq not in mutatedPool: #if seq never mutated before
+            slctdSeqs[seq][0] -= 1 #decrement seq count of wild type
+            mutatedPool.setdefault(seq, []).append(1) #add to mutated pool
+            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
+          else: #if seq previously mutated
+            slctdSeqs[seq][0] -= 1 #decrement no. of wild type seq
+            mutatedPool[seq][0]+=1 #increment no. of seq to be mutated
+            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
+            
+      amplfdSeqs = slctdSeqs
+      print("sequence amplification has been carried out")
+      return amplfdSeqs, mutatedPool
+
+
+#pcr modelled as ideal process that doubles each sequence per cycle
+#assume no bias and 100% efficiency
+   def scaleTest(self, scale, dimension):
+      for s in xrange(slctd_seqs:
+         slctd_seqs[seq][0]*=(2**pcr_cycles) 
+      amplfd_seqs = slctd_seqs
+      print("sequence amplification has been carried out")
+      return amplfd_seqs
+
+
 #pcr modelled as ideal process that doubles each sequence per cycle
 #assume no bias and 100% efficiency
    def ampIdeal(self, slctd_seqs, pcr_cycles):
@@ -46,23 +93,21 @@ class Amplification:
       return amplfd_seqs
 
 ##pcr modelled as bernoulli test per cycle
-   def ampEfficiencyBrute(self, slctd_seqs, pcr_cycles, pcr_yld):
+   def ampEfficiencyBrute(self, slctdSeqs, pcrCycles, pcrYld):
       n=0
-      while(n<=pcr_cycles):
-         for seq in slctd_seqs:
-             slctd_seqs[seq][0] += np.random.binomial(slctd_seqs[seq][0], pcr_yld)
+      while(n<=pcrCycles):
+         for seq in slctdSeqs:
+             slctdSeqs[seq][0] += binom(slctdSeqs[seq][0], pcrYld)
          n+=1
-      amplfd_seqs = slctd_seqs
+      amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
-      return amplfd_seqs
+      return amplfdSeqs
 
 
    def gaussianTimed(self, scale):
        start_time = time.time()
        for seq in xrange(scale):
            stats.norm.rvs(5, np.sqrt(4))
-       
-       
        print("Random Gaussian took %s seconds" % (time.time() - start_time))
        
        return 0
@@ -76,7 +121,7 @@ class Amplification:
       for seq in xrange(scale):
         currentCount = initialCount
         for n in xrange(pcrCycles):
-             currentCount += np.random.binomial(initialCount, pcrYield)
+             currentCount += binom(initialCount, pcrYield)
       print("sequence amplification has been carried out")
       print("brute random PCR took %s seconds" % (time.time() - start_time))
       return 0
@@ -102,6 +147,8 @@ class Amplification:
       print("sequence amplification has been carried out")
       print("machine random PCR took %s seconds" % (time.time() - start_time))
       return currentCount
+      
+      
    def dataWriteTest(self, scale, fileName):
       start_time = time.time()
       with open(fileName, 'w') as f:
@@ -139,9 +186,9 @@ class Amplification:
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
         for n in range(pcrCycles): #model each cycle as Bernoulli test
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield) 
 
-            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+            amplfdSeqsHist[i] += binom(amplfdSeqsHist[i], pcrYield) 
       
     #transform training data into appropriate dimensions   
       amplfdSeqs = amplfdSeqs.reshape(-1, 1)
@@ -167,7 +214,6 @@ class Amplification:
     #calculate exact solutions to the expectation and variance of the dist
       expctdSeqNum = initialCount*(1+pcrYield)**(pcrCycles)
       varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
-      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
       space = space.reshape(-1, 1)
@@ -227,9 +273,9 @@ class Amplification:
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
         for n in range(pcrCycles): #model each cycle as Bernoulli test
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield) 
 
-            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+            amplfdSeqsHist[i] += binom(amplfdSeqsHist[i], pcrYield) 
       
       for i in range(dataPoints):
           amplfdSeqs[i] = np.log(amplfdSeqs[i])
@@ -326,9 +372,8 @@ class Amplification:
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
         for n in range(pcrCycles): #model each cycle as Bernoulli test
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
-
-            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield) 
+            amplfdSeqsHist[i] += binom(amplfdSeqsHist[i], pcrYield) 
       
       for i in range(dataPoints):
           amplfdSeqs[i] = amplfdSeqs[i]/(2*expctdSeqNum)
@@ -362,7 +407,6 @@ class Amplification:
 
 
       
-      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
       normedSpace = np.linspace((1/(2*expctdSeqNum)), ((expctdSeqNum + (np.sqrt(varSeqNum)*10))/(2*expctdSeqNum)), dataPoints/100)
@@ -419,9 +463,9 @@ class Amplification:
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
         for n in range(pcrCycles): #model each cycle as Bernoulli test
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield) 
 
-            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+            amplfdSeqsHist[i] += binom(amplfdSeqsHist[i], pcrYield) 
       
     #transform training data into appropriate dimensions   
       amplfdSeqs = amplfdSeqs.reshape(-1, 1)
@@ -449,7 +493,8 @@ class Amplification:
       varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))
       #varSeqNum = initialCount*(1-pcrYield)(1+pcrYield)**(pcrCycles-1)(1-(1+pcrYield)**(pcrCycles+1))
       #varSeqNum = (1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*((1+pcrYield)**(pcrCycles)-1) #variance of amplification
-      dataRange =  expctdSeqNum + np.sqrt(varSeqNum)
+     
+     
     #declare sample space 
       space = np.linspace(1, (expctdSeqNum + (np.sqrt(varSeqNum)*10)), dataPoints/100)
     #generate theoretical Gaussian pdf
@@ -511,9 +556,9 @@ class Amplification:
         amplfdSeqs[i] = initialCount #assign init count to each seq
         amplfdSeqsHist[i] = initialCount
         for n in range(pcrCycles): #model each cycle as Bernoulli test
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield) 
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield) 
 
-            amplfdSeqsHist[i] += np.random.binomial(amplfdSeqsHist[i], pcrYield) 
+            amplfdSeqsHist[i] += binom(amplfdSeqsHist[i], pcrYield) 
       
       n, bins, patches = plt.hist(amplfdSeqsHist, binsNum, normed=True, facecolor='green', alpha=0.75)
       #plt.plot(space, pdf, '-k', color='b')
@@ -535,7 +580,7 @@ class Amplification:
       for i in range(dataPoints):
         amplfdSeqs[i] = initialCount
         for n in range(pcrCycles):
-            amplfdSeqs[i] += np.random.binomial(amplfdSeqs[i], pcrYield)
+            amplfdSeqs[i] += binom(amplfdSeqs[i], pcrYield)
       n, bins, patches = plt.hist(amplfdSeqs, 10000, normed=1, facecolor='green', alpha=0.75)
       plt.xlabel('Sequence Count')
       plt.ylabel('Probability')
@@ -546,12 +591,12 @@ class Amplification:
 # assume no bias or mutations
 # compute expectation after n cycles for each selected sequence
 # estimate amplified number as expectation of pgf 
-   def ampEfficiencyDefinite(self, slctd_seqs, pcr_cycles, pcr_yld):
-      for seq in slctd_seqs:
-         slctd_seqs[seq][0] = slctd_seqs[seq][0]*(1+pcr_yld)**(pcr_cycles)
-      amplfd_seqs = slctd_seqs
+   def ampEfficiencyDefinite(self, slctdSeqs, pcrCycles, pcrYld):
+      for seq in slctdSeqs:
+         slctdSeqs[seq][0] = slctdSeqs[seq][0]*(1+pcrYld)**(pcrCycles)
+      amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
-      return amplfd_seqs
+      return amplfdSeqs
 
 
 
@@ -561,100 +606,98 @@ class Amplification:
 # estimate amplified number as draw from Gaussian distribution 
 # Law of Large Numbers
 # Binomial distribution approximated as Gaussian due to large copy numbers
-   def ampEfficiencyStochastic(self, slctd_seqs, pcr_cycles, pcr_yld):
-      for seq in slctd_seqs:
-         mean_seq_num = (slctd_seqs[seq][0]*(1+pcr_yld))**(pcr_cycles) #expectation
-
-         varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
-         slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, np.sqrt(var_seq_num))) #draw number from Gaussian dist  
-      amplfd_seqs = slctd_seqs
+   def ampEfficiencyStochastic(self, slctdSeqs, pcrCycles, pcrYld):
+      for seq in slctdSeqs:
+         meanSeqNum = (slctdSeqs[seq][0]*(1+pcrYld))**(pcrCycles) #expectation
+         varSeqNum = -1*slctdSeqs[seq][0]*(1-pcrYld)*(1+pcrYld)**(pcrCycles-1)*(1-(1+pcrYld)**(pcrCycles+1))       
+         slctdSeqs[seq][0] = int(stats.norm.rvs(meanSeqNum, np.sqrt(varSeqNum))) #draw number from Gaussian dist  
+      amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
-      return amplfd_seqs
+      return amplfdSeqs
 
 
 
 # Assume all mutations happened at end of PCR (i.e. mutants are not amplified till next round)
 ## ADD seqLength as arg to function
 ## EDITED variance calculation for amplification
-   def ampEffMutStochastic(self, slctd_seqs, seqLength, pcr_cycles, pcr_yld, errorRate):
+   def ampEffMutStochastic(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
       mutatedPool = {} #initialize pool of seqs to be mutated
       gamma = np.arange(seqLength) #initialize vector of gamma values 
       mut_m = np.arange(seqLength) #initialize vector of mut no. (0-seqLen)
       prob_m = np.arange(seqLength) #initialize corresponding vector of probs
 # Mutation Distribution
       for i in mut_m: # for each possible no. of muts, compute corresponding probability
-        for j in range(pcr_cycles): # for each pcr cycle
-          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcr_cycles)/(math.factorial(j)*math.factorial(pcr_cycles - j))*(j)**(i)*pcr_yld**(j) #calculate sum (SEE PAPER)
-          prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcr_yld)**(pcr_cycles)) #compute prob of m[i] muts
+        for j in range(pcrCycles): # for each pcr cycle
+          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcrCycles)/(math.factorial(j)*math.factorial(pcrCycles - j))*(j)**(i)*pcrYld**(j) #calculate sum (SEE PAPER)
+          prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcrYld)**(pcrCycles)) #compute prob of m[i] muts
       mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #compute discrete mutation distribution
       print("Discrete Mutation Distribution has been computed")
 # PCR Amplification
-      for seq in slctd_seqs:
-        mean_seq_num = slctd_seqs[seq][0]*(1+pcr_yld)**(pcr_cycles) #expectation of amplification
-
-        varSeqNum = -1*initialCount*(1-pcrYield)*(1+pcrYield)**(pcrCycles-1)*(1-(1+pcrYield)**(pcrCycles+1))       
-        slctd_seqs[seq][0] = int(stats.norm.rvs(mean_seq_num, np.sqrt(var_seq_num))) #draw int from Gaussian dist
-        m = mutDist.rvs(size=slctd_seqs[seq][0]) #draw no. of mutations for each seq copy
+      for seq in slctdSeqs:
+        meanSeqNum = slctdSeqs[seq][0]*(1+pcrYld)**(pcrCycles) #expectation of amplification
+        varSeqNum = -1*slctdSeqs[seq][0]*(1-pcrYld)*(1+pcrYld)**(pcrCycles-1)*(1-(1+pcrYld)**(pcrCycles+1))       
+        slctdSeqs[seq][0] = int(stats.norm.rvs(meanSeqNum, np.sqrt(varSeqNum))) #draw int from Gaussian dist
+        m = mutDist.rvs(size=slctdSeqs[seq][0]) #draw no. of mutations for each seq copy
         muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
         for mutNum, i in enumerate(muts): # for each mutation instance
           randPos = np.random.randint(seqLength, size=mutNum) #pick random nt positions for mutation  ##add seqLen as argumant to function
           if seq not in mutatedPool: #if seq never mutated before
-            slctd_seqs[seq][0] -= 1 #decrement seq count of wild type
+            slctdSeqs[seq][0] -= 1 #decrement seq count of wild type
             mutatedPool.setdefault(seq, []).append(1) #add to mutated pool
             mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
           else: #if seq previously mutated
-            slctd_seqs[seq][0] -= 1 #decrement no. of wild type seq
+            slctdSeqs[seq][0] -= 1 #decrement no. of wild type seq
             mutatedPool[seq][0]+=1 #increment no. of seq to be mutated
             mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
             
-      amplfd_seqs = slctd_seqs
+      amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
-      return amplfd_seqs, mutatedPool
+      return amplfdSeqs, mutatedPool
 
 
 # Assume all mutations happened at end of PCR (i.e. mutants are not amplified till next round)
 ## ADD seqLength as arg to function
 ## EDITED variance calculation for amplification
-   def ampEffMutDefinite(self, slctd_seqs, seqLength, pcr_cycles, pcr_yld, errorRate):
+   def ampEffMutDefinite(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
       mutatedPool = {} #initialize pool of seqs to be mutated
       gamma = np.arange(seqLength) #initialize vector of gamma values 
       mut_m = np.arange(seqLength) #initialize vector of mut no.s (0-seqLen)
       prob_m = np.arange(seqLength) #initialize corresponding vector of probs
       # Generate distribution for generation number        
-      prob_n = np.zeros(pcr_cycles+1)
-      genNum = np.arange(pcr_cycles+1)
-      for n in range(pcr_cycles+1): #for each generation
-        prob_n[n] = math.factorial(pcr_cycles)*(pcrYield)**(n)/(math.factorial(n)*math.factorial(pcr_cycles - n)*(1+pcrYield)**(pcr_cycles)) #compute prob of picking seq from gen n
+      prob_n = np.zeros(pcrCycles+1)
+      genNum = np.arange(pcrCycles+1)
+      for n in range(pcrCycles+1): #for each generation
+        prob_n[n] = math.factorial(pcrCycles)*(pcrYld)**(n)/(math.factorial(n)*math.factorial(pcrCycles - n)*(1+pcrYld)**(pcrCycles)) #compute prob of picking seq from gen n
       genDist = stats.rv_discrete(name='genDist', values=(genNum, prob_n)) #construct gen Distribution
       print("Discrete Generation Number Distribution has been computed")
 # Mutation Distribution
       for i in mut_m: # for each possible no. of muts, compute corresponding probability
-        for j in range(pcr_cycles+1): # for each pcr generation
-          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcr_cycles)/(math.factorial(j)*math.factorial(pcr_cycles - j))*(j)**(i)*pcr_yld**(j) #calculate sum (SEE PAPER)
-        prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcr_yld)**(pcr_cycles)) #compute prob of m[i] muts
+        for j in range(pcrCycles+1): # for each pcr generation
+          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcrCycles)/(math.factorial(j)*math.factorial(pcrCycles - j))*(j)**(i)*pcrYld**(j) #calculate sum (SEE PAPER)
+        prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcrYld)**(pcrCycles)) #compute prob of m[i] muts
       mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #construct discrete mutation distribution
       print("Discrete Mutation Distribution has been computed")
 # PCR Amplification
-      for seq in slctd_seqs: #for each seq in selected pool
-        slctd_seqs[seq][0] = int(slctd_seqs[seq][0]*(1+pcr_yld)**(pcr_cycles)) #expectation of amplification
-        m = mutDist.rvs(size=slctd_seqs[seq][0]) #draw no. of mutations for each seq copy
+      for seq in slctdSeqs: #for each seq in selected pool
+        slctdSeqs[seq][0] = int(slctdSeqs[seq][0]*(1+pcrYld)**(pcrCycles)) #expectation of amplification
+        m = mutDist.rvs(size=slctdSeqs[seq][0]) #draw no. of mutations for each seq copy
         muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
         g = genDist.rvs(muts.shape) #draw gen no. for each mut'd seq copy
         for i, mutNum in enumerate(muts): # for each mutation instance
           randPos = np.random.randint(seqLength, size=mutNum) #pick random nt positions for mutation  ##add seqLen as argumant to function
           if seq not in mutatedPool: #if seq never mutated before
-            slctd_seqs[seq][0] -= (1+pcr_yld)**(pcr_cycles-g[i]) #decrement seq count of wild type
+            slctdSeqs[seq][0] -= (1+pcrYld)**(pcrCycles-g[i]) #decrement seq count of wild type
             mutatedPool.setdefault(seq, []).append(np.zeros(muts.shape)) # add number of copies to be mutated
-            mutatedPool[seq][0][i] = ((1+pcr_yld)**(pcr_cycles-g[i])) #add expected amplfd count 
+            mutatedPool[seq][0][i] = ((1+pcrYld)**(pcrCycles-g[i])) #add expected amplfd count 
             mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
           else: #if seq previously mutated
-            slctd_seqs[seq][0] -= (1+pcr_yld)**(pcr_cycles-g[i]) #decrement no. of wild type seq
-            mutatedPool[seq][0][i] = (1+pcr_yld)**(pcr_cycles-g[i]) #increment no. of seq to be mutated
+            slctdSeqs[seq][0] -= (1+pcrYld)**(pcrCycles-g[i]) #decrement no. of wild type seq
+            mutatedPool[seq][0][i] = (1+pcrYld)**(pcrCycles-g[i]) #increment no. of seq to be mutated
             mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
             
-      amplfd_seqs = slctd_seqs
+      amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
-      return amplfd_seqs, mutatedPool
+      return amplfdSeqs, mutatedPool
 
 
    def mathApproxHist(self, initialCount, pcrCycles, pcrYield, dataPoints, binsNum):
