@@ -27,6 +27,7 @@ class Distance:
       while(seq):
          if seq not in seqs:
             seqs.setdefault(seq, []).append(1)
+            
             for optimseq in optimseqs:
                hammdist = hamming_func(optimseq, seq)
                seqs.setdefault(seq, []).append(hammdist)
@@ -35,4 +36,29 @@ class Distance:
          seq=seqsfile.readline()
       seqsfile.close()
       print("distance calculations passed")
+      return seqs
+
+# NOTE: DISTANCES ARE NOW APPENDED AS A 3RD VALUE, NOT 2ND DUE TO BIAS
+# This method computes the hamming distance of each sequence to the optimum set
+# and their PCR bias. It requires sequence length as 3rd argument
+   def seqsHamming_and_Bias(self, optimseqs, pool_file, seqLen):
+      seqs={}
+      seqsfile = open(pool_file)
+      seq=seqsfile.readline()
+      while(seq):
+         if seq not in seqs:
+            seqs.setdefault(seq, []).append(1) #append seq count
+            seqs.setdefault(seq, []).append(0) #append seq bias
+            for nt in seq:
+                if(nt == 'C') or (nt == 'T'):
+                    seqs[seq][1]+=1 #increment no. of pyrimidines
+            seqs[seq][1] = 0.1*(2*seqs[seq][1] - seqLen)/seqLen #compute bias
+            for optimseq in optimseqs:
+               hammdist = hamming_func(optimseq, seq) #compute distance
+               seqs.setdefault(seq, []).append(hammdist) #append distance
+         else:
+            seqs[seq][0]+=1 #increment count
+         seq=seqsfile.readline()
+      seqsfile.close()
+      print("distance calculations and bias scoring completed")
       return seqs
