@@ -19,15 +19,6 @@ rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
 #Turn off interactive mode for plots
 plt.ioff()
 
-##PASTE THIS INTO TRAINING SET GENERATOR V6
-## This script is used to generate a data set of frequency dists after PCR under different 
-#   initial conditions. It then approximates each dist using a Gaussian Mixture model (GMM).
-#   A histogram plot of the dist and GMM fitting is generated.
-#   It follows the design of trainingSetGenerator.py but normalises
-#   the gmm parameters based on expectation (see BruteGMMnormed). It also sorts the 
-#   parameters of each gmm according to mean magnitudes
-
-
 
 #Initiate class
 class Amplification:
