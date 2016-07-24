@@ -1,12 +1,22 @@
 import time
 import random
 import linecache
-from itertools import izip, imap
+from itertools import izip, imap, product
 import operator
 from collections import OrderedDict
 from scipy import stats 
 
 class Aptamers:
+
+# Generate all possible sequences 
+    def aptamerGenerator(self, alphabetSet, seqLength):
+        initialLibrary = product(alphabetSet, repeat=seqLength)
+        
+        return initialLibrary
+
+
+
+
 
 # choose a random subset of sequences to be aptamers from the initial pool
 # input params are the number of aptamers to choose and the initial pool 
