@@ -18,7 +18,13 @@ class Distance:
         assert len(str1) == len(str2)
         ne = operator.ne
         return sum(imap(ne, str1, str2))
-
+    
+    def bias_func(self, seq, seqLen)
+        for nt in seq[:-1]:
+            if(nt == 'C') or (nt == 'T'):
+                pyrNum += 1 #increment no. of pyrimidines
+        biasScore = 0.1*(2*pyrNum - seqLen)/seqLen #compute bias
+        return biasScore
 
     def biasedHamming_initLib(self, seqLen, optimseqs, pool_file, scale, partition):
         seqs=np.zeros((scale, 3))
@@ -46,26 +52,6 @@ d = Distance()
 seqs = d.biasedHamming_initLib(20, 'AAAAAAAAAAAAAAAAAAAA', 'random_initLib_1KM', 100000000, 1000000)
 """
 
-
-    def seqsHamming(self, optimseqs, pool_file):
-        seqs=np.zeros((scale, 3))
-        seqsfile = open(pool_file)
-        seq=seqsfile.readline()
-
-        while(seq):
-            if seq not in seqs:
-                seqs.setdefault(seq, []).append(1)
-            
-                for optimseq in optimseqs:
-                    hammdist = hamming_func(optimseq, seq)
-                    seqs.setdefault(seq, []).append(hammdist)
-            else:
-                seqs[seq][0]+=1
-            seq=seqsfile.readline()
-        seqsfile.close()
-        print("distance calculations passed")
-        return seqs
-
 # NOTE: DISTANCES ARE NOW APPENDED AS A 3RD VALUE, NOT 2ND DUE TO BIAS
 # This method computes the hamming distance of each sequence to the optimum set
 # and their PCR bias. It requires sequence length as 3rd argument
@@ -90,3 +76,23 @@ seqs = d.biasedHamming_initLib(20, 'AAAAAAAAAAAAAAAAAAAA', 'random_initLib_1KM',
       seqsfile.close()
       print("distance calculations and bias scoring completed")
       return seqs
+
+    def seqsHamming(self, optimseqs, pool_file):
+        seqs=np.zeros((scale, 3))
+        seqsfile = open(pool_file)
+        seq=seqsfile.readline()
+
+        while(seq):
+            if seq not in seqs:
+                seqs.setdefault(seq, []).append(1)
+            
+                for optimseq in optimseqs:
+                    hammdist = hamming_func(optimseq, seq)
+                    seqs.setdefault(seq, []).append(hammdist)
+            else:
+                seqs[seq][0]+=1
+            seq=seqsfile.readline()
+        seqsfile.close()
+        print("distance calculations passed")
+        return seqs
+
