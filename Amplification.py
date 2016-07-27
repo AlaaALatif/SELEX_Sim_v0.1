@@ -23,9 +23,9 @@ plt.ioff()
 #Initiate class
 class Amplification:
 
-# This method simulates PCR under stochastic effects with Mutations and Biased amplification
+# This method simulates PCR under stochastic effects with Mutations  amplification
 # Amplifications done using brute-force approach
-   def randomPCRwithMuts_and_Bias(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
+   def randomPCR_errorProne_biased(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
       mutatedPool = {} #initialize pool of seqs to be mutated
       gamma = np.arange(seqLength) #initialize vector of gamma values 
       mut_m = np.arange(seqLength) #initialize vector of mut no. (0-seqLen)
@@ -38,27 +38,22 @@ class Amplification:
       mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #compute discrete mutation distribution
       print("Discrete Mutation Distribution has been computed")
 # PCR Amplification
-      for seq in slctdSeqs:
-        for nt in seq:
-            if (nt == 'C') or (nt == 'T'):
-                slctdSeqs[seq][1] += 1 #increment no. of pyrimidines
-        slctdSeqs[seq][1] = (0.1*(2*slctdSeqs[seq][1] - seqLength))/seqLength #compute bias
+      for i, seq in enumerate(slctdSeqs): 
     # random PCR with bias using brute force        
-        for n in range(pcrCycles):
-            slctdSeqs[seq][0] += binom(slctdSeqs[seq][0], (pcrYld + slctdSeqs[seq][1]))
-        m = mutDist.rvs(size=slctdSeqs[seq][0]) #draw no. of mutations for each seq copy
+        for n in xrange(pcrCycles):
+            slctdSeqs[i][1] += binom(slctdSeqs[i][1], (pcrYld + slctdSeqs[i][3]))
+        m = mutDist.rvs(size=slctdSeqs[i][1]) #draw no. of mutations for each seq copy
         muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
-        for mutNum, i in enumerate(muts): # for each mutation instance
+        for i, mutNum in enumerate(muts): # for each mutation instance
           randPos = np.random.randint(seqLength, size=mutNum) #pick random nt positions for mutation  ##add seqLen as argumant to function
           if seq not in mutatedPool: #if seq never mutated before
-            slctdSeqs[seq][0] -= 1 #decrement seq count of wild type
+            slctdSeqs[seq][1] -= 1 #decrement seq count of wild type
             mutatedPool.setdefault(seq, []).append(1) #add to mutated pool
             mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
           else: #if seq previously mutated
             slctdSeqs[seq][0] -= 1 #decrement no. of wild type seq
             mutatedPool[seq][0]+=1 #increment no. of seq to be mutated
-            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
-            
+            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions 
       amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
       return amplfdSeqs, mutatedPool
@@ -85,11 +80,9 @@ class Amplification:
 
 ##pcr modelled as bernoulli test per cycle
    def ampEfficiencyBrute(self, slctdSeqs, pcrCycles, pcrYld):
-      n=0
-      while(n<=pcrCycles):
+      for n in xrange(pcrCycles):
          for seq in slctdSeqs:
-             slctdSeqs[seq][0] += binom(slctdSeqs[seq][0], pcrYld)
-         n+=1
+             slctdSeqs[seq][1] += binom(slctdSeqs[seq][0], pcrYld)
       amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
       return amplfdSeqs
