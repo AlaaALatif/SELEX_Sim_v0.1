@@ -26,20 +26,21 @@ mut = Mutation.Mutation()
 # non-ideal stochastic amplfication with no bias. 
 for r in range(roundNum):
     if(i==0):
-        if(aptamerType == 'DNA'):
-            initLib = a.pseudoAptamerGenerator('ACGT', seqLength)
-        elif(aptamerType == 'RNA'):
-            initLib = a.pseudoAptamerGenerator('ACGU', seqLength)
+        if(aptamerType = 'DNA'):
+            aptamerSeqs, initialSeqNum = a.optimumAptamerGenerator(aptamerNum, 'ACGT', seqLength)
+        elif(aptamerType = 'RNA'):
+            aptamerSeqs, initialSeqNum = a.optimumAptamerGenerator(aptamerNum, 'ACGU', seqLength)
         else:
-            print("This version currenly does not support %s aptamers" %aptamerType)
+            print("Error: Simulation of %.s aptamers not supported" %aptamerType)
             break
-        print("SELEX Round 1 has started")
-        aptamerSeqs, initialSeqNum = a.optimumSeqs(aptamerNum, initLib)
+ 
+        
         print("optimum sequences have been chosen")
+        print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
-        slctdSeqs = s.stochasticSelection(seqLength, initLib, aptamerSeqs, selectionThreshold, initialSeqNum, i)
+        slctdSeqs = s.stochasticHammingSelection(seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, i)
         print("selection carried out for R0")
-        amplfdSeqs, mutatedPool = amplify.ampEffMutDefinite(slctdSeqs, seqLength, num_pcr_cycles, pcrYield, errorRate) #change var name returned by amplification
+        amplfdSeqs, mutatedPool = amplify.randomPCR_errorProne_biased(slctdSeqs, seqLength, num_pcr_cycles, pcrYield, errorRate) #change var name returned by amplification
         print("amplification carried out for R0")
         outPool = mut.mutGen(mutatedPool, amplfdSeqs)
         print("Mutation carried out for R0")
