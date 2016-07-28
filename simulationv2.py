@@ -42,14 +42,13 @@ for r in range(roundNum):
         print("selection carried out for R0")
         amplfdSeqs, mutatedPool = amplify.randomPCR_errorProne_biased(slctdSeqs, seqLength, num_pcr_cycles, pcrYield, errorRate) #change var name returned by amplification
         print("amplification carried out for R0")
-        outPool = mut.mutGen(mutatedPool, amplfdSeqs)
+        outPool = mut.mutGen(seqLength, mutatedPool, amplfdSeqs, aptamerSeqs, alphabetSet)
         print("Mutation carried out for R0")
         outFile = initPool + "_R" + str(i+1)
         nxtRnd = open(outFile, 'w')
         print("writing R1 seqs to file")
         for seq in outPool:
-            for j in range(outPool[seq][0]):
-                nxtRnd.write(seq+'\n')
+            nxtRnd.write(seq[0]+'\n') #write seqIdx for now
     else:
         print("SELEX Round "+str(i+1)+" has started")
         junk, totalSeqNum = a.optimumSeqs(nseq, outFile)
