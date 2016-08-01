@@ -93,9 +93,9 @@ class Aptamers:
         o.close()
         print("first generation completed")
         return initialLibrary
-"""
-NEED TO MODIFY TO ALLOW MULTIPLE OPTIMUM APTAMERS
-"""
+
+###NEED TO MODIFY TO ALLOW MULTIPLE OPTIMUM APTAMERS
+
     def optimumAptamerGenerator(self, aptamerNum, alphabetSet, seqLen):
         seq = str() #initialize seq 
         seqArray = np.zeros(seqLen) 
