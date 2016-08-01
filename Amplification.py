@@ -1,4 +1,5 @@
 import time
+import gc
 from scipy import stats
 from scipy.stats import norm
 import numpy as np
@@ -22,38 +23,60 @@ plt.ioff()
 
 #Initiate class
 class Amplification:
-
+#NEED TO INCLUDE GENERATION NUMBER AND ACCOUNT FOR
+# PARTIAL AMPLIFICATIONS
 # This method simulates PCR under stochastic effects with Mutations  amplification
 # Amplifications done using brute-force approach
+# Returns amplfdSeqs and mutatedPool dicts
    def randomPCR_errorProne_biased(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
+      totalseqs = 0
+      for i, seqIdx in enumerate(slctdSeqs):
+          totalseqs += 1
+      print totalseqs
       mutatedPool = {} #initialize pool of seqs to be mutated
       gamma = np.arange(seqLength) #initialize vector of gamma values 
       mut_m = np.arange(seqLength) #initialize vector of mut no. (0-seqLen)
-      prob_m = np.arange(seqLength) #initialize corresponding vector of probs
-# Mutation Distribution
+      prob_m = np.zeros(seqLength) #initialize corresponding vector of probs
+# Mutation Distribution #gamma vector not used
       for i in mut_m: # for each possible no. of muts, compute corresponding probability
+        const = (errorRate*seqLength)**(i)/(math.factorial(i)*(1+pcrYld)**(pcrCycles)) #compute prob of m[i] muts
         for j in range(pcrCycles): # for each pcr cycle
-          gamma[i] += np.exp(-j*errorRate*seqLength)*math.factorial(pcrCycles)/(math.factorial(j)*math.factorial(pcrCycles - j))*(j)**(i)*pcrYld**(j) #calculate sum (SEE PAPER)
-          prob_m[i] = (errorRate*seqLength)**(i)*gamma[i]/(math.factorial(i)*(1+pcrYld)**(pcrCycles)) #compute prob of m[i] muts
-      mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #compute discrete mutation distribution
+          prob_m[i] += const*np.exp(-j*errorRate*seqLength)*math.factorial(pcrCycles)/(math.factorial(j)*math.factorial(pcrCycles - j))*(j)**(i)*pcrYld**(j) #calculate sum (SEE PAPER)
+        
+      mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m)) #compute discrete mutation number distribution
+      print mut_m
+      print prob_m
+      print mutDist
       print("Discrete Mutation Distribution has been computed")
+      totalseqs = 0
 # PCR Amplification
-      for i, seq in enumerate(slctdSeqs): 
+#EDIT MUTATIONS SUCH THAT THEY ARE CARRIED OUT RANDOMLY ON SLCTD POOL INSTEAD OF ON INDIVIDUAL SEQUENCES
+      for i, seqIdx in enumerate(slctdSeqs):
     # random PCR with bias using brute force        
         for n in xrange(pcrCycles):
-            slctdSeqs[i][1] += binom(slctdSeqs[i][1], (pcrYld + slctdSeqs[i][3]))
-        m = mutDist.rvs(size=slctdSeqs[i][1]) #draw no. of mutations for each seq copy
-        muts = m[m != 0] #keep only copies to be mutated (i.e. m >= 1)
+            slctdSeqs[seqIdx][0] += binom(slctdSeqs[seqIdx][0], (pcrYld + slctdSeqs[seqIdx][2])) #amplify count
+            totalseqs += slctdSeqs[seqIdx][0]
+      print totalseqs
+      m = mutDist.rvs(size=totalseqs) #draw no. of mutations for each seq copy
+      print("mutation draws taken")
+      for i, seqIdx in enumerate(slctdSeqs):
+        if i==0:
+            muts = m[:slctdSeqs[seqIdx][0]]
+            muts = muts[muts != 0]
+        else:
+            muts = m[slctdSeqs[oldseqIdx][0]:slctdSeqs[oldseqIdx][0]+slctdSeqs[seqIdx][0]]
+            muts = muts[muts != 0]
+        oldseqIdx = seqIdx
         for i, mutNum in enumerate(muts): # for each mutation instance
-          randPos = np.random.randint(seqLength, size=mutNum) #pick random nt positions for mutation  ##add seqLen as argumant to function
-          if seq not in mutatedPool: #if seq never mutated before
-            slctdSeqs[seq][1] -= 1 #decrement seq count of wild type
-            mutatedPool.setdefault(seq, []).append(1) #add to mutated pool
-            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions
+          randPos = np.random.randint(seqLength-1, size=mutNum) #pick random nt positions for mutation
+          if seqIdx not in mutatedPool: #if seq never mutated before
+            slctdSeqs[seqIdx][0] -= 1 #decrement seq count of wild type
+            mutatedPool.setdefault(seqIdx, []).append(1) #add to mutated pool
+            mutatedPool.setdefault(seqIdx, []).append(randPos) #append mutation positions
           else: #if seq previously mutated
-            slctdSeqs[seq][0] -= 1 #decrement no. of wild type seq
-            mutatedPool[seq][0]+=1 #increment no. of seq to be mutated
-            mutatedPool.setdefault(seq, []).append(randPos) #append mutation positions 
+            slctdSeqs[seqIdx][0] -= 1 #decrement no. of wild type seq
+            mutatedPool[seqIdx][0] += 1 #increment no. of seq to be mutated
+            mutatedPool.setdefault(seqIdx, []).append(randPos) #append mutation positions 
       amplfdSeqs = slctdSeqs
       print("sequence amplification has been carried out")
       return amplfdSeqs, mutatedPool
@@ -62,7 +85,7 @@ class Amplification:
 #pcr modelled as ideal process that doubles each sequence per cycle
 #assume no bias and 100% efficiency
    def scaleTest(self, scale, dimension):
-      for s in xrange(slctd_seqs:
+      for s in xrange(slctd_seqs):
          slctd_seqs[seq][0]*=(2**pcr_cycles) 
       amplfd_seqs = slctd_seqs
       print("sequence amplification has been carried out")
