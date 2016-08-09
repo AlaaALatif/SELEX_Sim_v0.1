@@ -40,6 +40,23 @@ class Aptamers:
 #apt = Aptamers()
 #testSeq = apt.pseudoAptamerGenerator(1099511627775, 'ACGT', 20)
 
+# method to get seqArray given seq index
+    def get_seqArray(self, seqIdx, alphabetSet, seqLen):
+        seq = str() #initialize seq 
+        seqArray = np.zeros(seqLen) 
+        alphabetSetSize = len(alphabetSet)
+        assert seqIdx > 0
+        assert seqIdx <= alphabetSetSize**(seqLen) - 1
+        while(seqIdx>0):
+            charIdx = int(math.floor(math.log(seqIdx, alphabetSetSize)))
+            if(charIdx > 0):
+                seqArray[charIdx] += 1 #mutate lexicographically
+                seqIdx -= alphabetSetSize**charIdx #next seqIdx
+            else:
+                seqArray[charIdx] = seqIdx
+                break
+        seqArray = seqArray[::-1] #reverse string
+        return seqArray
 
 #Generate any sequence index given the sequence, length and the alphabet set
 #Sequences are indexed in order of alphabet set provided
