@@ -24,48 +24,77 @@ plt.ioff()
 
 #Initiate class
 class Amplification:
-    def randomPCR_with_ErrorsAndBias(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate):
-        mut = Mutation()
+    # add __init__ contructor here
+
+
+
+    def randomPCR_with_ErrorsAndBias(self, slctdSeqs, seqLength, pcrCycles, pcrYld, errorRate, alphabetSet):
+        #initialize Mutation object from class
+        mut = Mutation(seqLength=seqLength, errorRate=errorRate, 
+                        pcrCycleNum=pcrCycles, pcrYld=pcrYld)
         #count number of seqs in selected pool
         totalseqs = 0
         for i, seqIdx in enumerate(slctdSeqs):
             totalseqs += 1
         print("number of seqs in selected pool"+str(totalseqs))
+        #calculate probabilities of different possible mutation numbers
+        mutNumProbs = Mutation.get_mutation_probabilities()
+        print("Discrete Mutation Distribution has been computed")
+    # PCR Amplification
+        totalseqs = 0
         #initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
-        #calculate probability distribution of mutation numbers
-        mutDist = Mutation.get_distribution(seqLength, errorRate, pcrCycles, pcrYld)
-        print("Discrete Mutation Distribution has been computed")
-        totalseqs = 0
-    # PCR Amplification
+        # keep track of sequence count after each pcr cycle (except last one)
+        seqPop = np.zeros(pcrCycles)
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
-        # random PCR with bias using brute force        
+            # random PCR with bias using brute force        
             for n in xrange(pcrCycles):
+                # sequence count after n cycles
+                seqPop[n] = slctdSeqs[seqIdx][0]
                 # amplify count using initial count, polymerase yield, and bias score
-                slctdSeqs[seqIdx][0] += binom(slctdSeqs[seqIdx][0], (pcrYld + slctdSeqs[seqIdx][2]))
+                slctdSeqs[seqIdx][0] += binom(slctdSeqs[seqIdx][0], 
+                                             pcrYld + slctdSeqs[seqIdx][2])
+            # compute cycle number probabilities
+            cycleNumProbs = mut.get_cycleNumber_probabilities(S=seqPop)
+            # append the information to the dictionary
+            slctdSeqs[seqIdx].setdefault(seqIdx, []).append(cycleNumProbs) #index [3]
             # update total num of seqs
             totalseqs += slctdSeqs[seqIdx][0]
+            # The following should give accurate results if the initial seq
+            # count (slctdSeqs[seqIdx][0] is sufficiently large). If not, 
+            # you have to implement an alternative method that relies on
+            # random numbers.
             # for each possible number of mutations in one instance (1-seqLength)
             for mutNum in xrange(seqLength):
                 if mutNum == 0:
                     #calc num of copies to be mutated 1 time
-                    mutFreq = mutDist[mutNum+1]*slctdSeqs[seqIdx][0]
-                    #add seq to mutated pool with intitial mutant count
-                    mutatedPool.setdefault(seqIdx, []).append(mutFreq)
-                    #append num of copies to be mutated 1 time
-                    mutatedPool.setdefault(seqIdx, []).append(mutFreq)
+                    mutFreq = int(mutNumProbs[mutNum+1]*slctdSeqs[seqIdx][0])
+                    if mutFreq > 0:
+                        #add seq to mutated pool with intitial mutant count
+                        mutatedPool.setdefault(seqIdx, []).append(mutFreq)
+                        #append num of copies to be mutated 1 time
+                        mutatedPool.setdefault(seqIdx, []).append(mutFreq)
+                    else:
+                        break
                 else:
                     #calculate num of copies to be mutated (mutNum) times
                     # num of mutants = prob(mutNum)*seq count
-                    mutFreq = mutDist[mutNum+1]*slctdSeqs[seqIdx][0]
-                    # update total number of seq copies to be mutated
-                    mutatedPool[seqIdx][0] += mutFreq
-                    # append number of copies to be mutated (mutNum) times
-                    mutatedPool[seqIdx].setdefaul(seqIdx, []).append(mutFreq)
-        amplfdSeqs = slctdSeqs
+                    mutFreq = int(mutNumProbs[mutNum+1]*slctdSeqs[seqIdx][0])
+                    if mutFreq > 0:
+                        # update total number of seq copies to be mutated
+                        mutatedPool[seqIdx][0] += mutFreq
+                        # append number of copies to be mutated (mutNum) times
+                        mutatedPool[seqIdx].setdefault(seqIdx, []).append(mutFreq)
+                    else:
+                        break
+        # generate mutants and add to the amplfied sequence pool 
+        amplfdSeqs = mut.generate_mutants(mutatedPool=mutatedPool, 
+                                            amplfdSeqs=slctdSeqs, 
+                                            aptamerSeqs=aptamerSeqs, 
+                                            alphabetSet=alphabetSet)
         print("sequence amplification has been carried out")
-        return amplfdSeqs, mutatedPool
+        return amplfdSeqs
 
 #NEED TO INCLUDE GENERATION NUMBER AND ACCOUNT FOR
 # PARTIAL AMPLIFICATIONS
