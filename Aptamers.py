@@ -9,12 +9,12 @@ from collections import OrderedDict
 from scipy import stats 
 
 class Aptamers:
+    #Add __init__ constructor here
+
 #Generate any sequence given it's index, length and the alphabet set
 #Sequences are indexed in order of alphabet set provided
 #Ex1:   if alphabetSet = 'ATCG', length = 4, index = 0 --> 'AAAA'
 #Ex2:   index = 15 --> 'GGGG'
-
-
     def pseudoAptamerGenerator(self, seqIdx, alphabetSet, seqLen):
         seq = str() #initialize seq 
         seqArray = np.zeros(seqLen) 
@@ -34,6 +34,7 @@ class Aptamers:
                 if(charCode == alphabetSet.index(char)):
                     seq += alphabetSet[int(charCode)]
         seq = seq[::-1] #reverse string
+        assert len(seq) == seqLen
         return seq
 
 #TEST AREA - DELETE
@@ -68,8 +69,7 @@ class Aptamers:
         seq = seq[::-1] #reverse seq
         seqIdx = 0
         for ntPos, nt in enumerate(seq):
-            seqIdx += alphabetSet.index(nt)*(alphabetSize)**(ntPos)
-        
+            seqIdx += alphabetSet.index(nt)*(alphabetSize)**(ntPos) 
         return seqIdx
 #TEST AREA - DELETE    
 #apt = Aptamers()
@@ -96,7 +96,6 @@ class Aptamers:
         return optimumAptamers, initialSeqNum
 # Generate all possible sequences 
     def aptamerGenerator(self, alphabetSet, seqLength, start, finish, outFile):
-        
         initialLibrary = product(alphabetSet, repeat=seqLength)
         #poolFraction = list(islice(initialLibrary, start, finish))
         with open(outFile, 'w') as o:
