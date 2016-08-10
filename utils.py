@@ -1,6 +1,8 @@
 import time
 import random
 import linecache
+import math
+from math import factorial
 from itertools import izip, imap
 import operator
 from collections import OrderedDict
@@ -10,12 +12,18 @@ import numpy as np
 
 
 
-def seqNum(self, seqPool):
+def seqNumberCounter(seqPool):
+    totalSeqNum = int(0)
+    uniqSeqNum = int(0)
     for seqIdx in seqPool:
         totalSeqNum += seqPool[seqIdx][0]
         uniqSeqNum += 1
+    return int(totalSeqNum), int(uniqSeqNum)
 
-    return totalSeqNum, uniqSeqNum
+def binomCoeff(n, k):
+    binom = factorial(n)/(factorial(k)*factorial(n-k))
+    return binom
+
 
 def convert_to_distribution(x, y, distName):
     xDist = stats.rv_discrete(name=distName, values=(x, y))
