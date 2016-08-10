@@ -12,59 +12,63 @@ D = Distance.Distance()
 Apt = Aptamers.Aptamers()
 
 class Selection: 
-    def stochasticHammingSelection(self, alphabetSet, seqLength, seqPool, aptPool, selectionThreshold, totalSeqNum, roundNum):
+    def stochasticHammingSelection(self, alphabetSet, seqLength, seqPool, aptPool, selectionThreshold, totalSeqNum, uniqSeqNum, roundNum):
+        # if this is the first SELEX round
         if(roundNum == 0):
-            slctdSeqs = {} #initialize seqInfo matrix
+            #initialize seqInfo matrix
+            slctdSeqs = {} 
             selectedSeqs = 0
             print("parameters for selection have been initialized")
-   # select top 20 percent in terms of hamm distance
-            
+            #stochastic selection until threshold is met
             while(selectedSeqs <= selectionThreshold):
+                #draw a random hamming distance (i.e. affinity score)
                 randHammScore = random.randint(0, seqLength)
-                randSeqIdx = random.randint(0, totalSeqNum - 1)
-                randSeq = Apt.pseudoAptamerGenerator(randSeqIdx, alphabetSet, seqLength)  
+                #draw a random sequence index
+                randSeqIdx = random.randint(0, int(totalSeqNum - 1))
+                #generate the seq string from index
+                randSeq = Apt.pseudoAptamerGenerator(randSeqIdx, alphabetSet, seqLength)
+                #compute the hamming distance (affinity score) for the seq
                 randSeqDist = D.hamming_func(randSeq, aptPool)
+                #stochastic selection protocol
                 if(randSeqDist <= randHammScore):
+                    #if seq already been selected
                     if(randSeqIdx in slctdSeqs):
+                        #increment its count
                         slctdSeqs[randSeqIdx][0] += 1
+                    #otherwise, add to the selected pool
                     else:
-
-                        slctdSeqs.setdefault(randSeqIdx, []).append(1) #add to selected pool
+                        slctdSeqs.setdefault(randSeqIdx, []).append(1) #add initial count
                         slctdSeqs.setdefault(randSeqIdx, []).append(randSeqDist) #distance
                         slctdSeqs.setdefault(randSeqIdx, []).append(D.bias_func(randSeq, seqLength)) #bias
-
+                    selectedSeqs += 1 #increment no. of selected seqs
+            print("sequence selection has been carried out")
+            return slctdSeqs
+        # If this is not the 1st SELEX round
+        else:
+            #initialize selected sequence pool
+            slctdSeqs = {}
+            selectedSeqs = 0
+            print("parameters for selection have been initialized")
+            #stochastic selection until threshold is met
+            while(selectedSeqs <= selectionThreshold):
+                randHammScore = random.randint(0, seqLength)
+                randPoolIdx = random.randint(0, int(uniqSeqNum-1))
+                randSeqIdx = seqPool.keys()[randPoolIdx]
+                #stochatic selection protocol
+                if(seqPool[randSeqIdx][1] <= randHammScore):
+                    #if seq is selected for the first time
+                    if(randSeqIdx not in slctdSeqs):
+                        slctdSeqs.setdefault(randSeqIdx, []).append(1) #add to selected pool
+                        slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][1]) #distance
+                        slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][2]) #bias
+                    else:
+                        slctdSeqs[randSeqIdx][0] += 1 #increment count
                     selectedSeqs += 1 #increment sampled no.
                 else:
                     continue
-
-            print("sequence selection has been carried out")
-            return slctdSeqs
-        else:
-            slctdSeqs = {}
-            sampledSeqs = 0
-            print("parameters for selection have been initialized")
-   # select top sequences in terms of hamm distance
-            while(sampledSeqs <= selectionThreshold):
-                randHammScore = random.randint(0, seqLength)
-                randPoolIdx = random.randint(0, totalSeqNum-1)
-                randSeqIdx = seqPool.keys()[randPoolIdx]
-                if(seqPool[randSeqIdx][0] <= randHammScore):
-       # THIS IS TAKING TOO LONG # UPDATE: NOT ANYMORE
-                    if(randSeqIdx not in slctdSeqs):
-                        slctdSeqs.setdefault(randSeqIdx, []).append(1) #add to selected pool
-                        slctdSeqs[randSeqIdx][1] = seqPool[randSeqIdx][1]
-                        slctdSeqs[randSeqIdx][2] = seqPool[randSeqIdx][2]
-                    else:
-                        slctdSeqs[randSeqIdx] += 1 #increment count
-                            
-                    sampledSeqs += 1 #increment sampled no.
-                else:
-                    continue
             print("sequence selection has been carried out")
             return slctdSeqs
 
-
-   
 
     def definiteSelection(self, seqs, selection_rate, totalseqs):
         seqs_ordrd = OrderedDict(sorted(seqs.items(), key=lambda seqs: seqs[1][1], reverse=False)) #sort seqs by hammdist
