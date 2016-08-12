@@ -38,13 +38,13 @@ class Amplification:
         uniqSeqs = 0
         for i, seqIdx in enumerate(slctdSeqs):
             uniqSeqs += 1
-            totalSeqs += slctdSeqs[seqIdx][0]
+            totalseqs += slctdSeqs[seqIdx][0]
         print("number of unique seqs in selected pool prior to amplification: "+str(uniqSeqs))
-        print("number of seqs in selected pool prior to amplification: "+str(totalSeqs))
+        print("number of seqs in selected pool prior to amplification: "+str(totalseqs))
         # calculate probabilities of different possible mutation numbers
-        mutNumProbs = mut.get_mutation_probabilities()
+        mutNumProbs = mut.get_mutation_probabilities_original()
         print mutNumProbs
-        mutDist = mut.get_mutation_distribution()
+        mutDist = mut.get_mutation_distribution_original()
         print mutDist.rvs(size=1000000)
         print("Discrete Mutation Distribution has been computed")
     # PCR Amplification
@@ -75,30 +75,12 @@ class Amplification:
             # you have to implement an alternative method that relies on
             # random numbers :( }
             # for each possible number of mutations in one instance (1-seqLength)
+                #print("seq num is greater than 10000")
+                mutatedPool.setdefault(seqIdx, []).append(0)
                 for mutNum in xrange(seqLength):
-                    if mutNum == 0:
-                        #calc num of copies to be mutated 1 time
-                        mutFreq = int(mutNumProbs[mutNum+1]*slctdSeqs[seqIdx][0])
-                        if mutFreq > 0:
-                            #add seq to mutated pool with intitial mutant count
-                            mutatedPool.setdefault(seqIdx, []).append(mutFreq)
-                            #append num of copies to be mutated 1 time
-                            mutatedPool.setdefault(seqIdx, []).append(mutFreq)
-                            for j in xrange(seqLength-1):
-                                mutatedPool.setdefault(seqIdx, []).append(0)
-                        else:
-                            break
-                    else:
-                    #calculate num of copies to be mutated (mutNum) times
-                    # num of mutants = prob(mutNum)*seq count
-                        mutFreq = int(mutNumProbs[mutNum+1]*slctdSeqs[seqIdx][0])
-                        if mutFreq > 0:
-                            # update total number of seq copies to be mutated
-                            mutatedPool[seqIdx][0] += mutFreq
-                            # append number of copies to be mutated (mutNum) times
-                            mutatedPool[seqIdx][mutNum] = mutFreq
-                        else:
-                            break
+                    mutFreq = int(mutNumProbs[mutNum+1]*slctdSeqs[seqIdx][0])
+                    mutatedPool[seqIdx][0] += mutFreq
+                    mutatedPool.setdefault(seqIdx, []).append(mutFreq)
             else:
                 muts = mutDist.rvs(size=slctdSeqs[seqIdx][0])
                 muts = muts[muts != 0]

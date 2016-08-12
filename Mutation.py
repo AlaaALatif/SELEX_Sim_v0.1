@@ -69,6 +69,19 @@ class Mutation(object):
         mutNumProbs[0] = 1 - mutNumProbs[0]
         return mutNumProbs
 
+    #This method computes the probabilities of each possible number of mutations (1-seqLength)
+    #These probabilities can used to approximated the fraction of sequences that will undergo
+    #certain numbers of mutation, assuming sequence count is sufficiently large
+    def get_mutation_probabilities_original(self):
+        L = self.seqLength
+        e = self.errorRate
+        mutNumProbs = np.zeros(L+1)
+        lamb = L*e
+        for m in xrange(L+1):
+            mutNumProbs[m] = lamb**(m)*exp(-lamb)/(fact(m))
+        return mutNumProbs
+
+
 
     #This method computes the discrete distribution of number of mutations (1-seqLength)
     #This distribution can be used to draw random numbers of mutations
@@ -94,6 +107,25 @@ class Mutation(object):
         # compute mutation number distribution
         mutDist = stats.rv_discrete(name='mutDist', values=(mut_m, prob_m))
         return mutDist
+
+
+    #This method computes the probabilities of each possible number of mutations (1-seqLength)
+    #These probabilities can used to approximated the fraction of sequences that will undergo
+    #certain numbers of mutation, assuming sequence count is sufficiently large
+    def get_mutation_distribution_original(self):
+        L = self.seqLength
+        e = self.errorRate
+        mutNumProbs = np.zeros(L+1)
+        lamb = L*e
+        for m in xrange(L+1):
+            mutNumProbs[m] = lamb**(m)*exp(-lamb)/(fact(m))
+        mut_m = np.arange(L+1)
+        mutDist = stats.rv_discrete(name='Poisson-based mutation distribution', 
+                                    values=(mut_m, mutNumProbs))
+        return mutDist
+
+
+
 
 # This method aims to carry out the mutations on the pool of sequences that are in 
 # the given mutated pool. It also updates the counts of the wild-type sequence and their
@@ -169,13 +201,11 @@ class Mutation(object):
                 # if mutation carried out on more than 10,000 copies, avoid drawing random nums
                 elif mutFreq > 10000:
                     print("mutFreq is "+str(mutFreq))
-                    initialMutCount = int(0.25*mutFreq/seqLength)
+                    initialMutCount = int(0.333*mutFreq/seqLength)
                     # for each possible position that mutation can occur
                     for seqPos in xrange(seqLength):
                         # grab the sequence encoding array 
                         seqArray = apt.get_seqArray(seqIdx, alphabetSet, seqLength)
-                        # proportion of seq copies with back mutation (i.e. no effect)
-                        amplfdSeqs[seqIdx][0] += initialMutCount
                         # if nucleotide in position is adenine
                         if seqArray[seqPos] == 0:
                             # mutate adenine to cytosine
@@ -293,7 +323,7 @@ class Mutation(object):
                         elif seqArray[seqPos] == 1:
                             # mutate cytosine to adenine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos))
-                            initialMutCount = int(0.25*mutFreq/seqLength)
+                            initialMutCount = int(0.333*mutFreq/seqLength)
                             # if the mutated seq is already in amplified pool
                             if mutatedSeqIdx in amplfdSeqs:
                                 # increment seq count 
@@ -407,7 +437,7 @@ class Mutation(object):
                         elif seqArray[seqPos] == 2:
                             # mutate guanine to adenine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos)*2)
-                            initialMutCount = int(0.25*mutFreq/seqLength)
+                            initialMutCount = int(0.333*mutFreq/seqLength)
                             # if the mutated seq is already in amplified pool
                             if mutatedSeqIdx in amplfdSeqs:
                                 # increment seq count 
@@ -521,7 +551,7 @@ class Mutation(object):
                         elif seqArray[seqPos] == 3:
                             # mutate thymine to adenine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos)*3)
-                            initialMutCount = int(0.25*mutFreq/seqLength)
+                            initialMutCount = int(0.333*mutFreq/seqLength)
                             # if the mutated seq is already in amplified pool
                             if mutatedSeqIdx in amplfdSeqs:
                                 # increment seq count 

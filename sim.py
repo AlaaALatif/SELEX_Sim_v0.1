@@ -45,7 +45,7 @@ for r in range(roundNum):
         nxtRnd = open(outFile, 'w')
         print("writing R1 seqs to file")
         for seqIdx in amplfdSeqs:
-            nxtRnd.write(str(seqIdx)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n') #write seqIdx and count for now
+            nxtRnd.write(str(seqIdx)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][2]))+'\n') #write seqIdx, count, distance, and bias...for now
         nxtRnd.close()
     else:
         print("SELEX Round "+str(r+1)+" has started")
@@ -60,7 +60,7 @@ for r in range(roundNum):
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
-            nxtRnd.write(str(seqIdx)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n') #write idx and count for now
+            nxtRnd.write(str(seqIdx)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\n') #write idx and count for now
         nxtRnd.close()
-    print("SELEX completed")
+print("SELEX completed")
 

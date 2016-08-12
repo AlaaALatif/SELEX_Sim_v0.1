@@ -48,24 +48,29 @@ class Selection:
             #initialize selected sequence pool
             slctdSeqs = {}
             selectedSeqs = 0
+            print("seq length = "+str(seqLength))
+            print("seq selection threshold = "+str(selectionThreshold))
+            print("unique seq number = "+str(uniqSeqNum))
+            print("eample distance = "+str(seqPool[seqPool.keys()[5]][1]))
             print("parameters for selection have been initialized")
             #stochastic selection until threshold is met
             while(selectedSeqs <= selectionThreshold):
-                randHammScore = random.randint(0, seqLength)
-                randPoolIdx = random.randint(0, int(uniqSeqNum-1))
-                randSeqIdx = seqPool.keys()[randPoolIdx]
-                #stochatic selection protocol
-                if(seqPool[randSeqIdx][1] <= randHammScore):
-                    #if seq is selected for the first time
-                    if(randSeqIdx not in slctdSeqs):
-                        slctdSeqs.setdefault(randSeqIdx, []).append(1) #add to selected pool
-                        slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][1]) #distance
-                        slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][2]) #bias
-                    else:
-                        slctdSeqs[randSeqIdx][0] += 1 #increment count
-                    selectedSeqs += 1 #increment sampled no.
-                else:
-                    continue
+                randHammScores = random.randint(0, seqLength, size=10000000)
+                randPoolIdx = random.randint(0, int(uniqSeqNum-1), size=10000000)
+                for i, randHamm in enumerate(randHammScores):
+                    randSeqIdx = seqPool.keys()[randPoolIdx[i]]
+                    #stochatic selection protocol
+                    if(int(seqPool[randSeqIdx][1]) <= randHammScores[i]):
+                        #print("sample selected")
+                        #   if seq is selected for the first time
+                        if(randSeqIdx in slctdSeqs):
+                            slctdSeqs[randSeqIdx][0] += 1 #increment count
+                        else:
+                            slctdSeqs.setdefault(randSeqIdx, []).append(1) #add to selected pool
+                            slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][1]) #distance
+                            slctdSeqs.setdefault(randSeqIdx, []).append(seqPool[randSeqIdx][2]) #bias
+                        selectedSeqs += 1 #increment sampled no.
+                    #print("number of selected seqs : "+str(selectedSeqs))
             print("sequence selection has been carried out")
             return slctdSeqs
 
