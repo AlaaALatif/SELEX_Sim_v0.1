@@ -34,3 +34,13 @@ def convert_to_distribution(x, y, distName):
 # Add method for computing the L1 norm 
 
 # Add method to convert probability vectors to discrete distributions
+
+def rvd(X, X_sum, distName):
+    seqIdxs = np.zeros(X.shape[0])
+    probs = np.zeros(X.shape[0])
+    for i, seq in enumerate(X):
+        seqIdxs[i] = i
+        probs[i] = seq[1]/X_sum
+    dist = stats.rv_discrete(name=distName, values=(seqIdxs, probs))
+    return dist
+

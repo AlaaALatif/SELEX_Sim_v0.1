@@ -19,7 +19,7 @@ class Aptamers:
         seq = str() #initialize seq 
         seqArray = np.zeros(seqLen) 
         alphabetSetSize = len(alphabetSet)
-        assert seqIdx > 0
+        assert seqIdx >= 0
         assert seqIdx <= alphabetSetSize**(seqLen) - 1
         while(seqIdx>0):
             charIdx = int(math.floor(math.log(seqIdx, alphabetSetSize)))

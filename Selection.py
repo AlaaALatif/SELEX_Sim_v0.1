@@ -6,7 +6,7 @@ from itertools import izip, imap, islice, product
 import operator
 from collections import OrderedDict
 from scipy import stats
-import Aptamers, Distance
+import Aptamers, Distance, utils
 
 D = Distance.Distance()
 Apt = Aptamers.Aptamers()
@@ -23,7 +23,8 @@ class Selection:
         #stochastic selection until threshold is met
         while(selectedSeqs <= selectionThreshold):
             #draw a random hamming distance (i.e. affinity score)
-            randHammScore = random.randint(0, seqLength)
+            #randHammScore = random.randint(0, seqLength)
+            randHammScore = random.randint(15, seqLength)
             #draw a random sequence index
             randSeqIdx = random.randint(0, int(totalSeqNum - 1))
             #generate the seq string from index
@@ -31,7 +32,7 @@ class Selection:
             #compute the hamming distance (affinity score) for the seq
             randSeqDist = D.hamming_func(randSeq, aptPool)
             #stochastic selection protocol
-            if(randSeqDist <= randHammScore):
+            if(randSeqDist < randHammScore):
                 #if seq already been selected
                 if(randSeqIdx in slctdSeqs):
                     #increment its count
@@ -45,7 +46,7 @@ class Selection:
         print("sequence selection has been carried out")
         return slctdSeqs
 
-    def stochasticHammingSelection(self, alphabetSet, seqLength, seqPool, selectionThreshold, uniqSeqNum):
+    def stochasticHammingSelection(self, alphabetSet, seqLength, seqPool, selectionThreshold, uniqSeqNum, totalSeqNum):
         #initialize selected sequence pool
         slctdSeqs = {}
         selectedSeqs = 0
@@ -57,21 +58,27 @@ class Selection:
         x = np.zeros((uniqSeqNum, 4))
         for i, seqIdx in enumerate(seqPool):
             x[i][0] = seqIdx
-            x[i][1] = 0
+            x[i][1] = seqPool[seqIdx][0]
             x[i][2] = seqPool[seqIdx][1]
             x[i][3] = seqPool[seqIdx][2]
+        print("Selection sample distribution being computed...")
+        selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
+        print("Selection sample distribution computed")
+        for i, seqIdx in enumerate(seqPool):
+            x[i][1] = 0
         while(selectedSeqs < selectionThreshold):
-            randHammScore = random.randint(0, seqLength)
-            rand_xIdx = random.randint(0, uniqSeqNum-1)
-            if( x[rand_xIdx][2] < randHammScore):
-                x[rand_xIdx][1] += 1
-                selectedSeqs += 1
+            rand_xIdx = selectionDist.rvs(size=1000000)
+            print("Sample batch drawn...")
+            for i, randIdx in enumerate(rand_xIdx):
+                randHammScore = random.randint(0, seqLength)
+                if( int(x[randIdx][2]) < randHammScore):
+                    x[randIdx][1] += 1
+                    selectedSeqs += 1
+        del(rand_xIdx)
         x = x[x[:, 1] != 0]
         for seqInfo in x:
             #change it so that seqInfo are added as on np array, without setdefault
-            slctdSeqs.setdefault(int(seqInfo[0]), []).append(int(seqInfo[1]))
-            slctdSeqs.setdefault(int(seqInfo[0]), []).append(int(seqInfo[2]))
-            slctdSeqs.setdefault(int(seqInfo[0]), []).append(int(seqInfo[3]))
+            slctdSeqs[int(seqInfo[0])] = seqInfo[1:]
         print("sequence selection has been carried out")
         return slctdSeqs
 
