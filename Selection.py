@@ -24,7 +24,7 @@ class Selection:
         while(selectedSeqs <= selectionThreshold):
             #draw a random hamming distance (i.e. affinity score)
             #randHammScore = random.randint(0, seqLength)
-            randHammScore = random.randint(15, seqLength)
+            randHammScore = random.randint(0, seqLength)
             #draw a random sequence index
             randSeqIdx = random.randint(0, int(totalSeqNum - 1))
             #generate the seq string from index

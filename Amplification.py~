@@ -227,6 +227,8 @@ class Amplification:
         totalseqs = 0
         # initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
+        #initialize matrix to hold info for mutation pool
+        y = np.zeros((uniqSeqs, seqLength+1))
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
         # compute cycle number probabilities for this seq
@@ -240,6 +242,7 @@ class Amplification:
                 seqPop[n] = x[i][1]
                 # amplify count using initial count, polymerase yield, and bias score
                 x[i][1] += int(binom(x[i][1], pcrYld+x[i][3]))
+            # compute cycle number probabilities
             for s, seqNum in enumerate(seqPop):
                 cycleNumProbs[s] = seqNum/np.sum(seqPop)
             # transfer info to x
@@ -247,38 +250,35 @@ class Amplification:
                 x[i][j+4] = cycleNumProb
             # update total num of seqs
             totalseqs += x[i][1]
-        print("Amplification carried out")
-        print("Sequence selection for mutation has started...")
-        #initialize matrix to hold info for mutation pool
-        y = np.zeros((uniqSeqs, seqLength+1))
-        #for each sequence in matrix x
-        for i, seqInfo in enumerate(x):
-            slctdSeqs[seqInfo[0]] = seqInfo[1:]
+            # transfer info from x to selection pool
+            slctdSeqs[int(x[i][0])] = x[i][1:]
             #tranfer seq index to matrix y
-            y[i][0] = seqInfo[0]
-            #if seq count is greater than 10,000
-            if seqInfo[1] > 10000:
+            y[i][0] = x[i][0]
+            #if accumulated seq count is greater than 10,000
+            if np.sum(seqPop) > 10000:
             # for each possible number of mutations in any seq copy (1-seqLength)
                 for mutNum in xrange(seqLength):
                     #approximate the proportion of copies that will be mutated using
                     #corresponding probability p(M=mutNum)
-                    y[i][mutNum+1] = int(mutNumProbs[mutNum+1]*seqInfo[1])
+                    y[i][mutNum+1] = mutNumProbs[mutNum+1]*np.sum(seqPop)
             # if seq count is less than 10,000
             else:
-                #draw random mutNum from the mutation distribution for each seq copy
-                muts = poisson(errorRate*seqLength, int(seqInfo[1])) #SLOW STEP
-                #remove all drawn numbers equal to zero
+                # draw random mutNum from the mutation distribution for each seq copy
+                muts = poisson(errorRate*seqLength, int(np.sum(seqPop))) #SLOW STEP
+                # remove all drawn numbers equal to zero
                 muts = muts[muts != 0]
-                #for each non-zero mutation number
+                # for each non-zero mutation number
                 for mutNum in muts:
                     #increment copy number to be mutated
                     y[i][mutNum+1] += 1
+        print("Amplification carried out")
+        print("Sequence selection for mutation has started..."):
         #remove all mutation numbers with zero copies to be mutated
         y = y[y[:, 1] != 0]
         #for each seq to be mutated
         for mutInfo in y:
             #add to mutation pool with it's corresponding mutation info
-            mutatedPool[mutInfo[0]] = mutInfo[1:][mutInfo[1:] != 0]
+            mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
         # generate mutants and add to the amplfied sequence pool 

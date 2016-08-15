@@ -170,7 +170,8 @@ class Mutation(object):
                         mutatedSeq = wildTypeSeq
                         #for each position in seq, replace with random nucleotide
                         for posNum, pos in enumerate(randPos):
-                            mutatedSeq = mutatedSeq[:(pos-1)] + alphabetSet[randNucs[posNum]] + mutatedSeq[pos:]
+                            mutatedSeq = mutatedSeq[:(pos-1)] + alphabetSet[randNucs[posNum]] + \
+                                         mutatedSeq[pos:]
                         #generate index of mutant based on string
                         mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq, 
                                                                             alphabetSet, 
@@ -195,7 +196,8 @@ class Mutation(object):
                             initialMutCount = 1
                             mutDist = d.hamming_func(mutatedSeq, aptamerSeqs)
                             mutBias = d.bias_func(mutatedSeq, seqLength)
-                            amplfdSeqs[mutatedSeqIdx] = np.array([initialMutCount, mutDist, mutBias])
+                            amplfdSeqs[mutatedSeqIdx] = np.array([initialMutCount, 
+                                                                  mutDist, mutBias])
                             #for each pcr cycle after mutation has occured
                             for n in xrange(pcrCycleNum-cycleNums[mut]):
                                 mutantCount += int(binom(1, (pcrYld+amplfdSeqs[mutatedSeqIdx][2])))
@@ -223,7 +225,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -249,7 +252,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate adenine to guanine
                             mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1)*2)
                             # if the mutated seq is already in amplified pool
@@ -259,7 +263,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -285,7 +290,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate adenine to thymine
                             mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1)*3)
                             # if the mutated seq is already in amplified pool
@@ -321,14 +327,12 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                         # if nucleotide in the position is cytosine
                         elif seqArray[seqPos] == 1:
                             # mutate cytosine to adenine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos-1))
-                            print mutatedSeqIdx
-                            print seqIdx
-                            print seqPos
                             # if the mutated seq is already in amplified pool
                             if mutatedSeqIdx in amplfdSeqs:
                                 # increment seq count 
@@ -336,7 +340,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -362,7 +367,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate cytosine to guanine
                             mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1))
                             # if the mutated seq is already in amplified pool
@@ -372,7 +378,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -398,7 +405,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate cytosine to thymine
                             mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1)*2)
                             # if the mutated seq is already in amplified pool
@@ -408,7 +416,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -434,19 +443,22 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                         # if nucleotide in the position is guanine
                         elif seqArray[seqPos] == 2:
                             # mutate guanine to adenine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos-1)*2)
                             # if the mutated seq is already in amplified pool
                             if mutatedSeqIdx in amplfdSeqs:
-                                # increment seq count 
+                                # increment mutant seq count 
                                 amplfdSeqs[mutatedSeqIdx][0] += initialMutCount
+                                # decrement wild-type seq count
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -467,13 +479,13 @@ class Mutation(object):
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx, 
                                                                         alphabetSet, 
                                                                         seqLength)
-
                                 # compute hamming distance of seq
                                 mutDist = d.hamming_func(mutatedSeq, aptamerSeqs)
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate guanine to cytosine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos-1))
                             # if the mutated seq is already in amplified pool
@@ -483,9 +495,10 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
-                                                                    (1+pcrYld)** \
-                                                                    (pcrCycleNum-cycleNum))
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
+                                                                        (1+pcrYld)** \
+                                                                        (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
                                     amplfdSeqs[seqIdx][0] -= int(cycleNumProb*initialMutCount* \
                                                              (1+pcrYld)**(pcrCycleNum-cycleNum))
@@ -509,7 +522,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate guanine to thymine
                             mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1))
                             # if the mutated seq is already in amplified pool
@@ -519,7 +533,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -540,13 +555,13 @@ class Mutation(object):
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx, 
                                                                         alphabetSet, 
                                                                         seqLength)
-
                                 # compute hamming distance of seq
                                 mutDist = d.hamming_func(mutatedSeq, aptamerSeqs)
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                         # if nucleotide in the position is thymine
                         elif seqArray[seqPos] == 3:
                             # mutate thymine to adenine
@@ -558,7 +573,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -579,13 +595,13 @@ class Mutation(object):
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx, 
                                                                         alphabetSet, 
                                                                         seqLength)
-
                                 # compute hamming distance of seq
                                 mutDist = d.hamming_func(mutatedSeq, aptamerSeqs)
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate thymine to cytosine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos-1)*2)
                             # if the mutated seq is already in amplified pool
@@ -595,7 +611,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -616,13 +633,13 @@ class Mutation(object):
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx, 
                                                                         alphabetSet, 
                                                                         seqLength)
-
                                 # compute hamming distance of seq
                                 mutDist = d.hamming_func(mutatedSeq, aptamerSeqs)
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                             # mutate thymine to guanine
                             mutatedSeqIdx = seqIdx-(4**(seqLength-seqPos-1))
                             # if the mutated seq is already in amplified pool
@@ -632,7 +649,8 @@ class Mutation(object):
                                 amplfdSeqs[seqIdx][0] -= initialMutCount
                                 for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
                                     # compute expected number of mutant copies after amplification
-                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb*initialMutCount* \
+                                    amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb* \
+                                                                        initialMutCount* \
                                                                     (1+pcrYld)** \
                                                                     (pcrCycleNum-cycleNum))
                                     # compute expected decrease in no. of wild type seq
@@ -658,7 +676,8 @@ class Mutation(object):
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
                                 # add to amplified pool
-                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, mutDist, mutBias])
+                                amplfdSeqs[mutatedSeqIdx] = np.array([amplifiedMutCount, 
+                                                                      mutDist, mutBias])
                         else:
                             print("ERROR: seqPos integer does not correspond to any character(s) in the given alphabet set")
         print("Mutation has been carried out")
