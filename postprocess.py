@@ -32,6 +32,9 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots):
         avgDist_per_rnd[rnd] = int(distance/uniq_seq_num)
         weighted_avgDist_per_rnd[rnd] = int(weighted_distance/total_seq_num)
         uniq_seqs_freqs[rnd] = uniq_seq_num
+	for i in xrange(seqLength+1):
+		distFreqs[rnd][i] /= uniq_seqs_freqs[rnd]
+		weighted_distFreqs[rnd][i] /= total_seqs_freqs[rnd]
     print(weighted_avgDist_per_rnd)
     print(avgDist_per_rnd)
     with open(outputFileNames+"_processed_results", 'w') as p:
@@ -47,15 +50,89 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots):
     if(plots==True):
         roundNumAxis = np.linspace(1, roundNum, roundNum)
         #figures for distance analytics
-        cm = plt.get_cmap('gist_rainbow')    
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_color_cycle([cm(1.*i/seqLength+1) for i in range(seqLength+1)])
-        for i in xrange(seqLength+1):
-            ax.plot(roundNumAxis, distFreqs[:,i], label='d = '+str(i))
-        ax.legend(prop={'size':6})
-        fig.savefig(str(outputFileNames)+"_SELEX_Analytics_A7A", format='png')
+	fig1 = plt.figure()
+	ax1 = fig1.add_subplot(321)
+	ax2 = fig1.add_subplot(322)
+	ax3 = fig1.add_subplot(323)
+	ax4 = fig1.add_subplot(324)
+	ax5 = fig1.add_subplot(325)
+	ax6 = fig1.add_subplot(326)
+        #cm = plt.get_cmap('gist_rainbow')
+	#colormap = plt.cm.gist_ncar
+	#plt.gca().set_color_cycle([colormap(i) for i in np.linspace(0, 0.9, seqLength+1)])
+        #ax = fig.add_subplot(111)
+        #ax.set_color_cycle([cm(1.*i/seqLength+1) for i in range(seqLength+1)])
+        for i in range(3):
+            ax1.plot(roundNumAxis, distFreqs[:,i+1], label='d = '+str(i+1))
+            ax2.plot(roundNumAxis, distFreqs[:,i+4], label='d = '+str(i+4))
+            ax3.plot(roundNumAxis, distFreqs[:,i+7], label='d = '+str(i+7))
+            ax4.plot(roundNumAxis, distFreqs[:,i+11], label='d = '+str(i+11))
+            ax5.plot(roundNumAxis, distFreqs[:,i+14], label='d = '+str(i+14))
+            ax6.plot(roundNumAxis, distFreqs[:,i+17], label='d = '+str(i+17))
+        ax3.plot(roundNumAxis, distFreqs[:,10], label='d = '+str(10))
+        colormap = plt.cm.gist_ncar
+	colors = [colormap(i) for i in np.linspace(0, 1, 6)]
+	for i, j in enumerate(ax1.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax2.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax3.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax4.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax5.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax6.lines):
+		j.set_color(colors[i])
+	ax1.legend(prop={'size':4})
+	ax2.legend(prop={'size':4})
+	ax3.legend(prop={'size':4})
+	ax4.legend(prop={'size':4})
+	ax5.legend(prop={'size':4})
+	ax6.legend(prop={'size':4})
+        fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs", format='pdf')
+	fig2 = plt.figure()
+	ax1 = fig2.add_subplot(321)
+	ax2 = fig2.add_subplot(322)
+	ax3 = fig2.add_subplot(323)
+	ax4 = fig2.add_subplot(324)
+	ax5 = fig2.add_subplot(325)
+	ax6 = fig2.add_subplot(326)
+        #cm = plt.get_cmap('gist_rainbow')
+	#colormap = plt.cm.gist_ncar
+	#plt.gca().set_color_cycle([colormap(i) for i in np.linspace(0, 0.9, seqLength+1)])
+        #ax = fig.add_subplot(111)
+        #ax.set_color_cycle([cm(1.*i/seqLength+1) for i in range(seqLength+1)])
+        for i in range(3):
+            ax1.plot(roundNumAxis, weighted_distFreqs[:,i+1], label='d = '+str(i+1))
+            ax2.plot(roundNumAxis, weighted_distFreqs[:,i+4], label='d = '+str(i+4))
+            ax3.plot(roundNumAxis, weighted_distFreqs[:,i+7], label='d = '+str(i+7))
+            ax4.plot(roundNumAxis, weighted_distFreqs[:,i+11], label='d = '+str(i+11))
+            ax5.plot(roundNumAxis, weighted_distFreqs[:,i+14], label='d = '+str(i+14))
+            ax6.plot(roundNumAxis, weighted_distFreqs[:,i+17], label='d = '+str(i+17))
+        ax3.plot(roundNumAxis, weighted_distFreqs[:,10], label='d = '+str(10))
+        colormap = plt.cm.gist_ncar
+	colors = [colormap(i) for i in np.linspace(0, 1, 6)]
+	for i, j in enumerate(ax1.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax2.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax3.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax4.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax5.lines):
+		j.set_color(colors[i])
+	for i, j in enumerate(ax6.lines):
+		j.set_color(colors[i])
+	ax1.legend(prop={'size':4})
+	ax2.legend(prop={'size':4})
+	ax3.legend(prop={'size':4})
+	ax4.legend(prop={'size':4})
+	ax5.legend(prop={'size':4})
+	ax6.legend(prop={'size':4})
+        fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs", format='pdf')
     else:
         return
 #TEST
-dataAnalysis(20, 15, "thunder", True)
+dataAnalysis(20, 25, "asus1", True)
