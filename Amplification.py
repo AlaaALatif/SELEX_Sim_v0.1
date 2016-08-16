@@ -198,7 +198,7 @@ class Amplification:
     def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs, 
                                      seqLength, pcrCycleNum, 
                                      pcrYld, errorRate, 
-                                     aptamerSeqs, alphabetSet):
+                                     aptamerSeqs, alphabetSet, distance):
         # initialize Mutation object from class
         mut = Mutation(seqLength=seqLength, errorRate=errorRate, 
                         pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
@@ -281,11 +281,20 @@ class Amplification:
             mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
-        # generate mutants and add to the amplfied sequence pool 
-        amplfdSeqs = mut.generate_mutants_FASTv2(mutatedPool=mutatedPool, 
-                                            amplfdSeqs=slctdSeqs, 
-                                            aptamerSeqs=aptamerSeqs, 
-                                            alphabetSet=alphabetSet)
+        if(distance == "hamming"):
+            # generate mutants and add to the amplfied sequence pool 
+            amplfdSeqs = mut.generate_mutants_FASTv2(mutatedPool=mutatedPool, 
+                                                     amplfdSeqs=slctdSeqs, 
+                                                     aptamerSeqs=aptamerSeqs, 
+                                                     alphabetSet=alphabetSet)
+        elif(distance == "basepair"):
+            amplfdSeqs = mut.generate_mutants_2D(mutatedPool=mutatedPool,
+                                                 amplfdSeqs=slctdSeqs,
+                                                 aptamerSeqs=aptamerSeqs,
+                                                 alphabetSet=alphabetSet)
+        else:
+            print("argument given for distance is invalid")
+            return
         print("Mutation has been carried out")
         return amplfdSeqs
 
