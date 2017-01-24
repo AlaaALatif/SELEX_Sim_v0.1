@@ -155,7 +155,7 @@ class Selection:
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
         print("unique seq number = "+str(uniqSeqNum))
-        print("eample distance = "+str(seqPool[seqPool.keys()[5]][1]))
+        print("sample distance = "+str(seqPool[seqPool.keys()[5]][1]))
         print("parameters for selection have been initialized")
         x = np.zeros((uniqSeqNum, 4))
         for i, seqIdx in enumerate(seqPool):
