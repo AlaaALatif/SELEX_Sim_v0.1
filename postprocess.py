@@ -61,7 +61,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 for d in range(3):
                     ax.plot(roundNumAxis, distFreqs[:,d+(3*i)+1], label='d = '+str(d+(3*i)+1))
                 ax.ticklabel_format(syle='sci', axis='y', scilimits=(0,0))
-                ax.legend(prop={'size':6}))
+                ax.legend(prop={'size':6})
             fig1.text(0.5, 0.04, 'Round Number', ha='center')
             fig1.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
             fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs", format='pdf')
