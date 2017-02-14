@@ -43,7 +43,7 @@ for r in range(roundNum):
         else:
             print("Error: Simulation of %.s aptamers not supported" %aptamerType)
             break
-        print("optimum sequences have been chosen")
+        print("optimum sequences have been chosen: %s" % aptamerSeqs)
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
         if(distanceMeasure == "hamming"):
