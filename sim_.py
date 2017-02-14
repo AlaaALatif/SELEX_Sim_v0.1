@@ -47,9 +47,9 @@ for r in range(roundNum):
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
         if(distanceMeasure == "hamming"):
-            slctdSeqs = S.stochasticBasePairSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r)
-        else:
             slctdSeqs = S.stochasticHammingSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r)
+        else:
+            slctdSeqs = S.stochasticBasePairSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r)
         print("selection carried out for R1")
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
         print("amplification carried out for R1")
@@ -67,9 +67,9 @@ for r in range(roundNum):
         print("total number of sequences in initial pool = "+str(totalSeqNum))
         print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)))
         if(distanceMeasure == "hamming"):
-            slctdSeqs = S.stochasticBasePairSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r)
-        else:
             slctdSeqs = S.stochasticHammingSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r)
+        else:
+            slctdSeqs = S.stochasticBasePairSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r)
         print("Selection carried for R"+str(r+1))
         del(amplfdSeqs)
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
