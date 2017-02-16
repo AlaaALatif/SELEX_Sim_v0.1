@@ -55,7 +55,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.plot(roundNumAxis, plotsList[i])
             fig0.text(0.5, 0.04, 'Round Number', ha='center')
             fig0.text(0.04, 0.5, 'Average Distance', va='center', rotation='vertical')
-            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance", format='pdf')
+            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance.pdf")
             fig1, axes = plt.subplots(2, 3)
             for i, ax in enumerate(axes.reshape(-1)):
                 for d in range(3):
@@ -64,7 +64,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.legend(prop={'size':6})
             fig1.text(0.5, 0.04, 'Round Number', ha='center')
             fig1.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs", format='pdf')
+            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs.pdf")
             # weighted fractional sequency plots
             fig2, axes = plt.subplots(2, 3)
             for i, ax in enumerate(axes.reshape(-1)):
@@ -74,7 +74,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.legend(prop={'size':6})
             fig2.text(0.5, 0.04, 'Round Number', ha='center')
             fig2.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs", format='pdf')
+            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs.pdf")
         elif(distanceMeasure=="basepair"):
             roundNumAxis = np.linspace(1, roundNum, roundNum)
             plotsList = [total_seqs_freqs, uniq_seqs_freqs, weighted_avgDist_per_rnd, avgDist_per_rnd]
@@ -83,7 +83,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.plot(roundNumAxis, plotsList[i])
             fig0.text(0.5, 0.04, 'Round Number', ha='center')
             fig0.text(0.04, 0.5, 'Average Distance', va='center', rotation='vertical')
-            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance", format='pdf')
+            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance.pdf")
             #figures for distance analytics
             fig1, axes = plt.subplots(2, 3)
             for i, ax in enumerate(axes.reshape(-1)):
@@ -93,7 +93,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.legend(prop={'size':6})
             fig1.text(0.5, 0.04, 'Round Number', ha='center')
             fig1.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs", format='pdf')
+            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs.pdf")
             # weighted fractional sequency plots
             fig2, axes = plt.subplots(2, 3)
             for i, ax in enumerate(axes.reshape(-1)):
@@ -103,7 +103,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
                 ax.legend(prop={'size':6})
             fig2.text(0.5, 0.04, 'Round Number', ha='center')
             fig2.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs", format='pdf')
+            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs.pdf")
         else:
             return
 #TEST
