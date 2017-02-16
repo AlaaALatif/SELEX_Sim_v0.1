@@ -23,7 +23,7 @@ class Selection:
         #sampling
         print("sampling from initial library...")
         randomSamples = random.randint(0, int(totalSeqNum-1), size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R"+str(rnd)
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randomSamples:
                 seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
@@ -83,7 +83,7 @@ class Selection:
         print("Selection sample distribution computed")
         print("Sampling has started...")
         randSamples = selectionDist.rvs(size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R"+str(rnd)
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randSamples:
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
@@ -112,7 +112,7 @@ class Selection:
         #sampling
         print("sampling from initial library...")
         randomSamples = random.randint(0, int(totalSeqNum-1), size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R"+str(rnd)
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randomSamples:
                 seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
@@ -168,7 +168,7 @@ class Selection:
         print("Selection sample distribution computed")
         print("Sampling has started...")
         randSamples = selectionDist.rvs(size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R"+str(rnd)
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randSamples:
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
