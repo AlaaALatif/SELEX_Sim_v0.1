@@ -9,16 +9,19 @@ import utils
 aptamerType = str(sys.argv[1])
 aptamerNum = int(sys.argv[2])
 seqLength = int(sys.argv[3])
+# how many sequence to select each round
 selectionThreshold = long(sys.argv[4])
 distanceMeasure = str(sys.argv[5])
 roundNum = int(sys.argv[6])
 pcrCycleNum = int(sys.argv[7])
 pcrYield = float(sys.argv[8])
 pcrErrorRate = float(sys.argv[9])
+# how many sampled sequence to output each round, stored in output_samples_Ri.txt
 samplingSize = int(sys.argv[10])
 outputFileNames = str(sys.argv[11])
-post_process = bool(sys.argv[12])
-
+post_process = True
+if sys.argv[12] == "False":
+    post_process = False
 # Instantiating classes
 Apt = Aptamers()
 S = Selection()
@@ -53,7 +56,7 @@ for r in range(roundNum):
         print("selection carried out for R1")
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
         print("amplification carried out for R1")
-        outFile = outputFileNames + "_R" + str(r+1)
+        outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
         print("writing R1 seqs to file")
         for seqIdx in amplfdSeqs:
@@ -74,7 +77,7 @@ for r in range(roundNum):
         del(amplfdSeqs)
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
         print("Amplification carried for R"+str(r+1))
-        outFile = outputFileNames + "_R" + str(r+1)
+        outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
