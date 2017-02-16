@@ -1,12 +1,9 @@
-import time
-import gc
-from scipy import stats
-from scipy.stats import norm
 import numpy as np
 from numpy.random import binomial as binom
 from numpy.random import poisson
-import math
+
 from Mutation import Mutation
+
 
 #Initiate class
 class Amplification:
@@ -15,7 +12,7 @@ class Amplification:
                                      pcrYld, errorRate, 
                                      aptamerSeqs, alphabetSet, distance):
         # initialize Mutation object from class
-        mut = Mutation(seqLength=seqLength, errorRate=errorRate, 
+        mut = Mutation(seqLength=seqLength, errorRate=errorRate,
                         pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
         # count number of seqs in selected pool
         totalseqs = 0
