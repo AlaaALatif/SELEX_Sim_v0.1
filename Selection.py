@@ -1,24 +1,20 @@
-import sys, time
+import sys
 from numpy import random
 import numpy as np
-import linecache
-from itertools import izip, imap, islice, product
-import operator
-from collections import OrderedDict
-from scipy import stats
-import Aptamers, Distance, utils
+import Aptamers
+import Distance
+import utils
 
 D = Distance.Distance()
 Apt = Aptamers.Aptamers()
 #append path for ViennaRNA module
 sys.path.append("/local/data/public/aaaa3/Simulations/ViennaRNA/lib/python2.7/site-packages/")
 import RNA
-from RNA import fold, bp_distance
 ## NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
 
-class Selection: 
- 
+class Selection:
+
     def stochasticBasePairSelection_initial(self, alphabetSet, seqLength, aptPool, selectionThreshold, totalSeqNum, samplingSize, outputFileNames, rnd):
         #sampling
         print("sampling from initial library...")
@@ -32,7 +28,7 @@ class Selection:
         #initialize seqInfo matrix
         slctdSeqs = {} 
         selectedSeqs = 0
-        aptStruct = fold(aptPool)[0]
+        aptStruct = RNA.fold(aptPool)[0]
         print("parameters for selection have been initialized")
         #stochastic selection until threshold is met
         while(selectedSeqs <= selectionThreshold):
@@ -44,9 +40,9 @@ class Selection:
             #generate the seq string from index
             randSeq = Apt.pseudoAptamerGenerator(randSeqIdx, alphabetSet, seqLength)
             #compute seq secondary structure
-            randSeqStruct = fold(randSeq)[0]
+            randSeqStruct = RNA.fold(randSeq)[0]
             #compute the hamming distance (affinity score) for the seq
-            randSeqDist = bp_distance(randSeqStruct, aptStruct)
+            randSeqDist = RNA.bp_distance(randSeqStruct, aptStruct)
             #stochastic selection protocol
             if(randSeqDist < randHammScore):
                 #if seq already been selected
@@ -62,7 +58,7 @@ class Selection:
         print("sequence selection has been carried out")
         return slctdSeqs
 
-    def stochasticBasePairSelection(self, alphabetSet, seqLength, seqPool, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, ouputFileNames, rnd):
+    def stochasticBasePairSelection(self, alphabetSet, seqLength, seqPool, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, rnd):
         #initialize selected sequence pool
         slctdSeqs = {}
         selectedSeqs = 0
