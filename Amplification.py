@@ -7,8 +7,14 @@ from Mutation import Mutation
 
 #Initiate class
 class Amplification:
-    def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs, 
-                                     seqLength, pcrCycleNum, 
+    def randomPCR_with_ErrorsAndBias(self, slctdSeqs,
+                                     seqLength, pcrCycleNum,
+                                     pcrYld, errorRate,
+                                     aptamerSeqs, alphabetSet, distance):
+        return self.randomPCR_with_ErrorsAndBias_FASTv2(slctdSeqs, seqLength, pcrCycleNum, pcrYld, errorRate, aptamerSeqs, alphabetSet, distance)
+
+    def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs,
+                                     seqLength, pcrCycleNum,
                                      pcrYld, errorRate, 
                                      aptamerSeqs, alphabetSet, distance):
         # initialize Mutation object from class
