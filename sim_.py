@@ -6,22 +6,30 @@ from Mutation import Mutation
 from postprocess import dataAnalysis
 import utils
 
-aptamerType = str(sys.argv[1])
-aptamerNum = int(sys.argv[2])
-seqLength = int(sys.argv[3])
-# how many sequence to select each round
-selectionThreshold = long(sys.argv[4])
-distanceMeasure = str(sys.argv[5])
-roundNum = int(sys.argv[6])
-pcrCycleNum = int(sys.argv[7])
-pcrYield = float(sys.argv[8])
-pcrErrorRate = float(sys.argv[9])
+# Fetch experiment parameters from the settings file
+import ConfigParser
+settings = ConfigParser.ConfigParser()
+settings.read('settings.init')
+
+aptamerType = settings.get('general', 'selex_type')
+aptamerNum = settings.getint('general', 'aptamer_mode')
+aptamerSeq = settings.get('general', 'reference_aptamer')
+seqLength = settings.getint('general', 'sequence_length')
+roundNum = settings.getint('general', 'number_of_rounds')
+outputFileNames = settings.get('general', 'experiment_name')
 # how many sampled sequence to output each round, stored in output_samples_Ri.txt
-samplingSize = int(sys.argv[10])
-outputFileNames = str(sys.argv[11])
-post_process = True
-if sys.argv[12] == "False":
-    post_process = False
+samplingSize = settings.getint('general', 'sampling_size')
+post_process = settings.get('general', 'post_process')
+
+# how many sequence to select each round
+selectionThreshold = settings.getint('selectionparams', 'scale')
+distanceMeasure = settings.get('selectionparams', 'distance')
+stringency = settings.getint('selectionparams', 'stringency')
+
+pcrCycleNum = settings.getint('amplificationparams', 'number_of_pcr')
+pcrYield = settings.getfloat('amplificationparams', 'pcr_efficiency')
+pcrErrorRate = settings.getfloat('amplificationparams', 'pcr_error_rate')
+
 # Instantiating classes
 Apt = Aptamers()
 S = Selection()

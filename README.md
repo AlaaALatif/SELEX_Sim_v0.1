@@ -1,26 +1,61 @@
-# SELEX Simulations
-# This program is intended to simulate Systematic Evolution of Ligands through Exponential Enrichment (SELEX) experiments. This consists of two main steps: selection and amplification.
+#Created by Alaa Abdel Latif on 25/08/2016. 
+#Copyright © 2016 Alaa Abdel Latif. All rights reserved.
 
-# The code is divided into separate classes. Each class consists of different methods that perform the same operation but under different assumptions. 
+This program was developed as part of a research project at University of Cambridge under supervision of Dr. Lucy Colwell. 
 
-# The current main code "simulationsv5.py" runs a hamming-distance based stochastic selection followed by definite PCR amplification that assumes no bias (mutation is considered). The user must specify number of aptamers, initial pool file, number of rounds, selection rate, number of pcr cycles, pcr efficiency, mutation rate and length of sequences. 
+This is a Numerical Simulation program of the Systematic Evolution of Ligands through eXponential enrichment (NSELEX)
 
-# Example usage:
-### python simulationv5 1 H1_R0.sense_seq.txt 3 0.0001 10 0.75 0.001 29
-### The above command-line argumant should run a simulation using 1 'optimum' aptamer sequence, an initial pool file, 3 selection rounds, a selection rate of 0.1%, 10 pcr cycles per round, pcr yield of 75%, error rate of 0.1%, and a sequence length of 29 nucleotides.
-### python sim.py RNA 1 20 0.0001 3 10 0.95 0.001 simu_R3.txt
-python ../sim_.py RNA 1 20 1000 hamming 3 10 0.95 0.001 1000000 simu_R3.txt False
-
-# It has been observed that population distributions after stochastic amplification have non-trivial properties.
-# Although exact solutions of expectations and variance can be computed, the distribution cannot and varies 
-# under different initial conditions. 
-# The program 'pcrPhaseDiagram.py' is intended to generate histograms of the population distributions under 
-# different initial conditions
+This program allows the user to simulate the dynamic changes in sequence populations during SELEX experiments through probabilistic modelling. The simulation can be carried out using either options that take into account primary and/or secondary structures through energy-based affinity measures. 
 
 
-# TO DO:
-# Edit main to allow user to run under any of the specified methods for each class
-# Outputing seqs takes too long between rounds, find a fix
-# Incorporate mutations into pcr amplification [DONE]
-# incorporate pcr bias into pcr amplification
-# Add more edit distance options for selection
+INSTALLATION
+
+Extract using:
+$tar -czvf selex_simulation.tar.gz
+
+PACKAGE DEPENDENCY
+
+Ensure you have the following Python (>2.7) module dependencies:
+
+	sys
+	time
+	math
+	linecache
+	itertools
+	operator
+	collections
+	scipy
+	numpy
+	matplotlib
+	gc
+	ConfigParser
+
+If any of these modules are missing are missing they can be installed using:
+$sudo pip install [modulename]
+If you do not have root priviledge and cannot use sudo, then you can install the missing module(s) locally using:
+$pip install --user --upgrade [modulename]
+Any further issues with installation should be informed to respective system administrators (or if it's a toughy just email us).
+
+The program also requires the ViennaRNA package to be installed. This can be downloaded from:
+https://www.tbi.univie.ac.at/RNA/#download
+Extract the downloaded ViennaRNA package using:
+$tar -czvf ViennaRNA-[version].tar.gz
+This can then be installed using:
+$cd ViennaRNA-[version]/
+$./configure --without-perl --with-python
+$make
+$sudo make install
+Again, if user does not have root privileges, then a local installation can be done using:
+$./configure --prefix=[LOCALPATH] --without-perl --with-python
+$make
+$make install
+
+USAGE
+
+All of the parameters for the simulation can be specified from the 'setting.init' file. Descriptions for each parameter is given inside the file. The default values in the settings file correspond to the conditions used to report the results in the corresponding thesis.
+After specifying the parameters, save the settings file and then run the simulation from the command-line using:
+$python sim_.py
+
+Please note that under the default parameters, the simulation run takes almost 4 hours on an Intel(R)Core(TM) Quad CPU Q9400 machine. Using a large scale parameter or a large number of pcr cycles can result in excessive CPU time and memory use. 
+
+Please report any issues to aaaa3@cam.ac.uk or ljc37@cam.ac.uk
