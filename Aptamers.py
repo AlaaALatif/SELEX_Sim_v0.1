@@ -101,4 +101,3 @@ class Aptamers:
                     seq += alphabetSet[int(charCode)]
         seq = seq[::-1] #reverse string
         return seq, initialSeqNum
-

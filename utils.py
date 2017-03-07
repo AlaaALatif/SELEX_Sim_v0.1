@@ -20,11 +20,13 @@ def seqNumberCounter(seqPool):
         uniqSeqNum += 1
     return int(totalSeqNum), int(uniqSeqNum)
 
+# This computes the binomial coefficient (not used)
 def binomCoeff(n, k):
     binom = factorial(n)/(factorial(k)*factorial(n-k))
     return binom
 
-
+# This converts an array of probabilities into a
+# discrete probability distribution
 def convert_to_distribution(x, y, distName):
     xDist = stats.rv_discrete(name=distName, values=(x, y))
     return xDist

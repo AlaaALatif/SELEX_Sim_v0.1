@@ -115,5 +115,3 @@ class Amplification:
             return
         print("Mutation has been carried out")
         return amplfdSeqs
-
-
