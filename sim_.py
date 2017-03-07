@@ -42,9 +42,9 @@ if distanceMeasure not in ("hamming", "basepair"):
     sys.exit()
 
 # SELEX simulation based on random aptamer assignment, hamming-based definite selection, and
-# non-ideal stochastic amplfication with no bias. 
+# non-ideal stochastic amplfication with no bias.
 for r in range(roundNum):
-    if(r==0):
+    if(r == 0):
         if(aptamerType == 'DNA'):
             alphabetSet = 'ACGT'
             aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
@@ -52,7 +52,7 @@ for r in range(roundNum):
             alphabetSet = 'ACGU'
             aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
         else:
-            print("Error: Simulation of %.s aptamers not supported" %aptamerType)
+            print("Error: Simulation of %.s aptamers not supported" % aptamerType)
             break
         print("optimum sequences have been chosen: %s" % aptamerSeqs)
         print("SELEX Round 1 has started")
@@ -94,11 +94,10 @@ for r in range(roundNum):
         nxtRnd.close()
 print("SELEX completed")
 
-if(post_process==True):
+if(post_process == True):
     print("Data post-processing has started...")
     dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure)
     print("Data post-processing is complete")
     print("The Simulation has ended")
 else:
     print("The Simulation has ended without post-processing")
-
