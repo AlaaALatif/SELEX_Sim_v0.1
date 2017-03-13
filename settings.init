@@ -1,0 +1,51 @@
+;COMMENTS BEGIN WITH ';' SYMBOL
+;This is the settings file for selex_sim, a numerical simulation method for selex experiments
+;The parameters for the simulation are specified in this file.
+
+
+[general]
+;This section specifies parameters that are general to the whole selex process
+
+;Specify the type of molecules to be used for the simulation (DNA or RNA)
+selex_type: DNA
+;Specify the type of reference aptamer to be used (will not be used if aptamer_mode is 1)
+reference_aptamer: GTACGACAGTCATCCTACAC
+;Specify the aptamer mode for selex. 
+;A mode of 0 means that the user will supply the sequence for the reference aptamer.
+;A mode of 1 means that the program will pick a random sequence as reference aptamer
+aptamer_mode: 0
+;The length of the sequences in selex
+sequence_length: 20
+;The number of selex rounds
+number_of_rounds: 40
+;The name of the selex experiment. This specifies the names of the output files from the
+;experiment
+experiment_name: he4_loop
+;The number of samples to be drawn from each round. This attempts to mimic the effects
+; of sequencing data collected from real selex experiments
+sampling_size: 1000
+;This specifies whether the simulation results should be post-processed or not
+;Post processing involves generating tables for the changes in total and unique sequence number
+;changes in average distance
+;changes in average distance for each affinity group
+post_process: True
+
+[selectionparams]
+;This section specifies parameters for the selection step
+
+;This specifies the number of target ligand sites
+scale: 1000000
+;This specifies the distance metric to be used for affinity estimation (hamming, basepair, or loop)
+distance: loop
+;This specifies the degree of stringency of the selectio step
+stringency: -3
+
+[amplificationparams]
+;This section specifies parameters for the amplification step
+
+;This specifies the number of PCR cycles per selex round
+number_of_pcr: 15
+;This specifies the average efficiency of polymerase per PCR cycle
+pcr_efficiency: 0.85
+;This specifies the average error rate of polymerase per nucleotide
+pcr_error_rate: 0.000001
