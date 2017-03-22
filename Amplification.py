@@ -53,8 +53,8 @@ class Amplification:
         cycleNumProbs = np.zeros(pcrCycleNum)
         print("Amplification has started...")
         # for each sequence in the selected pool
-        for i, seqIdx in enumerate(slctdSeqs):
-            # random PCR with bias using brute force        
+        for i in range(len(slctdSeqs)):
+            # random PCR with bias using brute force
             for n in xrange(pcrCycleNum):
                 # sequence count after n cycles
                 seqPop[n] = x[i][1]
