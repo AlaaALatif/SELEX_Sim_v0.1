@@ -4,6 +4,7 @@ from Selection import Selection
 from Amplification import Amplification
 from Mutation import Mutation
 import postprocess
+import analyse_results
 import utils
 
 # Fetch experiment parameters from the settings file
@@ -106,6 +107,7 @@ print("SELEX completed")
 if post_process:
     print("Data post-processing has started...")
     postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
+    analyse_results.plot_histo(roundNum, outputFileNames, aptamerSeqs, "hamming", "png")
     print("Data post-processing is complete.")
     print("The simulation has ended.")
 else:
