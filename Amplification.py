@@ -104,8 +104,8 @@ class Amplification:
         print("Mutant generation has started...")
         # generate mutants and add to the amplfied sequence pool
         amplfdSeqs = mut.mutd[distance](mutatedPool=mutatedPool,
-                                             amplfdSeqs=slctdSeqs,
-                                             aptamerSeqs=aptamerSeqs,
-                                             alphabetSet=alphabetSet)
+                                        amplfdSeqs=slctdSeqs,
+                                        aptamerSeqs=aptamerSeqs,
+                                        alphabetSet=alphabetSet)
         print("Mutation has been carried out")
         return amplfdSeqs
