@@ -4,11 +4,22 @@ from Selection import Selection
 from Amplification import Amplification
 from Mutation import Mutation
 import postprocess
-import analyse_results
 import utils
 
 # Fetch experiment parameters from the settings file
 import ConfigParser
+
+
+def call_post_process(target):
+    print("Data post-processing has started...")
+    postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
+    #postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames), post_process, distanceMeasure, imgformat=img_format)
+    postprocess.plot_histo(roundNum, outputFileNames, target, "hamming", "png")
+    postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "hamming", "png")
+    print("Data post-processing is complete.")
+    return
+
+
 settings = ConfigParser.ConfigParser()
 settings.read('settings.init')
 
@@ -38,6 +49,9 @@ S = Selection()
 Amplify = Amplification()
 Mut = Mutation()
 
+if sys.argv[-1] == "-p":
+    call_post_process(aptamerSeq)
+    sys.exit()
 
 if distanceMeasure not in ("hamming", "basepair", "loop"):
     print("Invalid argument for distance measure")
@@ -105,10 +119,7 @@ for r in range(roundNum):
 print("SELEX completed")
 
 if post_process:
-    print("Data post-processing has started...")
-    postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
-    analyse_results.plot_histo(roundNum, outputFileNames, aptamerSeqs, "hamming", "png")
-    print("Data post-processing is complete.")
+    call_post_process(aptamerSeqs)
     print("The simulation has ended.")
 else:
     print("The simulation has ended without post-processing.")

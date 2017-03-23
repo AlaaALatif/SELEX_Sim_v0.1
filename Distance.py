@@ -1,5 +1,3 @@
-from itertools import imap
-import operator
 import RNA
 
 import numpy as np
@@ -34,8 +32,11 @@ class Distance:
     # Output: int()
     def hamming_func(self, str1, str2):
         assert len(str1) == len(str2)
-        ne = operator.ne
-        return sum(imap(ne, str1, str2))
+        s = 0
+        for i, j in zip(str1, str2):
+            if i != j:
+                s += 1
+        return s
 
     # This function takes the secondary structure of the reference aptamer
     # and an arbitrary sequence and returns

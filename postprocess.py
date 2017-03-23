@@ -1,5 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import seaborn as sns
+
+import RNA
+
 import Distance
 
 D = Distance.Distance()
@@ -113,6 +118,22 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         plt.tight_layout()
         plt.subplots_adjust(top=0.90)
         fig2.savefig("{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat), dpi=dpival)
+        # probability densities for each round in the same plot, a la aptaSim
+        fig3, ax = plt.subplots()
+        for i, ax in enumerate(axes.reshape(-1)):
+            for d in range(3):
+                ax.plot(roundNumAxis, weighted_distFreqs[:, d+(3*i)+1],
+                        label='d = '+str(d+(3*i)+1), color=co30[i*3+d])
+            ax.ticklabel_format(syle='sci', axis='y', scilimits=(0, 0))
+            ax.legend(prop={'size': 6})
+        axes[0, 0].set_ylim((-0.1, weighted_distFreqs.max()))
+        fig2.suptitle('Total Sequences')
+        axes[0, 0].set_ylabel('Fractional Frequency')
+        axes[1, 1].set_xlabel('Round Number')
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.90)
+        fig2.savefig("{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat), dpi=dpival)
+
 
 # for loop only
 #            if(aptSeq != None and aptStruct != None and aptLoop != None):
@@ -142,3 +163,39 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
 #                        ax.set_title('Round '+str(i*5))
 #                fig3.savefig(str("pp2"+outputFileNames)+"_SELEX_Analytics_dist_heatmap.pdf", format='pdf')
 #                fig3.text(0.5, 0.98, 'Total Sequences', ha='center')
+
+
+def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
+    plt.style.use("seaborn-white")
+    # rounds = list()
+
+    fig = plt.figure(figsize=(2.1*Nrounds, 10))
+    G = gridspec.GridSpec(1, Nrounds)
+    bins = range(len(target))
+    for i, g in enumerate(G):
+        samp = list()
+        with open("{}_R{:03d}".format(prefix, i+1), 'r') as sf:
+            for l in sf:
+                samp.append(l.split()[0])
+        # rounds.append([D.hamming_func(target, i) for i in samp])
+        if method == "hamming":
+            rd = [D.hamming_func(target, i_) for i_ in samp]
+        else:
+            struct_target = RNA.fold(target)[0]
+            rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in samp]
+        ax = plt.subplot(g)
+        # sns.distplot(rd, hist=True, rug=True, vertical=True, ax=ax, bins=60)#, hist_kws={"weights": r[:, 1]})#, hist_kws={'bins': "fd"})
+        ax.hist(rd, bins=bins, orientation="horizontal")
+        ax.set_ylim((0, len(target)))
+        # ax.set_xscale("log")
+        ax.set_xticklabels([])
+        ax.set_xlabel("R {:d}".format(i+1))
+        if i > 0 and (i+1) < Nrounds:
+            ax.set_yticklabels([])
+
+    sns.despine(bottom=True)
+    fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.90)
+    plt.savefig("{}_SELEX_histo.{}".format(prefix, imgformat))
