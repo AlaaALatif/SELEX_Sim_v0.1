@@ -65,7 +65,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         # generates indices as far apart from each other as possible
         cidx = [int("{:0>7}".format(bin(Ncolors ^ i)[2:])[::-1], base=2) for i in range(Ncolors)]
         co30 = co30[cidx]
-        #linestyles = ['-', '--', '-.', ':']
+        # linestyles = ['-', '--', '-.', ':']
         # change line below to change color palette used
         # plt.style.use("seaborn-white")
         # If Hamming distances were used
@@ -102,7 +102,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         for i, ax in enumerate(axes.reshape(-1)):
             for d in range(3):
                 ax.plot(roundNumAxis, weighted_distFreqs[:, d+(3*i)+1],
-                        label='d = '+str(d+(3*i)+1), linestyle=d, color=co30[i*3+d])
+                        label='d = '+str(d+(3*i)+1), color=co30[i*3+d])
             ax.ticklabel_format(syle='sci', axis='y', scilimits=(0, 0))
             ax.legend(prop={'size': 6})
         axes[0, 0].set_ylim((-0.1, weighted_distFreqs.max()))
