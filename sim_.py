@@ -20,6 +20,7 @@ outputFileNames = settings.get('general', 'experiment_name')
 # how many sampled sequence to output each round, stored in output_samples_Ri.txt
 samplingSize = settings.getint('general', 'sampling_size')
 post_process = settings.get('general', 'post_process')
+img_format = settings.get('general', 'img_format')
 
 # how many sequence to select each round
 selectionThreshold = settings.getint('selectionparams', 'scale')
@@ -96,7 +97,7 @@ print("SELEX completed")
 
 if post_process:
     print("Data post-processing has started...")
-    postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure)
+    postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
     print("Data post-processing is complete")
     print("The Simulation has ended")
 else:

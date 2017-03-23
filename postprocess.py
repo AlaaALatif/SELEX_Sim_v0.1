@@ -16,7 +16,7 @@ plt.rcParams.update(params)
 # This generate the main plots from the simulation results
 # The plots include changes in total and unique sequence numbers, in average distance
 # and changes in the average distance of each affinity group
-def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, aptSeq=None, aptStruct=None, aptLoop=None):
+def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, aptSeq=None, aptStruct=None, aptLoop=None, imgformat="pdf"):
     avgDist_per_rnd = np.zeros(roundNum)
     weighted_avgDist_per_rnd = np.zeros(roundNum)
     total_seqs_freqs = np.zeros(roundNum)
@@ -82,7 +82,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 0].set_ylabel('Average Distance')
         axes[0, 1].set_title('Unique sequences')
         plt.tight_layout()
-        fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance.pdf")
+        fig0.savefig("{}_SELEX_Analytics_distance.{}".format(outputFileNames, imgformat), dpi=150)
         fig1, axes = plt.subplots(2, 3, sharex=True)  # , sharey=True)
         for i, ax in enumerate(axes.reshape(-1)):
             for d in range(3):
@@ -96,7 +96,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 1].set_xlabel('Round Number')
         plt.tight_layout()
         plt.subplots_adjust(top=0.90)
-        fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs.pdf")
+        fig1.savefig("{}_SELEX_Analytics_distFreqs.{}".format(outputFileNames, imgformat), dpi=150)
         # weighted fractional sequency plots
         fig2, axes = plt.subplots(2, 3)
         for i, ax in enumerate(axes.reshape(-1)):
@@ -111,7 +111,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 1].set_xlabel('Round Number')
         plt.tight_layout()
         plt.subplots_adjust(top=0.90)
-        fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs.pdf")
+        fig2.savefig("{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat), dpi=150)
 
 # for loop only
 #            if(aptSeq != None and aptStruct != None and aptLoop != None):
