@@ -79,6 +79,37 @@ class Aptamers:
         initLibrary = product(alphabetSet, repeat=seqLen)
         return initLibrary
 
+
+# choose a random subset of sequences to be aptamers from the initial pool
+# input params are the number of aptamers to choose and the initial pool
+# sequence file
+# returns total number of seqs in initial pool and set of aptamers
+    def randomAptamerChooser(self, aptamerNum, seqLen, initLib):
+        initialSeqNum = 4**(seqLen)
+        optimumAptamers = np.chararray(aptamerNum, itemsize=seqLen)
+        for aptNum in xrange(aptamerNum):
+            aptIdx = random.randint(0, initialSeqNum) #random seq index
+            aptSeqList = list(islice(initLib, aptIdx, aptIdx+1))[0]
+            for residue in aptSeqList:
+                aptSeq += residue
+            optimumAptamers[aptNum] = aptSeq
+        return optimumAptamers, initialSeqNum
+# Generate all possible sequences
+    def aptamerGenerator(self, alphabetSet, seqLength, start, finish, outFile):
+        initialLibrary = product(alphabetSet, repeat=seqLength)
+        #poolFraction = list(islice(initialLibrary, start, finish))
+        with open(outFile, 'w') as o:
+            for i in xrange(start, finish, 1000000):
+                seqList = list(islice(initialLibrary, (start+i), (start+i+1000000)))
+                for seq in seqList:
+                    sequence = str()
+                    for charIdx in range(seqLength):
+                        sequence += seq[charIdx]
+                    o.write(sequence+'\n')
+        o.close()
+        print("first generation completed")
+        return initialLibrary
+
 ###NEED TO MODIFY TO ALLOW MULTIPLE OPTIMUM APTAMERS
 
     def optimumAptamerGenerator(self, aptamerNum, alphabetSet, seqLen):
