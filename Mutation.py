@@ -31,6 +31,11 @@ class Mutation(object):
         self.pcrCycleNum = pcrCycleNum
         self.pcrYld = pcrYld
         self.seqPop = seqPop
+        # put methods in a dict for ease of use
+        self.mutd = {
+                "hamming": self.generate_mutants_1D,
+                "basepair": self.generate_mutants_2D,
+                "loop": self.generate_mutants_loop}
         # add error handling for invalid param values
 
     # This method computes the probability of drawing a seq after each pcr cycle

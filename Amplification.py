@@ -102,24 +102,10 @@ class Amplification:
             mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
-        if(distance == "hamming"):
-            # generate mutants and add to the amplfied sequence pool
-            amplfdSeqs = mut.generate_mutants_1D(mutatedPool=mutatedPool,
-                                                 amplfdSeqs=slctdSeqs,
-                                                 aptamerSeqs=aptamerSeqs,
-                                                 alphabetSet=alphabetSet)
-        elif(distance == "basepair"):
-            amplfdSeqs = mut.generate_mutants_2D(mutatedPool=mutatedPool,
-                                                 amplfdSeqs=slctdSeqs,
-                                                 aptamerSeqs=aptamerSeqs,
-                                                 alphabetSet=alphabetSet)
-        elif(distance == "loop"):
-            amplfdSeqs = mut.generate_mutants_loop(mutatedPool=mutatedPool,
-                                                   amplfdSeqs=slctdSeqs,
-                                                   aptamerSeqs=aptamerSeqs,
-                                                   alphabetSet=alphabetSet)
-        else:
-            print("argument given for distance is invalid")
-            return
+        # generate mutants and add to the amplfied sequence pool
+        amplfdSeqs = mut.mutd[distance](mutatedPool=mutatedPool,
+                                             amplfdSeqs=slctdSeqs,
+                                             aptamerSeqs=aptamerSeqs,
+                                             alphabetSet=alphabetSet)
         print("Mutation has been carried out")
         return amplfdSeqs
