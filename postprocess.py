@@ -4,6 +4,7 @@ import Distance
 
 D = Distance.Distance()
 
+dpival = 300
 params = {'legend.fontsize': 'medium',
           # 'figure.figsize': (15, 5),
           'axes.labelsize': 'small',
@@ -82,7 +83,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 0].set_ylabel('Average Distance')
         axes[0, 1].set_title('Unique sequences')
         plt.tight_layout()
-        fig0.savefig("{}_SELEX_Analytics_distance.{}".format(outputFileNames, imgformat), dpi=150)
+        fig0.savefig("{}_SELEX_Analytics_distance.{}".format(outputFileNames, imgformat), dpi=dpival)
         fig1, axes = plt.subplots(2, 3, sharex=True)  # , sharey=True)
         for i, ax in enumerate(axes.reshape(-1)):
             for d in range(3):
@@ -96,7 +97,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 1].set_xlabel('Round Number')
         plt.tight_layout()
         plt.subplots_adjust(top=0.90)
-        fig1.savefig("{}_SELEX_Analytics_distFreqs.{}".format(outputFileNames, imgformat), dpi=150)
+        fig1.savefig("{}_SELEX_Analytics_distFreqs.{}".format(outputFileNames, imgformat), dpi=dpival)
         # weighted fractional sequency plots
         fig2, axes = plt.subplots(2, 3)
         for i, ax in enumerate(axes.reshape(-1)):
@@ -111,7 +112,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
         axes[1, 1].set_xlabel('Round Number')
         plt.tight_layout()
         plt.subplots_adjust(top=0.90)
-        fig2.savefig("{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat), dpi=150)
+        fig2.savefig("{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat), dpi=dpival)
 
 # for loop only
 #            if(aptSeq != None and aptStruct != None and aptLoop != None):

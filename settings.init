@@ -29,6 +29,7 @@ sampling_size: 1000
 ;changes in average distance
 ;changes in average distance for each affinity group
 post_process: True
+img_format: pdf
 
 [selectionparams]
 ;This section specifies parameters for the selection step
@@ -37,7 +38,7 @@ post_process: True
 scale: 1000000
 ;This specifies the distance metric to be used for affinity estimation (hamming, basepair, or loop)
 distance: loop
-;This specifies the degree of stringency of the selectio step
+;This specifies the degree of stringency of the selection step
 stringency: -3
 
 [amplificationparams]
