@@ -48,13 +48,16 @@ for r in range(roundNum):
     if(r == 0):
         if(aptamerType == 'DNA'):
             alphabetSet = 'ACGT'
-            aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
         elif(aptamerType == 'RNA'):
             alphabetSet = 'ACGU'
-            aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
         else:
             print("Error: Simulation of %.s aptamers not supported" % aptamerType)
             break
+        if aptamerNum > 0:
+            aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
+        else:
+            aptamerSeqs = aptamerSeq
+            initialSeqNum = len(alphabetSet)**len(aptamerSeq)
         print("optimum sequences have been chosen: %s" % aptamerSeqs)
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
