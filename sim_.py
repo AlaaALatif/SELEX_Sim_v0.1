@@ -3,7 +3,7 @@ from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
 from Mutation import Mutation
-from postprocess import dataAnalysis
+import postprocess
 import utils
 
 # Fetch experiment parameters from the settings file
@@ -94,9 +94,9 @@ for r in range(roundNum):
         nxtRnd.close()
 print("SELEX completed")
 
-if(post_process == True):
+if post_process:
     print("Data post-processing has started...")
-    dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure)
+    postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure)
     print("Data post-processing is complete")
     print("The Simulation has ended")
 else:
