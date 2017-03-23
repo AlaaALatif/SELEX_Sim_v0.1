@@ -4,7 +4,7 @@ from numpy import random
 from numpy.random import binomial as binom
 from math import factorial as fact
 from sklearn.preprocessing import normalize
-from utils import convert_to_distribution
+import utils
 from Aptamers import Aptamers
 from Distance import Distance
 
@@ -144,7 +144,7 @@ class Mutation(object):
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
             # compute a discrete distribution from probabilities
-            cycleNumDist = convert_to_distribution(np.arange(pcrCycleNum),
+            cycleNumDist = utils.convert_to_distribution(np.arange(pcrCycleNum),
                                                     cycleNumProbs,
                                                     'cycleNumDist')
             # print cycleNumDist.rvs(size=10)
@@ -656,21 +656,21 @@ class Mutation(object):
         # compute 2D structure of aptamer(s)
         aptamerSeqsStruct = RNA.fold(aptamerSeqs)[0]
         # find loop in 2D structure
-        aptamerLoop = apt_loopFinder(aptamerSeqs, aptamerSeqsStruct, seqLength)
+        aptamerLoop = utils.apt_loopFinder(aptamerSeqs, aptamerSeqsStruct, seqLength)
         # for each seq in the mutation pool
         for seqIdx in mutatedPool:
             # grab probabilities to draw it after each pcr cycle
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
             # compute a discrete distribution from probabilities
-            cycleNumDist = convert_to_distribution(np.arange(pcrCycleNum),
-                                                    cycleNumProbs,
-                                                    'cycleNumDist')
+            cycleNumDist = utils.convert_to_distribution(np.arange(pcrCycleNum),
+                                                         cycleNumProbs,
+                                                         'cycleNumDist')
             # print cycleNumDist.rvs(size=10)
             # for each mutation instance for the seq
             for mutNum, mutFreq in enumerate(mutatedPool[seqIdx]):
                 mutFreq = int(mutatedPool[seqIdx][mutNum])
-               # if the mutation is carried out on less than 10,000 copies, draw random numbers...:(
+                # if the mutation is carried out on less than 10,000 copies, draw random numbers...:(
                 if mutFreq == 0:
                     continue
                 elif mutFreq < 10000:
@@ -1193,7 +1193,7 @@ class Mutation(object):
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
             # compute a discrete distribution from probabilities
-            cycleNumDist = convert_to_distribution(np.arange(pcrCycleNum),
+            cycleNumDist = utils.convert_to_distribution(np.arange(pcrCycleNum),
                                                     cycleNumProbs,
                                                     'cycleNumDist')
             # print cycleNumDist.rvs(size=10)
