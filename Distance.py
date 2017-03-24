@@ -52,7 +52,7 @@ class Distance:
     # and an arbitrary sequence and their lengths and returns the Loop-based distance
     # Input: str(), str(), str(), str(), int()
     # Output: int()
-    def loop_func(self, seq1, seq1_struct, seq1_loop, seq2, seqLength):
+    def loop_func(self, seq1, seq1_struct, seq1_loop, seqLength, seq2):
         # compute secondary structure of sequence
         seq2_struct = RNA.fold(seq2)[0]
         base = None

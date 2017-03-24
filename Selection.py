@@ -36,7 +36,7 @@ class Selection:
             print("sample batch drawn")
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
-                randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, randSeq, seqLength)
+                randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
                 if(selectedSeqs == selectionThreshold):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
