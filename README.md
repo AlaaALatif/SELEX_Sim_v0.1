@@ -18,17 +18,14 @@ PACKAGE DEPENDENCY
 Ensure you have the following Python (>2.7) module dependencies:
 
 	sys
-	time
 	math
-	linecache
 	itertools
-	operator
-	collections
+	ConfigParser
+
 	scipy
 	numpy
 	matplotlib
-	gc
-	ConfigParser
+	seaborn
 
 If any of these modules are missing are missing they can be installed using:
 $sudo pip install [modulename]
