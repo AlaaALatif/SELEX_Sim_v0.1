@@ -22,7 +22,8 @@ plt.rcParams.update(params)
 # This generate the main plots from the simulation results
 # The plots include changes in total and unique sequence numbers, in average distance
 # and changes in the average distance of each affinity group
-def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, aptSeq=None, aptStruct=None, aptLoop=None, imgformat="pdf"):
+def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
+                 aptSeq=None, aptStruct=None, aptLoop=None, imgformat="pdf"):
     avgDist_per_rnd = np.zeros(roundNum)
     weighted_avgDist_per_rnd = np.zeros(roundNum)
     total_seqs_freqs = np.zeros(roundNum)
@@ -32,8 +33,8 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
     for rnd in range(roundNum):
         total_seq_num = 0
         uniq_seq_num = 0
-        distance = 0
-        weighted_distance = 0
+        distance = 0.0
+        weighted_distance = 0.0
         with open(outputFileNames + "_R{:03d}".format(rnd+1)) as SELEX_round:
             for line in SELEX_round:
                 columns = line.split()
@@ -43,8 +44,8 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure, a
                 uniq_seq_num += 1
                 distFreqs[rnd][int(columns[2])] += 1
                 weighted_distFreqs[rnd][int(columns[2])] += int(columns[1])
-        avgDist_per_rnd[rnd] = int(distance/uniq_seq_num)
-        weighted_avgDist_per_rnd[rnd] = int(weighted_distance/total_seq_num)
+        avgDist_per_rnd[rnd] = distance/uniq_seq_num
+        weighted_avgDist_per_rnd[rnd] = weighted_distance/total_seq_num
         total_seqs_freqs[rnd] = total_seq_num
         uniq_seqs_freqs[rnd] = uniq_seq_num
         for i in range(seqLength+5):
@@ -184,7 +185,6 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
             struct_target = RNA.fold(target)[0]
             rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in samp]
         ax = plt.subplot(g)
-        # sns.distplot(rd, hist=True, rug=True, vertical=True, ax=ax, bins=60)#, hist_kws={"weights": r[:, 1]})#, hist_kws={'bins': "fd"})
         ax.hist(rd, bins=bins, orientation="horizontal")
         ax.set_ylim((0, len(target)))
         # ax.set_xscale("log")
