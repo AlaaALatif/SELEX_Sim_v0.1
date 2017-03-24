@@ -23,7 +23,7 @@ def call_post_process(target):
 
 
 parser = argparse.ArgumentParser(description='Parse arguments.')
-parser.add_argument('-p', '--postprocess', type=bool, default=False)
+parser.add_argument('-p', '--postprocess', action='store_true')
 parser.add_argument('-s', '--settings', type=str, default="settings.init")
 
 args = parser.parse_args()
