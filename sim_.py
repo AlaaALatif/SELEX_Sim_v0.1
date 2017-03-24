@@ -1,3 +1,5 @@
+import argparse
+import os.path
 import sys
 from Aptamers import Aptamers
 from Selection import Selection
@@ -13,15 +15,25 @@ import ConfigParser
 def call_post_process(target):
     print("Data post-processing has started...")
     postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
-    #postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames), post_process, distanceMeasure, imgformat=img_format)
+    # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames), post_process, distanceMeasure, imgformat=img_format)
     postprocess.plot_histo(roundNum, outputFileNames, target, "hamming", "png")
     postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "hamming", "png")
     print("Data post-processing is complete.")
     return
 
 
+parser = argparse.ArgumentParser(description='Parse arguments.')
+parser.add_argument('-p', '--postprocess', type=bool, default=False)
+parser.add_argument('-s', '--settings', type=str, default="settings.init")
+
+args = parser.parse_args()
+
+if not os.path.exists(args.settings):
+    print("Settings file '{}' does not exists, aborting.".format(args.settings))
+    sys.exit()
+
 settings = ConfigParser.ConfigParser()
-settings.read('settings.init')
+settings.read(args.settings)
 
 aptamerType = settings.get('general', 'selex_type')
 aptamerNum = settings.getint('general', 'aptamer_mode')
@@ -49,7 +61,7 @@ S = Selection()
 Amplify = Amplification()
 Mut = Mutation()
 
-if sys.argv[-1] == "-p":
+if args.postprocess:
     call_post_process(aptamerSeq)
     sys.exit()
 
