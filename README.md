@@ -50,6 +50,8 @@ $./configure --prefix=[LOCALPATH] --without-perl --with-python
 $make
 $make install
 
+(if you get an error during make, try rerunning configure with --distable-flto)
+
 USAGE
 
 All of the parameters for the simulation can be specified from the 'setting.init' file. Descriptions for each parameter is given inside the file. The default values in the settings file correspond to the conditions used to report the results in the corresponding thesis.
