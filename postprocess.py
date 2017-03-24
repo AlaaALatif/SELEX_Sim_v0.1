@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-import seaborn as sns
 
 import RNA
 
@@ -175,9 +174,15 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
     bins = range(len(target))
     for i, g in enumerate(G):
         samp = list()
+        wsamp = list()
         with open("{}_R{:03d}".format(prefix, i+1), 'r') as sf:
             for l in sf:
-                samp.append(l.split()[0])
+                ls = l.split()
+                samp.append(ls[0])
+                if len(ls) > 2:
+                    wsamp.append(int(ls[2]))
+                else:
+                    wsamp.append(1)
         # rounds.append([D.hamming_func(target, i) for i in samp])
         if method == "hamming":
             rd = [D.hamming_func(target, i_) for i_ in samp]
@@ -185,7 +190,10 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
             struct_target = RNA.fold(target)[0]
             rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in samp]
         ax = plt.subplot(g)
-        ax.hist(rd, bins=bins, orientation="horizontal")
+        ax.hist(rd, bins=bins, normed=True, weights=wsamp, orientation="horizontal", label="weighted")
+        # # plot unweighted graph if weights present
+        # if sum(wsamp) > len(wsamp):
+        #     ax.hist(rd, bins=bins, normed=True, orientation="horizontal", histtype="step", color="C1", linewidth=2, label="unweighted")
         ax.set_ylim((0, len(target)))
         # ax.set_xscale("log")
         ax.set_xticklabels([])
@@ -193,7 +201,6 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
         if i > 0 and (i+1) < Nrounds:
             ax.set_yticklabels([])
 
-    sns.despine(bottom=True)
     fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
 
     plt.tight_layout()
