@@ -32,7 +32,8 @@ if not os.path.exists(args.settings):
     print("Settings file '{}' does not exists, aborting.".format(args.settings))
     sys.exit()
 
-settings = ConfigParser.ConfigParser()
+settings = ConfigParser.ConfigParser({"initial_samples": "100000",
+                                      "img_format": "pdf"})
 settings.read(args.settings)
 
 aptamerType = settings.get('general', 'selex_type')
@@ -47,6 +48,7 @@ post_process = settings.get('general', 'post_process')
 img_format = settings.get('general', 'img_format')
 
 # how many sequence to select each round
+initialSamples = settings.getint('selectionparams', 'initial_samples')
 selectionThreshold = settings.getint('selectionparams', 'scale')
 distanceMeasure = settings.get('selectionparams', 'distance')
 stringency = settings.getint('selectionparams', 'stringency')
@@ -89,11 +91,11 @@ for r in range(roundNum):
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
         if distanceMeasure == "hamming":
-            slctdSeqs = S.stochasticHammingSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r, stringency)
+            slctdSeqs = S.stochasticHammingSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
         elif distanceMeasure == "basepair":
-            slctdSeqs = S.stochasticBasePairSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r, stringency)
+            slctdSeqs = S.stochasticBasePairSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
         else:
-            slctdSeqs = S.stochasticLoopSelection_initial(alphabetSet, seqLength, aptamerSeqs, selectionThreshold, initialSeqNum, samplingSize, outputFileNames, r, stringency)
+            slctdSeqs = S.stochasticLoopSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
         print("selection carried out for R1")
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
         print("amplification carried out for R1")
