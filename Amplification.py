@@ -102,11 +102,12 @@ class Amplification:
             mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
+        print("Mutating {} sequences...".format(len(mutatedPool)))
         # generate mutants and add to the amplfied sequence pool
         amplfdSeqs = mut.generate_mutants(mutatedPool=mutatedPool,
-                                           amplfdSeqs=slctdSeqs,
-                                           aptamerSeqs=aptamerSeqs,
-                                           alphabetSet=alphabetSet,
-                                           distname=distance)
+                                          amplfdSeqs=slctdSeqs,
+                                          aptamerSeqs=aptamerSeqs,
+                                          alphabetSet=alphabetSet,
+                                          distname=distance)
         print("Mutation has been carried out")
         return amplfdSeqs

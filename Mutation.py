@@ -154,7 +154,9 @@ class Mutation(object):
         d = Distance()
         md = self.choose_dist(distname, d, aptamerSeqs)
         # for each seq in the mutation pool
-        for seqIdx in mutatedPool:
+        for si, seqIdx in enumerate(mutatedPool):
+            if si % 10000 == 0:
+                print("Mutated {}%".format(100.0*si/len(mutatedPool)))
             # grab probabilities to draw it after each pcr cycle
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
