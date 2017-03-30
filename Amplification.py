@@ -62,7 +62,7 @@ class Amplification:
                 # sequence count after n cycles
                 seqPop[n] = x[i][1]
                 # amplify count using initial count, polymerase yield, and bias score
-                x[i][1] += int(binom(x[i][1], pcrYld+x[i][3]))
+                x[i][1] += int(binom(x[i][1], min(0.9999, pcrYld+x[i][3])))
             # compute cycle number probabilities
             for s, seqNum in enumerate(seqPop):
                 cycleNumProbs[s] = seqNum/np.sum(seqPop)
