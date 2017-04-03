@@ -34,8 +34,10 @@ img_format: pdf
 [selectionparams]
 ;This section specifies parameters for the selection step
 
+; Initial number of sequences
+initial_samples: 1000000
 ;This specifies the number of target ligand sites
-scale: 1000000
+scale: 10000
 ;This specifies the distance metric to be used for affinity estimation (hamming, basepair, or loop)
 distance: loop
 ;This specifies the degree of stringency of the selection step

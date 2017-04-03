@@ -62,7 +62,7 @@ class Amplification:
                 # sequence count after n cycles
                 seqPop[n] = x[i][1]
                 # amplify count using initial count, polymerase yield, and bias score
-                x[i][1] += int(binom(x[i][1], pcrYld+x[i][3]))
+                x[i][1] += int(binom(x[i][1], min(0.9999, pcrYld+x[i][3])))
             # compute cycle number probabilities
             for s, seqNum in enumerate(seqPop):
                 cycleNumProbs[s] = seqNum/np.sum(seqPop)
@@ -102,11 +102,12 @@ class Amplification:
             mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
+        print("Mutating {} sequences...".format(len(mutatedPool)))
         # generate mutants and add to the amplfied sequence pool
         amplfdSeqs = mut.generate_mutants(mutatedPool=mutatedPool,
-                                           amplfdSeqs=slctdSeqs,
-                                           aptamerSeqs=aptamerSeqs,
-                                           alphabetSet=alphabetSet,
-                                           distname=distance)
+                                          amplfdSeqs=slctdSeqs,
+                                          aptamerSeqs=aptamerSeqs,
+                                          alphabetSet=alphabetSet,
+                                          distname=distance)
         print("Mutation has been carried out")
         return amplfdSeqs

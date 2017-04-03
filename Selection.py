@@ -13,7 +13,7 @@ Apt = Aptamers.Aptamers()
 # NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
 # number of random samples to draw at a time
-Nrsamples = 10**4
+Nrsamples = 10**5
 
 
 class Selection:
@@ -30,10 +30,11 @@ class Selection:
                                       alphabetSet, seqLength,
                                       totalSeqNum, stringency):
         selectedSeqs = 0
+        print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
+            print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
             randIdxs = random.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
-            print("sample batch drawn")
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
@@ -314,12 +315,12 @@ class Selection:
                          stringency):
         selectedSeqs = 0
         # until all sites are occupied
+        print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             # draw random sequences
             randIdxs = selectionDist.rvs(size=Nrsamples)
             # draw random affinities
             randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
-            print("sample batch drawn")
             # carry out stochastic selection
             for i, randIdx in enumerate(randIdxs):
                 if(selectedSeqs == selectionThreshold):
