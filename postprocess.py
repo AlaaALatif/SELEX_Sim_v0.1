@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 
 import RNA
 
@@ -167,12 +166,15 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
 
 def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
     plt.style.use("seaborn-white")
-    # rounds = list()
+    fig, axes = plt.subplots(1, Nrounds, figsize=(2.1*Nrounds, 10), sharey=True)
+    plot_histo_(Nrounds, prefix, target, method, axes)
+    fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
+    plt.savefig("{}_SELEX_histo.{}".format(prefix, imgformat))
 
-    fig = plt.figure(figsize=(2.1*Nrounds, 10))
-    G = gridspec.GridSpec(1, Nrounds)
+
+def plot_histo_(Nrounds, prefix, target, method, axes):
     bins = range(len(target))
-    for i, g in enumerate(G):
+    for i, ax in enumerate(axes):
         samp = list()
         wsamp = list()
         with open("{}_R{:03d}".format(prefix, i+1), 'r') as sf:
@@ -189,7 +191,6 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
         else:
             struct_target = RNA.fold(target)[0]
             rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in samp]
-        ax = plt.subplot(g)
         ax.hist(rd, bins=bins, normed=True, weights=wsamp, orientation="horizontal", label="weighted")
         # # plot unweighted graph if weights present
         # if sum(wsamp) > len(wsamp):
@@ -198,11 +199,8 @@ def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
         # ax.set_xscale("log")
         ax.set_xticklabels([])
         ax.set_xlabel("R {:d}".format(i+1))
-        if i > 0 and (i+1) < Nrounds:
-            ax.set_yticklabels([])
-
-    fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
+        #if i > 0 and (i+1) < Nrounds:
+        #    ax.set_yticklabels([])
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
-    plt.savefig("{}_SELEX_histo.{}".format(prefix, imgformat))
