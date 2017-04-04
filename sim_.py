@@ -9,7 +9,7 @@ import postprocess
 import utils
 
 # Fetch experiment parameters from the settings file
-import ConfigParser
+import configparser
 
 
 def call_post_process(target):
@@ -32,7 +32,7 @@ if not os.path.exists(args.settings):
     print("Settings file '{}' does not exists, aborting.".format(args.settings))
     sys.exit()
 
-settings = ConfigParser.ConfigParser({"initial_samples": "100000",
+settings = configparser.ConfigParser({"initial_samples": "100000",
                                       "img_format": "pdf"})
 settings.read(args.settings)
 
