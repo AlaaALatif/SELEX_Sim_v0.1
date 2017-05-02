@@ -109,5 +109,4 @@ class Amplification:
                                           aptamerSeqs=aptamerSeqs,
                                           alphabetSet=alphabetSet,
                                           distname=distance)
-        print("Mutation has been carried out")
         return amplfdSeqs
