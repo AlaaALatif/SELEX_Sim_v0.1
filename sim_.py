@@ -1,6 +1,7 @@
 import argparse
 import os.path
 import sys
+from numpy import random
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
@@ -33,6 +34,7 @@ if not os.path.exists(args.settings):
     sys.exit()
 
 settings = configparser.ConfigParser({"initial_samples": "100000",
+                                      "random_seed": "0",
                                       "img_format": "pdf"})
 settings.read(args.settings)
 
@@ -40,6 +42,7 @@ aptamerType = settings.get('general', 'selex_type')
 aptamerNum = settings.getint('general', 'aptamer_mode')
 aptamerSeq = settings.get('general', 'reference_aptamer')
 seqLength = settings.getint('general', 'sequence_length')
+rng_seed = settings.getint('general', 'random_seed')
 roundNum = settings.getint('general', 'number_of_rounds')
 outputFileNames = settings.get('general', 'experiment_name')
 # how many sampled sequence to output each round, stored in output_samples_Ri.txt
@@ -70,6 +73,10 @@ if args.postprocess:
 if distanceMeasure not in ("hamming", "basepair", "loop"):
     print("Invalid argument for distance measure")
     sys.exit()
+
+if rng_seed != 0:
+    random.seed(rng_seed)
+
 
 # SELEX simulation based on random aptamer assignment, hamming-based definite selection, and
 # non-ideal stochastic amplfication with no bias.

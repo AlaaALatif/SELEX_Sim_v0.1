@@ -16,6 +16,8 @@ reference_aptamer: GTACGACAGTCATCCTACAC
 aptamer_mode: 0
 ;The length of the sequences in selex
 sequence_length: 20
+; random number generator seed, set it to a positive value to reproduce simulation results exactly
+; random_seed: 143
 ;The number of selex rounds
 number_of_rounds: 40
 ;The name of the selex experiment. This specifies the names of the output files from the
