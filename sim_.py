@@ -1,7 +1,7 @@
 import argparse
 import os.path
 import sys
-from numpy import random
+import random
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification

@@ -1,4 +1,3 @@
-from numpy import random
 import numpy as np
 import Aptamers
 import Distance
@@ -33,8 +32,8 @@ class Selection:
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
-            randIdxs = random.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
+            randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
+            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
@@ -60,7 +59,7 @@ class Selection:
                                         outputFileNames, rnd, stringency):
         # sampling
         print("sampling from initial library...")
-        randomSamples = random.randint(0, int(totalSeqNum-1), size=samplingSize)
+        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randomSamples:
@@ -130,8 +129,8 @@ class Selection:
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
-            randIdxs = random.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
+            randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
+            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
                 randSeqDist = D.bp_func(aptStruct, randSeq)
@@ -151,7 +150,7 @@ class Selection:
                                             outputFileNames, rnd, stringency):
         # sampling
         print("sampling from initial library...")
-        randomSamples = random.randint(0, int(totalSeqNum-1), size=samplingSize)
+        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randomSamples:
@@ -219,8 +218,8 @@ class Selection:
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
-            randIdxs = random.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
+            randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
+            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
                 randSeqDist = D.hamming_func(randSeq, aptPool)
@@ -240,7 +239,7 @@ class Selection:
                                            outputFileNames, rnd, stringency):
         # sampling
         print("sampling from initial library...")
-        randomSamples = random.randint(0, int(totalSeqNum-1), size=samplingSize)
+        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for seqIdx in randomSamples:
@@ -323,7 +322,7 @@ class Selection:
             # draw random sequences
             randIdxs = selectionDist.rvs(size=Nrsamples)
             # draw random affinities
-            randHamms = random.randint(0, seqLength-stringency, size=Nrsamples)
+            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             # carry out stochastic selection
             for i, randIdx in enumerate(randIdxs):
                 if(selectedSeqs == selectionThreshold):

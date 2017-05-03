@@ -1,3 +1,4 @@
+import random
 from math import factorial
 from scipy import stats
 import numpy as np
@@ -68,3 +69,8 @@ def rvd(X, X_sum, distName):
         seqIdxs[i] = i
         probs[i] = seq[1]/X_sum
     return stats.rv_discrete(name=distName, values=(seqIdxs, probs))
+
+
+# long random numbers, via random
+def randint(a, b, size=1):
+    return np.array([random.randint(a, b) for i in range(size)])
