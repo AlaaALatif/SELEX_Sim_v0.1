@@ -74,9 +74,12 @@ if distanceMeasure not in ("hamming", "basepair", "loop"):
     print("Invalid argument for distance measure")
     sys.exit()
 
-if rng_seed != 0:
-    random.seed(rng_seed)
+if rng_seed == 0:
+    rng_seed = random.randint(0, 2**32)
+print("Random seed: {}".format(rng_seed))
+random.seed(rng_seed)
 
+assert len(aptamerSeq) == seqLength
 
 # SELEX simulation based on random aptamer assignment, hamming-based definite selection, and
 # non-ideal stochastic amplfication with no bias.
