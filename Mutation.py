@@ -127,14 +127,14 @@ class Mutation(object):
 
     def choose_dist(self, distname, distance, aptamerSeqs):
         # compute 2D structure of aptamer(s)
-        aptamerSeqsStruct = RNA.fold(aptamerSeqs)[0]
         # find loop in 2D structure
-        aptamerLoop = utils.apt_loopFinder(aptamerSeqs, aptamerSeqsStruct, self.seqLength)
         if distname == "hamming":
             return functools.partial(distance.hamming_func, aptamerSeqs)
-        elif distname == "basepair":
+        aptamerSeqsStruct = RNA.fold(str(aptamerSeqs))[0]
+        if distname == "basepair":
             return functools.partial(distance.bp_func, aptamerSeqsStruct)
-        elif distname == "loop":
+        aptamerLoop = utils.apt_loopFinder(aptamerSeqs, aptamerSeqsStruct, self.seqLength)
+        if distname == "loop":
             return functools.partial(distance.loop_func, aptamerSeqs, aptamerSeqsStruct, aptamerLoop, self.seqLength)
 
     # This method aims to carry out the mutations on the pool of sequences that are in
