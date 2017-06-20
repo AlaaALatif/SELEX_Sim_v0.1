@@ -113,9 +113,9 @@ for r in range(roundNum):
         nxtRnd = open(outFile, 'w')
         print("writing R1 seqs to file")
         for seqIdx in amplfdSeqs:
-            seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+            seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
             # write seqIdx, count, distance, and bias...for now
-            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+'\n')
+            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\n')
         nxtRnd.close()
     else:
         del(slctdSeqs)
@@ -136,7 +136,7 @@ for r in range(roundNum):
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
-            seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+            seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
             # write idx and count for now
             nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\n')
         nxtRnd.close()
