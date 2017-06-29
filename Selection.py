@@ -217,7 +217,7 @@ class Selection:
         selectedSeqs = 0
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
-            print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold))
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
