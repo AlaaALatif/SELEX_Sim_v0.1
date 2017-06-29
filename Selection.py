@@ -69,6 +69,7 @@ class Selection:
         # initialize seqInfo matrix
         slctdSeqs = {}
         aptStruct = RNA.fold(aptPool)[0]
+        print("Optimum aptamer structure: {}".format(aptStruct))
         aptLoop = utils.apt_loopFinder(aptPool, aptStruct, seqLength)
         print("Selection has started")
         # stochastic selection until threshold is met
@@ -160,6 +161,7 @@ class Selection:
         # initialize seqInfo matrix
         slctdSeqs = {}
         aptStruct = RNA.fold(aptPool)[0]
+        print("Optimum aptamer structure: {}".format(aptStruct))
         print("Selection has started")
         # stochastic selection until threshold is met
         slctdSeqs = self.selectionProcess_2D_initial(slctdSeqs, aptStruct,
