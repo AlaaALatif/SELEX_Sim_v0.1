@@ -36,12 +36,12 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
         with open(outputFileNames + "_R{:03d}".format(rnd+1)) as SELEX_round:
             for line in SELEX_round:
                 columns = line.split()
-                distance += int(columns[2])
+                distance += int(columns[1])
                 weighted_distance += int(columns[1])*int(columns[2])
-                total_seq_num += int(columns[1])
+                total_seq_num += int(columns[2])
                 uniq_seq_num += 1
-                distFreqs[rnd][int(columns[2])] += 1
-                weighted_distFreqs[rnd][int(columns[2])] += int(columns[1])
+                distFreqs[rnd][int(columns[1])] += 1
+                weighted_distFreqs[rnd][int(columns[1])] += int(columns[2])
         avgDist_per_rnd[rnd] = distance/uniq_seq_num
         weighted_avgDist_per_rnd[rnd] = weighted_distance/total_seq_num
         total_seqs_freqs[rnd] = total_seq_num
@@ -182,7 +182,7 @@ def plot_histo_(Nrounds, prefix, target, method, axes):
                 ls = l.split()
                 samp.append(ls[0])
                 if len(ls) > 2:
-                    wsamp.append(int(ls[2]))
+                    wsamp.append(int(ls[1]))
                 else:
                     wsamp.append(1)
         # rounds.append([D.hamming_func(target, i) for i in samp])

@@ -115,7 +115,7 @@ for r in range(roundNum):
         for seqIdx in amplfdSeqs:
             seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
             # write seqIdx, count, distance, and bias...for now
-            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\n')
+            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
         nxtRnd.close()
     else:
         del(slctdSeqs)
@@ -138,7 +138,7 @@ for r in range(roundNum):
         for seqIdx in amplfdSeqs:
             seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
             # write idx and count for now
-            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\n')
+            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
         nxtRnd.close()
 print("SELEX completed")
 

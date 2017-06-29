@@ -108,7 +108,7 @@ class Selection:
         with open(sampleFileName, 'w') as s:
             for seqIdx in randSamples:
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(x[seqIdx][1]))+'\n')
+                s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
         for i, seqIdx in enumerate(x):
             x[i][1] = 0
@@ -198,7 +198,7 @@ class Selection:
         with open(sampleFileName, 'w') as s:
             for seqIdx in randSamples:
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(x[seqIdx][1]))+'\n')
+                s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
         for i, seqIdx in enumerate(x):
             x[i][1] = 0
@@ -291,7 +291,7 @@ class Selection:
         with open(sampleFileName, 'w') as s:
             for seqIdx in randSamples:
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(x[seqIdx][1]))+'\n')
+                s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
         # reset all seq counts prior to selection
         for i, seqIdx in enumerate(x):
