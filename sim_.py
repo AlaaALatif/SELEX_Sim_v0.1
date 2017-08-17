@@ -2,6 +2,9 @@ import argparse
 import os.path
 import sys
 import random
+
+import numpy as np
+
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
@@ -79,6 +82,7 @@ if rng_seed == 0:
     rng_seed = random.randint(0, 2**32)
 print("Random seed: {}".format(rng_seed))
 random.seed(rng_seed)
+np.random.seed(rng_seed)
 
 assert len(aptamerSeq) == seqLength
 
