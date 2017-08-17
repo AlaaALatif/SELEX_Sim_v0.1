@@ -97,7 +97,10 @@ for r in range(roundNum):
         else:
             aptamerSeqs = aptamerSeq
             initialSeqNum = len(alphabetSet)**len(aptamerSeq)
-        print("optimum sequences have been chosen: %s" % aptamerSeqs)
+        pl_ = ''
+        if len(aptamerSeqs) > 1:
+            pl_ = 's'
+        print("optimum sequence{} have been chosen: {}".format(pl_, aptamerSeqs))
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
         if distanceMeasure == "hamming":
