@@ -16,7 +16,8 @@ import configparser
 def call_post_process(target):
     print("Data post-processing has started...")
     postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
-    # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames), post_process, distanceMeasure, imgformat=img_format)
+    # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames),
+    #                          post_process, distanceMeasure, imgformat=img_format)
     postprocess.plot_histo(roundNum, outputFileNames, target, "hamming", "png")
     postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "hamming", "png")
     print("Data post-processing is complete.")
@@ -103,14 +104,11 @@ for r in range(roundNum):
         print("optimum sequence{} have been chosen: {}".format(pl_, aptamerSeqs))
         print("SELEX Round 1 has started")
         print("total number of sequences in initial library = "+str(initialSeqNum))
-        if distanceMeasure == "hamming":
-            slctdSeqs = S.stochasticHammingSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
-        elif distanceMeasure == "basepair":
-            slctdSeqs = S.stochasticBasePairSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
-        else:
-            slctdSeqs = S.stochasticLoopSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum, samplingSize, outputFileNames, r, stringency)
+        slctdSeqs = S.select_init[distanceMeasure](alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
+                                                   samplingSize, outputFileNames, r, stringency)
         print("selection carried out for R1")
-        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
+        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
+                                                          aptamerSeqs, alphabetSet, distanceMeasure)
         print("amplification carried out for R1")
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
@@ -126,14 +124,12 @@ for r in range(roundNum):
         totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
         print("total number of sequences in initial pool = "+str(totalSeqNum))
         print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)))
-        if(distanceMeasure == "hamming"):
-            slctdSeqs = S.stochasticHammingSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r, stringency)
-        elif distanceMeasure == "basepair":
-            slctdSeqs = S.stochasticBasePairSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r, stringency)
-        else:
-            slctdSeqs = S.stochasticLoopSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum, samplingSize, outputFileNames, r, stringency)
+        # extra argument uniqSeqNum compared to the init function
+        slctdSeqs = S.select[distanceMeasure](alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
+                                              samplingSize, outputFileNames, r, stringency)
         print("Selection carried for R"+str(r+1))
-        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate, aptamerSeqs, alphabetSet, distanceMeasure)
+        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
+                                                          aptamerSeqs, alphabetSet, distanceMeasure)
         print("Amplification carried for R"+str(r+1))
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
