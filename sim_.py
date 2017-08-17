@@ -64,7 +64,7 @@ def main_sim(settings_file, postprocess_only):
         call_post_process(aptamerSeq)
         sys.exit()
 
-    if distanceMeasure not in ("hamming", "basepair", "loop"):
+    if distanceMeasure not in S.distances:
         print("Invalid argument for distance measure")
         sys.exit()
 
