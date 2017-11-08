@@ -6,6 +6,7 @@ import utils
 # append path for ViennaRNA module
 import RNA
 
+
 D = Distance.Distance()
 Apt = Aptamers.Aptamers()
 
@@ -19,11 +20,11 @@ class Selection:
     def __init__(self):
         self.distances = ("hamming", "basepair", "loop")
         self.select_init = dict(zip(self.distances, (self.stochasticHammingSelection_initial,
-                                                   self.stochasticBasePairSelection_initial,
-                                                   self.stochasticLoopSelection_initial)))
+                                                     self.stochasticBasePairSelection_initial,
+                                                     self.stochasticLoopSelection_initial)))
         self.select = dict(zip(self.distances, (self.stochasticHammingSelection,
-                                                   self.stochasticBasePairSelection,
-                                                   self.stochasticLoopSelection)))
+                                                self.stochasticBasePairSelection,
+                                                self.stochasticLoopSelection)))
 
     # This function takes an empty selected pool, aptamer sequence structure and loop,
     # number of target binding sites, the alphabet set of the molecule, length,
