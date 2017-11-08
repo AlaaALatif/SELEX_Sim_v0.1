@@ -182,7 +182,7 @@ def plot_histo_(Nrounds, prefix, target, method, axes):
                 ls = l.split()
                 samp.append(ls[0])
                 if len(ls) > 2:
-                    wsamp.append(int(ls[1]))
+                    wsamp.append(int(ls[2]))
                 else:
                     wsamp.append(1)
         # rounds.append([D.hamming_func(target, i) for i in samp])
