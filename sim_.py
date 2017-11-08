@@ -97,7 +97,7 @@ def main_sim(settings_file, postprocess_only):
                 pl_ = 's'
             print("optimum sequence{} have been chosen: {}".format(pl_, aptamerSeqs))
             print("SELEX Round 1 has started")
-            print("total number of sequences in initial library = "+str(initialSeqNum))
+            print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
             slctdSeqs = S.select_init[distanceMeasure](alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
             print("selection carried out for R1")
@@ -117,7 +117,7 @@ def main_sim(settings_file, postprocess_only):
             print("SELEX Round "+str(r+1)+" has started")
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
-            print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)))
+            print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             # extra argument uniqSeqNum compared to the init function
             slctdSeqs = S.select[distanceMeasure](alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
                                                   samplingSize, outputFileNames, r, stringency)
