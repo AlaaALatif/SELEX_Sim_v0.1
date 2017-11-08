@@ -31,7 +31,7 @@ class Amplification:
             uniqSeqs += 1
             totalseqs += int(slctdSeqs[seqIdx][0])
         # initialize matrix to hold info for amplified pool
-        x = np.zeros((uniqSeqs, pcrCycleNum+4))
+        x = np.zeros((uniqSeqs, pcrCycleNum+4), dtype='object')
         for i, seqIdx in enumerate(slctdSeqs):
             x[i][0] = seqIdx
             x[i][1] = slctdSeqs[seqIdx][0]
@@ -49,7 +49,7 @@ class Amplification:
         # initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
         # initialize matrix to hold info for mutation pool
-        y = np.zeros((uniqSeqs, seqLength+1))
+        y = np.zeros((uniqSeqs, seqLength+1), dtype="object")
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
         # compute cycle number probabilities for this seq

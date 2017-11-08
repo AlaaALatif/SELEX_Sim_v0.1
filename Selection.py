@@ -101,7 +101,7 @@ class Selection:
         print("unique seq number = "+str(uniqSeqNum))
         print("sample distance = "+str(seqPool[list(seqPool.keys())[5]][1]))
         print("parameters for selection have been initialized")
-        x = np.zeros((uniqSeqNum, 4))
+        x = np.zeros((uniqSeqNum, 4), dtype="object")
         for i, seqIdx in enumerate(seqPool):
             x[i][0] = seqIdx
             x[i][1] = seqPool[seqIdx][0]
@@ -191,7 +191,7 @@ class Selection:
         print("unique seq number = "+str(uniqSeqNum))
         print("sample distance = "+str(seqPool[list(seqPool.keys())[5]][1]))
         print("parameters for selection have been initialized")
-        x = np.zeros((uniqSeqNum, 4))
+        x = np.zeros((uniqSeqNum, 4), dtype="object")
         for i, seqIdx in enumerate(seqPool):
             x[i][0] = seqIdx
             x[i][1] = seqPool[seqIdx][0]
@@ -278,7 +278,7 @@ class Selection:
         print("unique seq number = "+str(uniqSeqNum))
         print("sample distance = "+str(seqPool[list(seqPool.keys())[5]][1]))
         print("parameters for selection have been initialized")
-        x = np.zeros((uniqSeqNum, 4))
+        x = np.zeros((uniqSeqNum, 4), dtype="object")
         # transfer selected pool to matrix x
         for i, seqIdx in enumerate(seqPool):
             x[i][0] = seqIdx
