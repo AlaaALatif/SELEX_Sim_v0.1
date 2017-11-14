@@ -228,7 +228,7 @@ class Selection:
         selectedSeqs = 0
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
-            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold))
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold), flush=True)
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
@@ -259,7 +259,7 @@ class Selection:
         print("Sampling completed")
         # initialize seqInfo matrix
         slctdSeqs = {}
-        print("Selection has started...")
+        print("Selection has started...", flush=True)
         slctdSeqs = self.selectionProcess_1D_initial(slctdSeqs,
                                                      aptPool, selectionThreshold,
                                                      alphabetSet, seqLength,
