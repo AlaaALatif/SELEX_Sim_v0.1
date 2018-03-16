@@ -40,7 +40,7 @@ img_format: pdf
 initial_samples: 1000000
 ;This specifies the number of target ligand sites
 scale: 10000
-;This specifies the distance metric to be used for affinity estimation (hamming, basepair, or loop)
+;This specifies the distance metric to be used for affinity estimation (hamming, basepair, loop, or random)
 distance: loop
 ;This specifies the degree of stringency of the selection step
 stringency: -3

@@ -130,6 +130,8 @@ class Mutation(object):
         # find loop in 2D structure
         if distname == "hamming":
             return functools.partial(distance.hamming_func, aptamerSeqs)
+        if distname == "random":
+            return functools.partial(distance.nodist_func, aptamerSeqs)
         aptamerSeqsStruct = RNA.fold(str(aptamerSeqs))[0]
         if distname == "basepair":
             return functools.partial(distance.bp_func, aptamerSeqsStruct)

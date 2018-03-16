@@ -128,6 +128,9 @@ class Distance:
         biasScore = 0.1*(2*pyrNum - seqLen)/seqLen  # compute bias
         return biasScore
 
+    def nodist_func(self, seq1, seq2):
+        return -1
+
 # #TEST
 # if __name__ == "__main__":
 #     d = Distance()
