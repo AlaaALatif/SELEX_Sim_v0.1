@@ -19,7 +19,8 @@ import configparser
 def main_sim(settings_file, postprocess_only):
     settings = configparser.ConfigParser({"initial_samples": "100000",
                                           "random_seed": "0",
-                                          "img_format": "pdf"})
+                                          "img_format": "pdf"},
+                                         inline_comment_prefixes=(';',))
     settings.read(settings_file)
 
     aptamerType = settings.get('general', 'selex_type')
