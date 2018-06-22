@@ -4,6 +4,7 @@ import random
 from itertools import islice, product
 
 
+
 class Aptamers:
     # Add __init__ constructor here
 
@@ -11,7 +12,7 @@ class Aptamers:
     # Sequences are indexed in order of alphabet set provided
     # Ex1:   if alphabetSet = 'ATCG', length = 4, index = 0 --> 'AAAA'
     # Ex2:   index = 15 --> 'GGGG'
-    def pseudoAptamerGenerator(self, seqIdx, alphabetSet, seqLen):
+    def pseudoAptamerGenerator_(self, seqIdx, alphabetSet, seqLen):
         seq = str()  # initialize seq
         seqArray = np.zeros(seqLen)
         alphabetSetSize = len(alphabetSet)
@@ -32,6 +33,14 @@ class Aptamers:
         seq = seq[::-1]  # reverse string
         assert len(seq) == seqLen
         return seq
+
+    def pseudoAptamerGenerator(self, sn, alphabetSet, seqLen):
+        La = len(alphabetSet)
+        sl = ""
+        for i in range(seqLen):
+            sl += alphabetSet[sn % La]
+            sn = sn // La
+        return sl[::-1]
 
     # method to get seqArray given seq index
     def get_seqArray(self, seqIdx, alphabetSet, seqLen):
