@@ -4,9 +4,12 @@ import random
 from itertools import islice, product
 
 
-
 class Aptamers:
     # Add __init__ constructor here
+    def __init__(self):
+        self.alphabetSet = "ATCG"
+        self.La = len(self.alphabetSet)
+        self.td = str.maketrans(dict(zip(self.alphabetSet, "0123")))
 
     # Generate any sequence given it's index, length and the alphabet set
     # Sequences are indexed in order of alphabet set provided
@@ -35,11 +38,11 @@ class Aptamers:
         return seq
 
     def pseudoAptamerGenerator(self, sn, alphabetSet, seqLen):
-        La = len(alphabetSet)
+        sn = int(sn)
         sl = ""
         for i in range(seqLen):
-            sl += alphabetSet[sn % La]
-            sn = sn // La
+            sl += alphabetSet[sn % self.La]
+            sn = sn // self.La
         return sl[::-1]
 
     # method to get seqArray given seq index
@@ -63,7 +66,7 @@ class Aptamers:
     # Sequences are indexed in order of alphabet set provided
     # Ex1:   if alphabetSet = 'ATCG', length = 4, seq = 'AAAA' --> 0
     # Ex2:   seq = 'GGGG' --> 15
-    def pseudoAptamerIndexGenerator(self, seq, alphabetSet, seqLen):
+    def pseudoAptamerIndexGenerator_(self, seq, alphabetSet, seqLen):
         assert len(seq) == seqLen
         alphabetSize = len(alphabetSet)
         seq = seq[::-1]  # reverse seq
@@ -71,6 +74,9 @@ class Aptamers:
         for ntPos, nt in enumerate(seq):
             seqIdx += alphabetSet.index(nt)*(alphabetSize)**(ntPos)
         return seqIdx
+
+    def pseudoAptamerIndexGenerator(self, seq, alphabetSet, seqLen):
+        return int(seq.translate(self.td), len(alphabetSet))
 
     def pseudoAptamerIterator(self, alphabetSet, seqLen):
         initLibrary = product(alphabetSet, repeat=seqLen)
