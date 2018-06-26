@@ -114,10 +114,9 @@ class Selection:
         selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
-        randSamples = selectionDist.rvs(size=samplingSize)
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
-            for seqIdx in randSamples:
+            for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
                 s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
@@ -204,10 +203,9 @@ class Selection:
         selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
-        randSamples = selectionDist.rvs(size=samplingSize)
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
-            for seqIdx in randSamples:
+            for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
                 s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
@@ -298,12 +296,11 @@ class Selection:
         selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
-        # draw random samples from distribution
-        randSamples = selectionDist.rvs(size=samplingSize)
         # write to samples file
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
-            for seqIdx in randSamples:
+            # draw random samples from distribution
+            for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
                 s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")
@@ -398,12 +395,11 @@ class Selection:
         selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
-        # draw random samples from distribution
-        randSamples = selectionDist.rvs(size=samplingSize)
         # write to samples file
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
-            for seqIdx in randSamples:
+            # draw random samples from distribution
+            for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
                 s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
         print("Sampling has completed")

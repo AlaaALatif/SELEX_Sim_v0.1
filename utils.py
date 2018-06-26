@@ -71,6 +71,21 @@ def rvd(X, X_sum, distName):
     return stats.rv_discrete(name=distName, values=(seqIdxs, probs))
 
 
+def batch_size(size, Nbatch):
+    i = 0
+    while size-i > Nbatch:
+        yield(Nbatch)
+        i += Nbatch
+    else:
+        yield(size-i)
+
+
+def rvs_iter(dist, size, Nbatch=1000):
+    for S in batch_size(size, Nbatch):
+        for v in dist.rvs(size=Nbatch):
+            yield v
+
+
 # long random numbers, via random
 def randint(a, b, size=1):
     return np.array([random.randint(a, b) for i in range(size)])
