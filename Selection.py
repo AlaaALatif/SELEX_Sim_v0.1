@@ -345,7 +345,7 @@ class Selection:
                 elif(int(x[randIdx][2]) < randHamms[i]):
                     x[randIdx][1] += 1
                     selectedSeqs += 1
-            return x
+        return x
 
     def randomSelection_initial(self, alphabetSet, seqLength,
                                 aptPool, selectionThreshold,
