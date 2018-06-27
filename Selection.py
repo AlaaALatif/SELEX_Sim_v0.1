@@ -223,7 +223,7 @@ class Selection:
                                     totalSeqNum, stringency,
                                     distf=D.hamming_func):
         selectedSeqs = 0
-        print("Drawing sample batch")
+        print("Drawing sample batch of {} sequences".format(selectionThreshold))
         while(selectedSeqs < selectionThreshold):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
