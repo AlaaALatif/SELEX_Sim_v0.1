@@ -13,7 +13,7 @@ Apt = Aptamers.Aptamers()
 # NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
 # number of random samples to draw at a time
-Nrsamples = 10**4
+Nrsamples = 10**3
 
 
 class Selection:
