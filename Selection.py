@@ -227,7 +227,6 @@ class Selection:
         selectedSeqs = 0
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
-            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold), flush=True)
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
@@ -243,29 +242,29 @@ class Selection:
                         randSeqBias = D.bias_func(randSeq, seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold), flush=True)
         return slctdSeqs
 
     def stochasticHammingSelection_initial(self, alphabetSet, seqLength,
                                            aptPool, selectionThreshold,
                                            totalSeqNum, samplingSize,
                                            outputFileNames, rnd, stringency):
-        # sampling
-        print("sampling from initial library...")
-        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        with open(sampleFileName, 'w') as s:
-            for seqIdx in randomSamples:
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(seq+'\n')
-        print("Sampling completed")
         # initialize seqInfo matrix
         slctdSeqs = {}
+        print("sampling from initial library...")
         print("Selection has started...", flush=True)
+        # sampling
         slctdSeqs = self.selectionProcess_1D_initial(slctdSeqs,
                                                      aptPool, selectionThreshold,
                                                      alphabetSet, seqLength,
                                                      totalSeqNum, stringency)
         print("sequence selection has been carried out")
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
+        with open(sampleFileName, 'w') as s:
+            for sidx, x in slctdSeqs.items():
+                seq = Apt.pseudoAptamerGenerator(sidx, alphabetSet, seqLength)
+                s.write(str(seq)+'\t'+str(int(x[1]))+'\t'+str(int(x[0]))+'\n')
+        print("Sampling completed")
         return slctdSeqs
 
     def stochasticHammingSelection(self, alphabetSet, seqLength,
@@ -293,13 +292,19 @@ class Selection:
         selectionDist = utils.rvd(x, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
-        # write to samples file
+        samps = dict()
+        # draw random samples from distribution
+        for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
+            if seqIdx in samps:
+                samps[seqIdx] += 1
+            else:
+                samps[seqIdx] = 1
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
+        # write to samples file
         with open(sampleFileName, 'w') as s:
-            # draw random samples from distribution
-            for seqIdx in utils.rvs_iter(selectionDist, samplingSize):
+            for seqIdx, N in samps.items():
                 seq = Apt.pseudoAptamerGenerator(x[seqIdx][0], alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\n')
+                s.write(str(seq)+'\t'+str(int(x[seqIdx][2]))+'\t'+str(N)+'\n')
         print("Sampling has completed")
         # reset all seq counts prior to selection
         for i, seqIdx in enumerate(x):
