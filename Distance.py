@@ -121,12 +121,8 @@ class Distance:
     # Input: str(), int()
     # Output: float()
     def bias_func(self, seq, seqLen):
-        pyrNum = 0
-        for nt in seq[:-1]:
-            if(nt == 'C') or (nt == 'T'):
-                pyrNum += 1  # increment no. of pyrimidines
-        biasScore = 0.1*(2*pyrNum - seqLen)/seqLen  # compute bias
-        return biasScore
+        pyrNum = seq.count('T', 0, -1) + seq.count('C', 0, -1)
+        return 0.1*(2*pyrNum - seqLen)/seqLen  # compute bias
 
     def nodist_func(self, seq1, seq2):
         return -1
