@@ -157,8 +157,6 @@ class Mutation(object):
         md = self.choose_dist(distname, d, aptamerSeqs)
         # for each seq in the mutation pool
         for si, seqIdx in enumerate(mutatedPool):
-            if si % 10000 == 0:
-                print("Mutated {:6.2f}%".format(100.0*si/len(mutatedPool)))
             # grab probabilities to draw it after each pcr cycle
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
@@ -251,5 +249,7 @@ class Mutation(object):
                                 # compute expected decrease in no. of wild type seq
                                 amplfdSeqs[seqIdx][0] -= int(cycleNumProb*initialMutCount *
                                                              (1+pcrYld)**(pcrCycleNum-cycleNum))
+            if si % 1000 == 0:
+                print("Mutated {:6.2f}%".format(100.0*si/len(mutatedPool)))
         print("Mutation has been carried out")
         return amplfdSeqs
