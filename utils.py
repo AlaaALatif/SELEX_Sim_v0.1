@@ -22,8 +22,7 @@ def binomCoeff(n, k):
 # This converts an array of probabilities into a
 # discrete probability distribution
 def convert_to_distribution(x, y, distName):
-    xDist = stats.rv_discrete(name=distName, values=(x, y))
-    return xDist
+    return stats.rv_discrete(name=distName, values=(x, y))
 
 
 # This finds the loop region in a given sequence

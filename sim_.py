@@ -118,16 +118,15 @@ def main_sim(settings_file, postprocess_only):
                 nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
             nxtRnd.close()
         else:
-            del(slctdSeqs)
             print("SELEX Round "+str(r+1)+" has started")
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             # extra argument uniqSeqNum compared to the init function
-            slctdSeqs = S.select[distanceMeasure](alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
+            amplfdSeqs = S.select[distanceMeasure](alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
                                                   samplingSize, outputFileNames, r, stringency)
             print("Selection carried for R"+str(r+1))
-            amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
+            amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
                                                               aptamerSeqs, alphabetSet, distanceMeasure)
             print("Amplification carried for R"+str(r+1))
             outFile = outputFileNames + "_R{:03d}".format(r+1)
