@@ -11,7 +11,6 @@ import numpy as np
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
-from Mutation import Mutation
 import postprocess
 import utils
 
@@ -52,7 +51,6 @@ def main_sim(settings_file, postprocess_only):
     Apt = Aptamers()
     S = Selection()
     Amplify = Amplification()
-    Mut = Mutation()
 
     def call_post_process(target):
         print("Data post-processing has started...")
