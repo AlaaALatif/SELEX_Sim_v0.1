@@ -57,8 +57,8 @@ def main_sim(settings_file, postprocess_only):
         postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
         # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames),
         #                          post_process, distanceMeasure, imgformat=img_format)
-        postprocess.plot_histo(roundNum, outputFileNames, target, "hamming", "png")
-        postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "hamming", "png")
+        postprocess.plot_histo(roundNum, outputFileNames, target, "png", "hamming")
+        postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "png", "hamming")
         print("Data post-processing is complete.")
         return
 

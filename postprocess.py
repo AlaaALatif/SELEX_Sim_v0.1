@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import RNA
 
@@ -29,23 +30,19 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
     distFreqs = np.zeros((roundNum, seqLength+5))
     weighted_distFreqs = np.zeros((roundNum, seqLength+5))
     for rnd in range(roundNum):
-        total_seq_num = 0
-        uniq_seq_num = 0
-        distance = 0.0
-        weighted_distance = 0.0
-        with open(outputFileNames + "_R{:03d}".format(rnd+1)) as SELEX_round:
-            for line in SELEX_round:
-                columns = line.split()
-                distance += int(columns[1])
-                weighted_distance += int(columns[1])*int(columns[2])
-                total_seq_num += int(columns[2])
-                uniq_seq_num += 1
-                distFreqs[rnd][int(columns[1])] += 1
-                weighted_distFreqs[rnd][int(columns[1])] += int(columns[2])
-        avgDist_per_rnd[rnd] = distance/uniq_seq_num
-        weighted_avgDist_per_rnd[rnd] = weighted_distance/total_seq_num
-        total_seqs_freqs[rnd] = total_seq_num
-        uniq_seqs_freqs[rnd] = uniq_seq_num
+        data = pd.read_table("{}_R{:03d}".format(outputFileNames, rnd+1), names=["seq", "dist", "count"])
+        data["wdist"] = data["dist"]*data["count"]
+        bin_edges = range(data["dist"].min(), data["dist"].max(), 1)
+        c, v = np.histogram(data["dist"], bins=bin_edges)
+        wc, wv = np.histogram(data["dist"], bins=bin_edges, weights=data["count"])
+        for vi, ci in zip(v, c):
+            distFreqs[rnd][vi] = ci
+        for vi, ci in zip(wv, wc):
+            weighted_distFreqs[rnd][vi] = ci
+        avgDist_per_rnd[rnd] = data["dist"].mean()
+        weighted_avgDist_per_rnd[rnd] = data["wdist"].mean()
+        total_seqs_freqs[rnd] = data["count"].sum()
+        uniq_seqs_freqs[rnd] = len(data["count"])
         for i in range(seqLength+5):
             distFreqs[rnd][i] /= uniq_seqs_freqs[rnd]
             weighted_distFreqs[rnd][i] /= total_seqs_freqs[rnd]
@@ -164,34 +161,27 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
 #                fig3.text(0.5, 0.98, 'Total Sequences', ha='center')
 
 
-def plot_histo(Nrounds, prefix, target, method, imgformat="pdf"):
+def plot_histo(Nrounds, prefix, target, imgformat="pdf", method=None):
     plt.style.use("seaborn-white")
     fig, axes = plt.subplots(1, Nrounds, figsize=(2.1*Nrounds, 10), sharey=True)
-    plot_histo_(Nrounds, prefix, target, method, axes)
+    plot_histo_(Nrounds, prefix, target, axes, method)
     fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
     plt.savefig("{}_SELEX_histo.{}".format(prefix, imgformat))
 
 
-def plot_histo_(Nrounds, prefix, target, method, axes):
+def plot_histo_(Nrounds, prefix, target, axes, method=None):
     bins = range(len(target))
     for i, ax in enumerate(axes):
-        samp = list()
-        wsamp = list()
-        with open("{}_R{:03d}".format(prefix, i+1), 'r') as sf:
-            for l in sf:
-                ls = l.split()
-                samp.append(ls[0])
-                if len(ls) > 2:
-                    wsamp.append(int(ls[2]))
-                else:
-                    wsamp.append(1)
-        # rounds.append([D.hamming_func(target, i) for i in samp])
-        if method == "hamming":
-            rd = [D.hamming_func(target, i_) for i_ in samp]
+        data = pd.read_table("{}_R{:03d}".format(prefix, i+1), names=["seq", "dist", "count"])
+        if method is not None:
+            if method == "hamming":
+                rd = [D.hamming_func(target, i_) for i_ in data["seq"]]
+            else:
+                struct_target = RNA.fold(target)[0]
+                rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in data["seq"]]
         else:
-            struct_target = RNA.fold(target)[0]
-            rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in samp]
-        ax.hist(rd, bins=bins, normed=True, weights=wsamp, orientation="horizontal", label="weighted")
+            rd = data["dist"]
+        ax.hist(rd, bins=bins, normed=True, weights=data["count"], orientation="horizontal", label="weighted")
         # # plot unweighted graph if weights present
         # if sum(wsamp) > len(wsamp):
         #     ax.hist(rd, bins=bins, normed=True, orientation="horizontal", histtype="step", color="C1", linewidth=2, label="unweighted")
