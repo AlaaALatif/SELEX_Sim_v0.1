@@ -11,7 +11,6 @@ import numpy as np
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
-from Mutation import Mutation
 import postprocess
 import utils
 
@@ -52,15 +51,14 @@ def main_sim(settings_file, postprocess_only):
     Apt = Aptamers()
     S = Selection()
     Amplify = Amplification()
-    Mut = Mutation()
 
     def call_post_process(target):
         print("Data post-processing has started...")
         postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
         # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames),
         #                          post_process, distanceMeasure, imgformat=img_format)
-        postprocess.plot_histo(roundNum, outputFileNames, target, "hamming", "png")
-        postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "hamming", "png")
+        postprocess.plot_histo(roundNum, outputFileNames, target, "png", "hamming")
+        postprocess.plot_histo(roundNum, "{}_samples".format(outputFileNames), target, "png", "hamming")
         print("Data post-processing is complete.")
         return
 
