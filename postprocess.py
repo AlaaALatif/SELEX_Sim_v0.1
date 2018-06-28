@@ -40,7 +40,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
         for vi, ci in zip(wv, wc):
             weighted_distFreqs[rnd][vi] = ci
         avgDist_per_rnd[rnd] = data["dist"].mean()
-        weighted_avgDist_per_rnd[rnd] = data["wdist"].mean()
+        weighted_avgDist_per_rnd[rnd] = data["wdist"].sum() / data["count"].sum()
         total_seqs_freqs[rnd] = data["count"].sum()
         uniq_seqs_freqs[rnd] = len(data["count"])
         for i in range(seqLength+5):
