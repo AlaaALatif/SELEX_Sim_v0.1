@@ -294,8 +294,8 @@ class Selection:
                 s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
         print("Sampling has completed")
         # reset all seq counts prior to selection
-        for s in seqPool.values():
-            s[0] = 0
+        for k in seqPool:
+            seqPool[k][0] = 0
         # draw a bunch of random seqs
         self.selectionProcess(seqPool, selectionThreshold, selectionDist,
                               seqLength, stringency)
@@ -317,18 +317,15 @@ class Selection:
         # until all sites are occupied
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
-            print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
             # draw random sequences
-            randIdxs = selectionDist.rvs_iter(size=Nrsamples)
-            # draw random affinities
-            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
+            randIdx = selectionDist.rvs()
             # carry out stochastic selection
-            for randIdx, randHamm in zip(randIdxs, randHamms):
-                if(selectedSeqs == selectionThreshold):
-                    return
-                elif(int(seqPool[randIdx][1]) < randHamm):
-                    seqPool[randIdx][0] += 1
-                    selectedSeqs += 1
+            # draw random affinities
+            if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-stringency)):
+                seqPool[randIdx][0] += 1
+                selectedSeqs += 1
+            if selectedSeqs % Nrsamples == 0:
+                print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
         return
 
     def randomSelection_initial(self, alphabetSet, seqLength,

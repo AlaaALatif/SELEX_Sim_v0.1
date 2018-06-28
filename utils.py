@@ -81,14 +81,19 @@ class rv_int():
         self.rv = stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int),
                                                            np.array([seqPool[i][0] for i in self.si], dtype=np.float64)/X_sum))
 
+    def rvs(self):
+        return self.si[self.rv.rvs()]
+
     def rvs_iter(self, *args, **kwargs):
         for v in self.rvs_iter_(*args, **kwargs):
             yield self.si[v]
 
     def rvs_iter_(self, size, Nbatch=1000):
-        for S in batch_size(size, Nbatch):
-            for v in self.rv.rvs(size=S):
-                yield v
+        for i in range(size):
+            yield self.rv.rvs()
+        # for S in batch_size(size, Nbatch):
+        #     for v in self.rv.rvs(size=S):
+        #         yield v
 
 
 def batch_size(size, Nbatch):
