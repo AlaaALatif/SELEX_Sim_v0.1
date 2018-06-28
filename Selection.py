@@ -100,7 +100,6 @@ class Selection:
         slctdSeqs = {}
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
-        print("unique seq number = "+str(uniqSeqNum))
         print("parameters for selection have been initialized")
         x = np.zeros((uniqSeqNum, 4), dtype="object")
         for i, seqIdx in enumerate(seqPool):
@@ -188,7 +187,6 @@ class Selection:
         slctdSeqs = {}
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
-        print("unique seq number = "+str(uniqSeqNum))
         print("parameters for selection have been initialized")
         x = np.zeros((uniqSeqNum, 4), dtype="object")
         for i, seqIdx in enumerate(seqPool):
@@ -275,7 +273,6 @@ class Selection:
         slctdSeqs = {}
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
-        print("unique seq number = "+str(uniqSeqNum))
         print("parameters for selection have been initialized")
         x = np.zeros((uniqSeqNum, 4), dtype="object")
         # transfer selected pool to matrix x
@@ -379,7 +376,6 @@ class Selection:
         slctdSeqs = {}
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
-        print("unique seq number = "+str(uniqSeqNum))
         print("parameters for selection have been initialized")
         x = np.zeros((uniqSeqNum, 4), dtype="object")
         # transfer selected pool to matrix x
