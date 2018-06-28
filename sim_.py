@@ -25,6 +25,9 @@ def main_sim(settings_file, postprocess_only):
                                          inline_comment_prefixes=(';',))
     settings.read(settings_file)
 
+    if not settings.has_option("selectionparams", "initial_samples"):
+        print("No initial samples defined, using default")
+
     aptamerType = settings.get('general', 'selex_type')
     aptamerNum = settings.getint('general', 'aptamer_mode')
     aptamerSeq = settings.get('general', 'reference_aptamer')
