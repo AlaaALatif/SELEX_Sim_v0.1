@@ -70,6 +70,27 @@ def rvd(X, X_sum, distName):
     return stats.rv_discrete(name=distName, values=(seqIdxs, probs))
 
 
+def rvd_(seqPool, X_sum, distName):
+    return stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int), np.array([v[0] for v in seqPool.values()], dtype=np.float64)/X_sum))
+    #return stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int), np.array([v[0] for v in seqPool.values()], dtype=np.float64)/X_sum))
+
+
+class rv_int():
+    def __init__(self, seqPool, X_sum, distName):
+        self.si = list(seqPool)
+        self.rv = stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int),
+                                                           np.array([seqPool[i][0] for i in self.si], dtype=np.float64)/X_sum))
+
+    def rvs_iter(self, *args, **kwargs):
+        for v in self.rvs_iter_(*args, **kwargs):
+            yield self.si[v]
+
+    def rvs_iter_(self, size, Nbatch=1000):
+        for S in batch_size(size, Nbatch):
+            for v in self.rv.rvs(size=S):
+                yield v
+
+
 def batch_size(size, Nbatch):
     i = 0
     while size-i > Nbatch:
@@ -79,10 +100,6 @@ def batch_size(size, Nbatch):
         yield(size-i)
 
 
-def rvs_iter(dist, size, Nbatch=1000):
-    for S in batch_size(size, Nbatch):
-        for v in dist.rvs(size=Nbatch):
-            yield v
 
 
 # long random numbers, via random
