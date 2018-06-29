@@ -3,7 +3,7 @@ import functools
 from scipy import stats
 import numpy as np
 from numpy import random
-from numpy.random import binomial as binom
+from numpy.random import binomial as binom, poisson
 from math import factorial as fact
 from sklearn.preprocessing import normalize
 import utils
@@ -250,5 +250,154 @@ class Mutation(object):
                                                              (1+pcrYld)**(pcrCycleNum-cycleNum))
             if si % 1000 == 0:
                 print("Mutated {:6.2f}%".format(100.0*si/len(mutatedPool)))
+        print("Mutation has been carried out")
+        return amplfdSeqs
+
+    # This method aims to carry out the mutations on the pool of sequences that are in
+    # the given mutated pool. It also updates the counts of the wild-type sequence and their
+    # mutated variants to take into account pcr amplification during the process
+    def generate_mutants_new(self, amplfdSeqs, aptamerSeqs, alphabetSet, distname):
+        pcrCycleNum = self.pcrCycleNum
+        pcrYld = self.pcrYld
+        seqLength = self.seqLength
+        # calculate probabilities of different possible mutation numbers
+        mutNumProbs = self.get_mutation_probabilities_original()
+        # compute size of alphabet (i.e. 4 for DNA/RNA, 20 for peptides)
+        alphabetSize = len(alphabetSet)
+        # initialize aptamers class
+        apt = Aptamers()
+        # initialize distance class
+        d = Distance()
+        md = self.choose_dist(distname, d, aptamerSeqs)
+        # save copy number
+        prevSeqs = [k for k in amplfdSeqs.keys()]
+        prevCopies = [v[0] for v in amplfdSeqs.values()]
+        Lc = len(prevCopies)
+        # keep track of sequence count after each pcr cycle (except last one)
+        seqPop = np.zeros(pcrCycleNum)
+        # for each seq in the mutation pool
+        mutatedPool = np.zeros(seqLength)
+        for si, (seqIdx, sc) in enumerate(zip(prevSeqs, prevCopies)):
+            sn = sc
+            # random PCR with bias using brute force
+            for n in range(pcrCycleNum):
+                # sequence count after n cycles
+                seqPop[n] = sn
+                # amplify count using initial count, polymerase yield, and bias score
+                sn += int(binom(sn, min(0.9999, pcrYld+amplfdSeqs[seqIdx][2])))
+            amplfdSeqs[seqIdx][0] = sn
+            # compute cycle number probabilities
+            # grab probabilities to draw it after each pcr cycle
+            cycleNumProbs = seqPop / seqPop.sum()
+            # if accumulated seq count is greater than 10,000
+            if np.sum(seqPop) > 10000:
+                # for each possible number of mutations in any seq copy (1-seqLength)
+                # approximate the proportion of copies that will be mutated using
+                # corresponding probability p(M=mutNum)
+                mutatedPool = mutNumProbs[1:seqLength+1]*seqPop.sum()
+            # if seq count is less than 10,000
+            else:
+                # draw random mutNum from the mutation distribution for each seq copy
+                muts = poisson(self.errorRate*seqLength, int(np.sum(seqPop)))  # SLOW STEP
+                # remove all drawn numbers equal to zero
+                muts = muts[muts != 0]
+                # for each non-zero mutation number
+                for mutNum in muts:
+                    # increment copy number to be mutated
+                    mutatedPool[mutNum] += 1
+
+            if mutatedPool.sum() == 0:
+                continue
+            computeCND = True
+            # for each mutation instance for the seq
+            for mutNum, mutFreq in enumerate(mutatedPool):
+                mutFreq = int(mutatedPool[mutNum])
+                # if the mutation is carried out on less than 10,000 copies, draw random numbers...:(
+                if mutFreq == 0:
+                    continue
+                elif mutFreq < 10000:
+                    # compute a discrete distribution from probabilities
+                    if computeCND:
+                        cycleNumDist = stats.rv_discrete(values=(np.arange(pcrCycleNum), cycleNumProbs))
+                        computeCND = False
+                    # draw random cycle numbers after which the sequences were drawn for mutation
+                    cycleNums = cycleNumDist.rvs(size=mutFreq)
+                    # generate the wild-type sequence string
+                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+                    # for each copy to be mutated
+                    for mut in range(mutFreq):
+                        wildTypeCount = 1
+                        mutantCount = 1
+                        # draw random positions on the seq to mutate
+                        randPos = random.randint(1, seqLength+1, size=mutNum+1)
+                        # draw a random nucleotide for each position
+                        randNucs = random.randint(alphabetSize, size=mutNum+1)
+                        mutatedSeq = wildTypeSeq
+                        # for each position in seq, replace with random nucleotide
+                        for posNum, pos in enumerate(randPos):
+                            mutatedSeq = mutatedSeq[:(pos-1)] + alphabetSet[randNucs[posNum]] + \
+                                         mutatedSeq[pos:]
+                        # generate index of mutant based on string
+                        mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq,
+                                                                        alphabetSet,
+                                                                        seqLength)
+                        # if mutant not found in amplified pool
+                        if mutatedSeqIdx not in amplfdSeqs:
+                            # add seq and its info to the amplified pool
+                            mutDist = md(mutatedSeq)
+                            mutBias = d.bias_func(mutatedSeq, seqLength)
+                            amplfdSeqs[mutatedSeqIdx] = np.array([mutantCount,
+                                                                  mutDist, mutBias])
+                        # mutantNum = (1+pcrYld)**(pcrCycleNum - cycleNums[mut])
+                        # for each pcr cycle after mutation has occured
+                        for n in range(pcrCycleNum-cycleNums[mut]):
+                            # compute amplified mutant count
+                            mutantCount += int(binom(mutantCount,
+                                               pcrYld+amplfdSeqs[mutatedSeqIdx][2]))
+                            # compute loss of count from wild-type
+                            wildTypeCount += int(binom(wildTypeCount,
+                                                 pcrYld+amplfdSeqs[seqIdx][2]))
+                        # increment mutant seq count in amplified pool
+                        amplfdSeqs[mutatedSeqIdx][0] += mutantCount
+                        # decrement wild-type seq count in amplfied pool
+                        amplfdSeqs[seqIdx][0] -= wildTypeCount
+                # if mutation carried out on more than 10,000 copies, avoid drawing random nums
+                elif mutFreq > 10000:
+                    # calculate fraction of mutants for each possible mutation
+                    initialMutCount = int(0.333*mutFreq/seqLength)
+                    # for each possible position that mutation can occur
+                    for seqPos in range(seqLength):
+                        # grab the sequence encoding array
+                        seqArray = apt.get_seqArray(seqIdx, alphabetSet, seqLength)
+                        # original nucleotide index
+                        oni = seqArray[seqPos]
+                        # mutated nucleotide index
+                        for mni in range(4):
+                            # skip if same residue
+                            if mni == oni:
+                                continue
+                            mnd = mni-oni
+                            mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1)*mnd)
+                            # if the mutated seq is not found in amplified pool
+                            if mutatedSeqIdx not in amplfdSeqs:
+                                # generate seq string using its index
+                                mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx,
+                                                                        alphabetSet,
+                                                                        seqLength)
+                                mutDist = md(mutatedSeq)
+                                # compute bias score of seq
+                                mutBias = d.bias_func(mutatedSeq, seqLength)
+                                # add to amplified pool
+                                amplfdSeqs[mutatedSeqIdx] = np.array([0, mutDist, mutBias])
+                            for cycleNum, cycleNumProb in enumerate(cycleNumProbs):
+                                # compute expected number of mutant copies after amplification
+                                amplfdSeqs[mutatedSeqIdx][0] += int(cycleNumProb *
+                                                                    initialMutCount *
+                                                                    (1+pcrYld)**(pcrCycleNum-cycleNum))
+                                # compute expected decrease in no. of wild type seq
+                                amplfdSeqs[seqIdx][0] -= int(cycleNumProb*initialMutCount *
+                                                             (1+pcrYld)**(pcrCycleNum-cycleNum))
+            if si % int(Lc/20) == 0:
+                print("Mutated {:6.2f}%".format(100.0*si/Lc))
         print("Mutation has been carried out")
         return amplfdSeqs

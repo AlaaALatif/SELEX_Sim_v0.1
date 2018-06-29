@@ -11,7 +11,8 @@ class Amplification:
                                      seqLength, pcrCycleNum,
                                      pcrYld, errorRate,
                                      aptamerSeqs, alphabetSet, distance):
-        return self.randomPCR_with_ErrorsAndBias_FASTv2(slctdSeqs,
+        #return self.randomPCR_with_ErrorsAndBias_FASTv2(slctdSeqs,
+        return self.randomPCR_with_ErrorsAndBias_FASTv3(slctdSeqs,
                                                         seqLength, pcrCycleNum,
                                                         pcrYld, errorRate,
                                                         aptamerSeqs, alphabetSet, distance)
@@ -40,7 +41,6 @@ class Amplification:
         # mutDist = mut.get_mutation_distribution_original()
         print("Discrete Mutation Distribution has been computed")
     # PCR Amplification
-        totalseqs = 0
         # initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
         # keep track of sequence count after each pcr cycle (except last one)
@@ -59,9 +59,6 @@ class Amplification:
             slctdSeqs[seqIdx][0] = sn
             # compute cycle number probabilities
             slctdSeqs[seqIdx][3:] = seqPop / seqPop.sum()
-            # update total num of seqs
-            totalseqs += slctdSeqs[seqIdx][0]
-            # tranfer seq index to matrix y
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
                 # for each possible number of mutations in any seq copy (1-seqLength)
@@ -94,4 +91,40 @@ class Amplification:
                              aptamerSeqs=aptamerSeqs,
                              alphabetSet=alphabetSet,
                              distname=distance)
+        return slctdSeqs
+
+    def randomPCR_with_ErrorsAndBias_FASTv3(self, slctdSeqs,
+                                            seqLength, pcrCycleNum,
+                                            pcrYld, errorRate,
+                                            aptamerSeqs, alphabetSet, distance):
+        # initialize Mutation object from class
+        mut = Mutation(seqLength=seqLength, errorRate=errorRate,
+                       pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
+        # count number of seqs in selected pool
+        totalseqs = 0
+        uniqSeqs = 0
+        # compute total seq num, unique seq num, and transfer info to x
+        for i, seqIdx in enumerate(slctdSeqs):
+            uniqSeqs += 1
+            totalseqs += int(slctdSeqs[seqIdx][0])
+        print("number of unique seqs in selected pool prior to amplification: "+str(uniqSeqs))
+        print("number of seqs in selected pool prior to amplification: "+str(totalseqs))
+        # # compute a discrete distribution of mutation numbers
+        # mutDist = mut.get_mutation_distribution_original()
+        print("Discrete Mutation Distribution has been computed")
+    # PCR Amplification
+        # initialize dictionary to keep info on seqs to be mutated
+        # keep track of sequence count after each pcr cycle (except last one)
+        print("Amplification has started...")
+        # for each sequence in the selected pool
+        print("Amplification carried out")
+        print("Sequence selection for mutation has started...")
+        # remove all mutation numbers with zero copies to be mutated
+        print("Mutation selection has been carried out")
+        print("Mutant generation has started...")
+        # generate mutants and add to the amplfied sequence pool
+        mut.generate_mutants_new(amplfdSeqs=slctdSeqs,
+                                 aptamerSeqs=aptamerSeqs,
+                                 alphabetSet=alphabetSet,
+                                 distname=distance)
         return slctdSeqs
