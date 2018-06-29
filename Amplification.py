@@ -50,7 +50,7 @@ class Amplification:
         print("Amplification has started...")
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
-            mutatedPool[seqIdx] = np.zeros(seqLength, dtype="object")
+            mutatedPool[seqIdx] = np.zeros(seqLength)
             sn = slctdSeqs[seqIdx][0]
             # random PCR with bias using brute force
             for n in range(pcrCycleNum):
