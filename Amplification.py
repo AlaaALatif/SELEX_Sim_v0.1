@@ -30,13 +30,8 @@ class Amplification:
         for i, seqIdx in enumerate(slctdSeqs):
             uniqSeqs += 1
             totalseqs += int(slctdSeqs[seqIdx][0])
-        # initialize matrix to hold info for amplified pool
-        x = np.zeros((uniqSeqs, pcrCycleNum+4), dtype='object')
-        for i, seqIdx in enumerate(slctdSeqs):
-            x[i][0] = seqIdx
-            x[i][1] = slctdSeqs[seqIdx][0]
-            x[i][2] = slctdSeqs[seqIdx][1]
-            x[i][3] = slctdSeqs[seqIdx][2]
+        for seqIdx in slctdSeqs:
+            slctdSeqs[seqIdx].resize(pcrCycleNum+3)
         print("number of unique seqs in selected pool prior to amplification: "+str(uniqSeqs))
         print("number of seqs in selected pool prior to amplification: "+str(totalseqs))
         # calculate probabilities of different possible mutation numbers
@@ -56,25 +51,25 @@ class Amplification:
         cycleNumProbs = np.zeros(pcrCycleNum)
         print("Amplification has started...")
         # for each sequence in the selected pool
-        for i in range(len(slctdSeqs)):
+        for i, seqIdx in enumerate(slctdSeqs):
+            sn = slctdSeqs[seqIdx][0]
             # random PCR with bias using brute force
             for n in range(pcrCycleNum):
                 # sequence count after n cycles
-                seqPop[n] = x[i][1]
+                seqPop[n] = sn
                 # amplify count using initial count, polymerase yield, and bias score
-                x[i][1] += int(binom(x[i][1], min(0.9999, pcrYld+x[i][3])))
+                sn += int(binom(sn, min(0.9999, pcrYld+slctdSeqs[seqIdx][2])))
+            slctdSeqs[seqIdx][0] = sn
             # compute cycle number probabilities
             for s, seqNum in enumerate(seqPop):
                 cycleNumProbs[s] = seqNum/np.sum(seqPop)
             # transfer info to x
             for j, cycleNumProb in enumerate(cycleNumProbs):
-                x[i][j+4] = cycleNumProb
+                slctdSeqs[seqIdx][j+3] = cycleNumProb
             # update total num of seqs
-            totalseqs += x[i][1]
-            # transfer info from x to selection pool
-            slctdSeqs[int(x[i][0])] = x[i][1:]
+            totalseqs += slctdSeqs[seqIdx][0]
             # tranfer seq index to matrix y
-            y[i][0] = x[i][0]
+            y[i][0] = seqIdx
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
                 # for each possible number of mutations in any seq copy (1-seqLength)
