@@ -83,11 +83,11 @@ class rv_int():
             yield self.si[v]
 
     def rvs_iter_(self, size, Nbatch=1000):
-        for i in range(size):
-            yield self.rv.rvs()
-        # for S in batch_size(size, Nbatch):
-        #     for v in self.rv.rvs(size=S):
-        #         yield v
+        # for i in range(size):
+        #     yield self.rv.rvs()
+        for S in batch_size(size, Nbatch):
+            for v in self.rv.rvs(size=S):
+                yield v
 
 
 def batch_size(size, Nbatch):

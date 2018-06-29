@@ -13,7 +13,7 @@ Apt = Aptamers.Aptamers()
 # NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
 # number of random samples to draw at a time
-Nrsamples = 10**3
+Nrsamples = 10**4
 
 
 class Selection:
@@ -318,14 +318,15 @@ class Selection:
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             # draw random sequences
-            randIdx = selectionDist.rvs()
+            #randIdx = selectionDist.rvs()
+            for randIdx in selectionDist.rvs_iter(size=Nrsamples):
             # carry out stochastic selection
             # draw random affinities
-            if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-stringency)):
-                seqPool[randIdx][0] += 1
-                selectedSeqs += 1
-            if selectedSeqs % Nrsamples == 0:
-                print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
+                if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-stringency)):
+                    seqPool[randIdx][0] += 1
+                    selectedSeqs += 1
+                if selectedSeqs % Nrsamples == 0:
+                    print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
         return
 
     def randomSelection_initial(self, alphabetSet, seqLength,
