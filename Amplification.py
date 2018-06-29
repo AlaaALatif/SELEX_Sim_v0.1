@@ -45,8 +45,6 @@ class Amplification:
         mutatedPool = {}
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
-        # compute cycle number probabilities for this seq
-        cycleNumProbs = np.zeros(pcrCycleNum)
         print("Amplification has started...")
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
@@ -60,21 +58,16 @@ class Amplification:
                 sn += int(binom(sn, min(0.9999, pcrYld+slctdSeqs[seqIdx][2])))
             slctdSeqs[seqIdx][0] = sn
             # compute cycle number probabilities
-            for s, seqNum in enumerate(seqPop):
-                cycleNumProbs[s] = seqNum/np.sum(seqPop)
-            # transfer info to x
-            for j, cycleNumProb in enumerate(cycleNumProbs):
-                slctdSeqs[seqIdx][j+3] = cycleNumProb
+            slctdSeqs[seqIdx][3:] = seqPop / seqPop.sum()
             # update total num of seqs
             totalseqs += slctdSeqs[seqIdx][0]
             # tranfer seq index to matrix y
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
                 # for each possible number of mutations in any seq copy (1-seqLength)
-                for mutNum in range(seqLength):
-                    # approximate the proportion of copies that will be mutated using
-                    # corresponding probability p(M=mutNum)
-                    mutatedPool[seqIdx][mutNum] = mutNumProbs[mutNum+1]*np.sum(seqPop)
+                # approximate the proportion of copies that will be mutated using
+                # corresponding probability p(M=mutNum)
+                mutatedPool[seqIdx][:seqLength] = mutNumProbs[1:seqLength+1]*seqPop.sum()
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
