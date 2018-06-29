@@ -19,12 +19,6 @@ def binomCoeff(n, k):
     return binom
 
 
-# This converts an array of probabilities into a
-# discrete probability distribution
-def convert_to_distribution(x, y, distName):
-    return stats.rv_discrete(name=distName, values=(x, y))
-
-
 # This finds the loop region in a given sequence
 def apt_loopFinder(apt_seq, apt_struct, seqLength):
     base = None

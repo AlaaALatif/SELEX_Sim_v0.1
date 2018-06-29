@@ -161,9 +161,8 @@ class Mutation(object):
             cycleNumProbs = amplfdSeqs[seqIdx][3:]
             # print cycleNumProbs
             # compute a discrete distribution from probabilities
-            cycleNumDist = utils.convert_to_distribution(np.arange(pcrCycleNum),
-                                                         cycleNumProbs,
-                                                         'cycleNumDist')
+            cycleNumDist = stats.rv_discrete(name='cycleNumDist',
+                                             values=(np.arange(pcrCycleNum), cycleNumProbs))
             # print cycleNumDist.rvs(size=10)
             # for each mutation instance for the seq
             for mutNum, mutFreq in enumerate(mutatedPool[seqIdx]):
