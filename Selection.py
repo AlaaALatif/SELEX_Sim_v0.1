@@ -281,7 +281,7 @@ class Selection:
         print("Sampling has started...")
         samps = dict()
         # draw random samples from distribution
-        for seqIdx in selectionDist.rvs_iter(size=samplingSize):
+        for seqIdx in selectionDist.rvs(size=samplingSize):
             if seqIdx in samps:
                 samps[seqIdx] += 1
             else:
@@ -319,14 +319,15 @@ class Selection:
         while(selectedSeqs < selectionThreshold):
             # draw random sequences
             #randIdx = selectionDist.rvs()
-            for randIdx in selectionDist.rvs_iter(size=Nrsamples):
-            # carry out stochastic selection
-            # draw random affinities
+            # warning: looping here causes large memory consumption
+            for randIdx in selectionDist.rvs(size=Nrsamples):
+                # carry out stochastic selection
+                # draw random affinities
                 if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-stringency)):
                     seqPool[randIdx][0] += 1
                     selectedSeqs += 1
-                if selectedSeqs % Nrsamples == 0:
-                    print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
+                    if selectedSeqs % Nrsamples == 0:
+                        print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
         return
 
     def randomSelection_initial(self, alphabetSet, seqLength,

@@ -2,6 +2,7 @@ import random
 from math import factorial
 from scipy import stats
 import numpy as np
+import numpy.random as nr
 
 
 def seqNumberCounter(seqPool):
@@ -64,30 +65,18 @@ def rvd(X, X_sum, distName):
     return stats.rv_discrete(name=distName, values=(seqIdxs, probs))
 
 
-def rvd_(seqPool, X_sum, distName):
-    return stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int), np.array([v[0] for v in seqPool.values()], dtype=np.float64)/X_sum))
-    #return stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int), np.array([v[0] for v in seqPool.values()], dtype=np.float64)/X_sum))
-
-
 class rv_int():
     def __init__(self, seqPool, X_sum, distName):
         self.si = list(seqPool)
-        self.rv = stats.rv_discrete(name=distName, values=(np.arange(len(seqPool), dtype=np.int),
-                                                           np.array([seqPool[i][0] for i in self.si], dtype=np.float64)/X_sum))
+        self.probas = np.array([seqPool[i][0] for i in self.si], dtype=np.float64)
+        npb = self.probas[self.probas < -0.1]
+        if len(npb) > 0:
+            print("ERROR", npb)
+        self.probas[self.probas < 0] = 0
+        self.probas /= self.probas.sum()
 
-    def rvs(self):
-        return self.si[self.rv.rvs()]
-
-    def rvs_iter(self, *args, **kwargs):
-        for v in self.rvs_iter_(*args, **kwargs):
-            yield self.si[v]
-
-    def rvs_iter_(self, size, Nbatch=1000):
-        # for i in range(size):
-        #     yield self.rv.rvs()
-        for S in batch_size(size, Nbatch):
-            for v in self.rv.rvs(size=S):
-                yield v
+    def rvs(self, size=1):
+        return nr.choice(self.si, p=self.probas, size=size)
 
 
 def batch_size(size, Nbatch):
@@ -97,8 +86,6 @@ def batch_size(size, Nbatch):
         i += Nbatch
     else:
         yield(size-i)
-
-
 
 
 # long random numbers, via random
