@@ -43,8 +43,6 @@ class Amplification:
         totalseqs = 0
         # initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
-        # initialize matrix to hold info for mutation pool
-        y = np.zeros((uniqSeqs, seqLength+1), dtype="object")
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
         # compute cycle number probabilities for this seq
@@ -52,6 +50,7 @@ class Amplification:
         print("Amplification has started...")
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
+            mutatedPool[seqIdx] = np.zeros(seqLength, dtype="object")
             sn = slctdSeqs[seqIdx][0]
             # random PCR with bias using brute force
             for n in range(pcrCycleNum):
@@ -69,14 +68,13 @@ class Amplification:
             # update total num of seqs
             totalseqs += slctdSeqs[seqIdx][0]
             # tranfer seq index to matrix y
-            y[i][0] = seqIdx
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
                 # for each possible number of mutations in any seq copy (1-seqLength)
                 for mutNum in range(seqLength):
                     # approximate the proportion of copies that will be mutated using
                     # corresponding probability p(M=mutNum)
-                    y[i][mutNum+1] = mutNumProbs[mutNum+1]*np.sum(seqPop)
+                    mutatedPool[seqIdx][mutNum] = mutNumProbs[mutNum+1]*np.sum(seqPop)
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
@@ -86,22 +84,21 @@ class Amplification:
                 # for each non-zero mutation number
                 for mutNum in muts:
                     # increment copy number to be mutated
-                    y[i][mutNum+1] += 1
+                    mutatedPool[seqIdx][mutNum] += 1
         print("Amplification carried out")
         print("Sequence selection for mutation has started...")
         # remove all mutation numbers with zero copies to be mutated
-        y = y[y[:, 1] != 0]
-        # for each seq to be mutated
-        for mutInfo in y:
-            # add to mutation pool with it's corresponding mutation info
-            mutatedPool[int(mutInfo[0])] = mutInfo[1:][mutInfo[1:] != 0]
+        for kd in [k for k, v in mutatedPool.items() if v[0] == 0]:
+            del mutatedPool[kd]
+        for k, mi in mutatedPool.items():
+            mutatedPool[k] = mi[mi != 0]
         print("Mutation selection has been carried out")
         print("Mutant generation has started...")
         print("Mutating {} sequences...".format(len(mutatedPool)))
         # generate mutants and add to the amplfied sequence pool
-        amplfdSeqs = mut.generate_mutants(mutatedPool=mutatedPool,
-                                          amplfdSeqs=slctdSeqs,
-                                          aptamerSeqs=aptamerSeqs,
-                                          alphabetSet=alphabetSet,
-                                          distname=distance)
-        return amplfdSeqs
+        mut.generate_mutants(mutatedPool=mutatedPool,
+                             amplfdSeqs=slctdSeqs,
+                             aptamerSeqs=aptamerSeqs,
+                             alphabetSet=alphabetSet,
+                             distname=distance)
+        return slctdSeqs
