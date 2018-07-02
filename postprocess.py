@@ -32,7 +32,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
     for rnd in range(roundNum):
         data = pd.read_table("{}_R{:03d}".format(outputFileNames, rnd+1), names=["seq", "dist", "count"])
         data["wdist"] = data["dist"]*data["count"]
-        bin_edges = range(data["dist"].min(), data["dist"].max(), 1)
+        bin_edges = range(min(-1, data["dist"].min()), max(1, data["dist"].max()), 1)
         c, v = np.histogram(data["dist"], bins=bin_edges)
         wc, wv = np.histogram(data["dist"], bins=bin_edges, weights=data["count"])
         for vi, ci in zip(v, c):
