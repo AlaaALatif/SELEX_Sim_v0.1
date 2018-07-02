@@ -275,7 +275,6 @@ class Selection:
         print("parameters for selection have been initialized")
         print("Selection sample distribution being computed...")
         # distribution computed using count of each unique seq
-        #selectionDist = utils.rvd_(seqPool, totalSeqNum, "selectionDist")
         selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
@@ -318,7 +317,6 @@ class Selection:
         print("Drawing sample batch")
         while(selectedSeqs < selectionThreshold):
             # draw random sequences
-            #randIdx = selectionDist.rvs()
             # warning: looping here causes large memory consumption
             for randIdx in selectionDist.rvs(size=Nrsamples):
                 # carry out stochastic selection
