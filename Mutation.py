@@ -276,7 +276,7 @@ class Mutation(object):
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
         # for each seq in the mutation pool
-        mutatedPool = np.zeros(seqLength)
+        mutatedPool = np.zeros(seqLength, dtype=np.int)
         for si, (seqIdx, sc) in enumerate(zip(prevSeqs, prevCopies)):
             sn = sc
             # random PCR with bias using brute force
@@ -298,6 +298,7 @@ class Mutation(object):
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
+                # poisson call returns mostly 0, should be optimisable
                 muts = poisson(self.errorRate*seqLength, int(np.sum(seqPop)))  # SLOW STEP
                 # remove all drawn numbers equal to zero
                 muts = muts[muts != 0]
