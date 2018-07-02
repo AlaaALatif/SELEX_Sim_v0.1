@@ -88,29 +88,6 @@ class Selection:
         print("sequence selection has been carried out")
         return slctdSeqs
 
-    def selectionProcess_2D_initial(self, slctdSeqs, aptStruct,
-                                    selectionThreshold,
-                                    alphabetSet, seqLength,
-                                    totalSeqNum, stringency):
-        selectedSeqs = 0
-        print("Drawing sample batch")
-        while(selectedSeqs < selectionThreshold):
-            print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
-            randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
-            for i, randIdx in enumerate(randIdxs):
-                randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
-                randSeqDist = D.bp_func(aptStruct, randSeq)
-                if(selectedSeqs == selectionThreshold):
-                    return slctdSeqs
-                elif(randSeqDist < randHamms[i]):
-                    if(randIdx in slctdSeqs):
-                        slctdSeqs[randIdx][0] += 1
-                    else:
-                        randSeqBias = D.bias_func(randSeq, seqLength)
-                        slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
-                    selectedSeqs += 1
-
     def stochasticBasePairSelection_initial(self, alphabetSet, seqLength,
                                             aptPool, selectionThreshold,
                                             totalSeqNum, samplingSize,
@@ -130,10 +107,11 @@ class Selection:
         print("Optimum aptamer structure: {}".format(aptStruct))
         print("Selection has started")
         # stochastic selection until threshold is met
-        self.selectionProcess_2D_initial(slctdSeqs, aptStruct,
+        self.selectionProcess_1D_initial(slctdSeqs, aptStruct,
                                          selectionThreshold,
                                          alphabetSet, seqLength,
-                                         totalSeqNum, stringency)
+                                         totalSeqNum, stringency,
+                                         distf=D.bp_func)
         print("sequence selection has been carried out")
         return slctdSeqs
 
@@ -150,7 +128,7 @@ class Selection:
             for i, randIdx in enumerate(randIdxs):
                 randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
                 # distance to optimal aptamer (stored in aptPool)
-                randSeqDist = distf(randSeq, aptPool)
+                randSeqDist = distf(aptPool, randSeq)
                 if(selectedSeqs == selectionThreshold):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
