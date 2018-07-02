@@ -23,10 +23,6 @@ class Selection:
                                                      self.stochasticBasePairSelection_initial,
                                                      self.stochasticLoopSelection_initial,
                                                      self.randomSelection_initial)))
-        self.select = dict(zip(self.distances, (self.stochasticHammingSelection,
-                                                self.stochasticBasePairSelection,
-                                                self.stochasticLoopSelection,
-                                                self.randomSelection)))
 
     # This function takes an empty selected pool, aptamer sequence structure and loop,
     # number of target binding sites, the alphabet set of the molecule, length,
@@ -92,45 +88,6 @@ class Selection:
         print("sequence selection has been carried out")
         return slctdSeqs
 
-    def stochasticLoopSelection(self, alphabetSet, seqLength,
-                                seqPool, selectionThreshold,
-                                uniqSeqNum, totalSeqNum, samplingSize,
-                                outputFileNames, rnd, stringency):
-        # initialize selected sequence pool
-        print("seq length = "+str(seqLength))
-        print("seq selection threshold = "+str(selectionThreshold))
-        print("parameters for selection have been initialized")
-        print("Selection sample distribution being computed...")
-        # compute sampling distribution for selection
-        selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
-        print("Selection sample distribution computed")
-        print("Sampling has started...")
-        samps = dict()
-        # draw random samples from distribution
-        for seqIdx in selectionDist.rvs(size=samplingSize):
-            if seqIdx in samps:
-                samps[seqIdx] += 1
-            else:
-                samps[seqIdx] = 1
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        # write to samples file
-        with open(sampleFileName, 'w') as s:
-            for seqIdx, N in samps.items():
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
-        print("Sampling has completed")
-        # reset all seq counts prior to selection
-        for k in seqPool:
-            seqPool[k][0] = 0
-        # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
-                              seqLength, stringency)
-        # remove all seqs that haven't been selected
-        for ki in [k for k, v in seqPool.items() if v[0] == 0]:
-            del seqPool[ki]
-        print("sequence selection has been carried out")
-        return seqPool
-
     def selectionProcess_2D_initial(self, slctdSeqs, aptStruct,
                                     selectionThreshold,
                                     alphabetSet, seqLength,
@@ -180,46 +137,6 @@ class Selection:
         print("sequence selection has been carried out")
         return slctdSeqs
 
-    def stochasticBasePairSelection(self, alphabetSet, seqLength,
-                                    seqPool, selectionThreshold,
-                                    uniqSeqNum, totalSeqNum, samplingSize,
-                                    outputFileNames, rnd, stringency):
-        # initialize selected sequence pool
-        print("seq length = "+str(seqLength))
-        print("seq selection threshold = "+str(selectionThreshold))
-        print("parameters for selection have been initialized")
-        print("Selection sample distribution being computed...")
-        # compute sampling distribution for selection
-        # distribution computed using count of each unique seq
-        selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
-        print("Selection sample distribution computed")
-        print("Sampling has started...")
-        samps = dict()
-        # draw random samples from distribution
-        for seqIdx in selectionDist.rvs(size=samplingSize):
-            if seqIdx in samps:
-                samps[seqIdx] += 1
-            else:
-                samps[seqIdx] = 1
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        # write to samples file
-        with open(sampleFileName, 'w') as s:
-            for seqIdx, N in samps.items():
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
-        print("Sampling has completed")
-        # reset all seq counts prior to selection
-        for k in seqPool:
-            seqPool[k][0] = 0
-        # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
-                              seqLength, stringency)
-        # remove all seqs that haven't been selected
-        for ki in [k for k, v in seqPool.items() if v[0] == 0]:
-            del seqPool[ki]
-        print("sequence selection has been carried out")
-        return seqPool
-
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
                                     selectionThreshold,
                                     alphabetSet, seqLength,
@@ -268,16 +185,17 @@ class Selection:
         print("Sampling completed")
         return slctdSeqs
 
-    def stochasticHammingSelection(self, alphabetSet, seqLength,
-                                   seqPool, selectionThreshold,
-                                   uniqSeqNum, totalSeqNum, samplingSize,
-                                   outputFileNames, rnd, stringency):
+    def stochasticSelection(self, alphabetSet, seqLength,
+                            seqPool, selectionThreshold,
+                            uniqSeqNum, totalSeqNum, samplingSize,
+                            outputFileNames, rnd, stringency):
         # initialize selected sequence pool
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
         print("parameters for selection have been initialized")
         print("Selection sample distribution being computed...")
-        # distribution computed using count of each unique seq
+        # compute sampling distribution for selection
+        # using count of each unique seq
         selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
         print("Selection sample distribution computed")
         print("Sampling has started...")
@@ -354,43 +272,3 @@ class Selection:
                                          distf=D.nodist_func)
         print("sequence selection has been carried out")
         return slctdSeqs
-
-    def randomSelection(self, alphabetSet, seqLength,
-                        seqPool, selectionThreshold,
-                        uniqSeqNum, totalSeqNum, samplingSize,
-                        outputFileNames, rnd, stringency):
-        # initialize selected sequence pool
-        print("seq length = "+str(seqLength))
-        print("seq selection threshold = "+str(selectionThreshold))
-        print("parameters for selection have been initialized")
-        print("Selection sample distribution being computed...")
-        # distribution computed using count of each unique seq
-        selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
-        print("Selection sample distribution computed")
-        print("Sampling has started...")
-        # write to samples file
-        samps = dict()
-        # draw random samples from distribution
-        for seqIdx in selectionDist.rvs(size=samplingSize):
-            if seqIdx in samps:
-                samps[seqIdx] += 1
-            else:
-                samps[seqIdx] = 1
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        with open(sampleFileName, 'w') as s:
-            for seqIdx, N in samps.items():
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
-        print("Sampling has completed")
-        print("Sampling has completed")
-        # reset all seq counts prior to selection
-        for k in seqPool:
-            seqPool[k][0] = 0
-        # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
-                              seqLength, stringency)
-        # remove all seqs that haven't been selected
-        for ki in [k for k, v in seqPool.items() if v[0] == 0]:
-            del seqPool[ki]
-        print("sequence selection has been carried out")
-        return seqPool

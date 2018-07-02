@@ -123,8 +123,8 @@ def main_sim(settings_file, postprocess_only):
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             # extra argument uniqSeqNum compared to the init function
-            amplfdSeqs = S.select[distanceMeasure](alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
-                                                  samplingSize, outputFileNames, r, stringency)
+            amplfdSeqs = S.stochasticSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
+                                               samplingSize, outputFileNames, r, stringency)
             print("Selection carried for R"+str(r+1))
             amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
                                                               aptamerSeqs, alphabetSet, distanceMeasure)
