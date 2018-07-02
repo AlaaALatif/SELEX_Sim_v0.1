@@ -308,7 +308,6 @@ class Mutation(object):
 
             if mutatedPool.sum() == 0:
                 continue
-            computeCND = True
             # for each mutation instance for the seq
             for mutNum, mutFreq in enumerate(mutatedPool):
                 mutFreq = int(mutatedPool[mutNum])
@@ -317,11 +316,8 @@ class Mutation(object):
                     continue
                 elif mutFreq < 10000:
                     # compute a discrete distribution from probabilities
-                    if computeCND:
-                        cycleNumDist = stats.rv_discrete(values=(np.arange(pcrCycleNum), cycleNumProbs))
-                        computeCND = False
                     # draw random cycle numbers after which the sequences were drawn for mutation
-                    cycleNums = cycleNumDist.rvs(size=mutFreq)
+                    cycleNums = random.choice(np.arange(pcrCycleNum), p=cycleNumProbs, size=mutFreq)
                     # generate the wild-type sequence string
                     wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
                     # for each copy to be mutated
