@@ -92,16 +92,6 @@ class Selection:
                                             aptPool, selectionThreshold,
                                             totalSeqNum, samplingSize,
                                             outputFileNames, rnd, stringency):
-        # sampling
-        print("sampling from initial library...")
-        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        with open(sampleFileName, 'w') as s:
-            for seqIdx in randomSamples:
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(seq+'\n')
-        print("Sampling completed")
-        # initialize seqInfo matrix
         slctdSeqs = {}
         aptStruct = RNA.fold(aptPool)[0]
         print("Optimum aptamer structure: {}".format(aptStruct))
@@ -113,6 +103,14 @@ class Selection:
                                          totalSeqNum, stringency,
                                          distf=D.bp_func)
         print("sequence selection has been carried out")
+        # sampling
+        print("sampling from initial library...")
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
+        with open(sampleFileName, 'w') as s:
+            for sidx, x in slctdSeqs.items():
+                seq = Apt.pseudoAptamerGenerator(sidx, alphabetSet, seqLength)
+                s.write(str(seq)+'\t'+str(int(x[1]))+'\t'+str(int(x[0]))+'\n')
+        print("Sampling completed")
         return slctdSeqs
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
@@ -145,16 +143,16 @@ class Selection:
                                            aptPool, selectionThreshold,
                                            totalSeqNum, samplingSize,
                                            outputFileNames, rnd, stringency):
-        # initialize seqInfo matrix
         slctdSeqs = {}
-        print("sampling from initial library...")
         print("Selection has started...", flush=True)
-        # sampling
-        self.selectionProcess_1D_initial(slctdSeqs,
-                                         aptPool, selectionThreshold,
+        # stochastic selection until threshold is met
+        self.selectionProcess_1D_initial(slctdSeqs, aptPool,
+                                         selectionThreshold,
                                          alphabetSet, seqLength,
                                          totalSeqNum, stringency)
         print("sequence selection has been carried out")
+        # sampling
+        print("sampling from initial library...")
         sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
         with open(sampleFileName, 'w') as s:
             for sidx, x in slctdSeqs.items():
@@ -231,16 +229,6 @@ class Selection:
                                 aptPool, selectionThreshold,
                                 totalSeqNum, samplingSize,
                                 outputFileNames, rnd, stringency):
-        # sampling
-        print("sampling from initial library...")
-        randomSamples = utils.randint(0, int(totalSeqNum-1), size=samplingSize)
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        with open(sampleFileName, 'w') as s:
-            for seqIdx in randomSamples:
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                s.write(seq+'\n')
-        print("Sampling completed")
-        # initialize seqInfo matrix
         slctdSeqs = {}
         print("Selection has started...", flush=True)
         self.selectionProcess_1D_initial(slctdSeqs,
@@ -249,4 +237,12 @@ class Selection:
                                          totalSeqNum, stringency,
                                          distf=D.nodist_func)
         print("sequence selection has been carried out")
+        # sampling
+        print("sampling from initial library...")
+        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
+        with open(sampleFileName, 'w') as s:
+            for sidx, x in slctdSeqs.items():
+                seq = Apt.pseudoAptamerGenerator(sidx, alphabetSet, seqLength)
+                s.write(str(seq)+'\t'+str(int(x[1]))+'\t'+str(int(x[0]))+'\n')
+        print("Sampling completed")
         return slctdSeqs
