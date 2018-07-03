@@ -52,7 +52,6 @@ def main_sim(settings_file, postprocess_only):
 
     # Instantiating classes
     Apt = Aptamers()
-    S = Selection()
     Amplify = Amplification()
 
     def call_post_process(target):
@@ -69,9 +68,7 @@ def main_sim(settings_file, postprocess_only):
         call_post_process(aptamerSeq)
         sys.exit()
 
-    if distanceMeasure not in S.distances:
-        print("Invalid argument for distance measure")
-        sys.exit()
+    S = Selection(distanceMeasure)
 
     if rng_seed == 0:
         rng_seed = random.randint(0, 2**32)
