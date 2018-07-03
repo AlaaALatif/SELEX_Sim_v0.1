@@ -44,10 +44,6 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
     pdf.sort_index(inplace=True)
     wpdf[wpdf.isnull()] = 0
     wpdf.sort_index(inplace=True)
-    print(pdf)
-    print(pdf.sum(axis=1))
-    print(wpdf)
-    print(wpdf.sum(axis=1))
     print(pstats)
     with open(outputFileNames+"_stats.csv", 'w') as p:
         pstats.to_csv(p)
