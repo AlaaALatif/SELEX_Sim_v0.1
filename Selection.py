@@ -15,11 +15,13 @@ Nrsamples = 10**4
 
 
 class Selection:
-    def __init__(self, distname, selectionThreshold, initialSize):
+    def __init__(self, distname, selectionThreshold, initialSize, samplingSize, stringency):
         self.distances = ("hamming", "basepair", "loop", "random")
         self.distname = distname
         self.selectionThreshold = selectionThreshold
         self.initialSize = initialSize
+        self.samplingSize = samplingSize
+        self.stringency = stringency
         if self.distname not in self.distances:
             print("Invalid argument for distance measure")
             raise
@@ -42,12 +44,12 @@ class Selection:
     def selectionProcess_loop_initial(self, slctdSeqs, aptSeq,
                                       aptStruct, aptLoop,
                                       apt,
-                                      totalSeqNum, stringency):
+                                      totalSeqNum):
         selectedSeqs = 0
         print("Drawing sample batch of {} sequences".format(self.initialSize))
         while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = utils.randint(0, apt.seqLength-stringency, size=Nrsamples)
+            randHamms = utils.randint(0, apt.seqLength-self.stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, apt.seqLength, randSeq)
@@ -65,13 +67,13 @@ class Selection:
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
                                     apt,
-                                    totalSeqNum, stringency,
+                                    totalSeqNum,
                                     distf=D.hamming_func):
         selectedSeqs = 0
         print("Drawing sample batch of {} sequences".format(self.initialSize))
         while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = utils.randint(0, apt.seqLength-stringency, size=Nrsamples)
+            randHamms = utils.randint(0, apt.seqLength-self.stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx)
                 # distance to optimal aptamer (stored in aptPool)
@@ -89,8 +91,8 @@ class Selection:
         return
 
     def stochasticSelection_initial(self, apt, aptPool,
-                                    totalSeqNum, samplingSize,
-                                    outputFileNames, rnd, stringency):
+                                    totalSeqNum,
+                                    outputFileNames, rnd):
         slctdSeqs = {}
         ref = aptPool
         if self.distname == "basepair":
@@ -104,38 +106,36 @@ class Selection:
             aptLoop = utils.apt_loopFinder(aptPool, aptStruct, apt.seqLength)
             self.selectionProcess_loop_initial(slctdSeqs, aptPool,
                                                aptStruct, aptLoop,
-                                               apt, totalSeqNum, stringency)
+                                               apt, totalSeqNum)
         else:
             self.selectionProcess_1D_initial(slctdSeqs, ref,
-                                             apt, totalSeqNum, stringency,
+                                             apt, totalSeqNum,
                                              distf=self.distance)
         print("sequence selection has been carried out")
         # sampling
         selectionDist = utils.rv_int(slctdSeqs, "selectionDist")
         print("sampling from initial round...")
-        self.samplingProcess(apt, slctdSeqs,
-                             selectionDist, samplingSize,
+        self.samplingProcess(apt, slctdSeqs, selectionDist, self.samplingSize,
                              outputFileNames, rnd)
         print("Sampling completed")
         return slctdSeqs
 
-    def stochasticSelection(self, apt, seqPool, samplingSize,
-                            outputFileNames, rnd, stringency):
+    def stochasticSelection(self, apt, seqPool,
+                            outputFileNames, rnd):
         # initialize selected sequence pool
         print("seq selection threshold = "+str(self.selectionThreshold))
         # compute sampling distribution for selection
         # using count of each unique seq
         selectionDist = utils.rv_int(seqPool, "selectionDist")
         print("Sampling has started...")
-        self.samplingProcess(apt, seqPool, selectionDist, samplingSize,
+        self.samplingProcess(apt, seqPool, selectionDist, self.samplingSize,
                              outputFileNames, rnd)
         print("Sampling has completed")
         # reset all seq counts prior to selection
         for k in seqPool:
             seqPool[k][0] = 0
         # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionDist, apt.seqLength,
-                              stringency)
+        self.selectionProcess(seqPool, selectionDist, apt.seqLength)
         # remove all seqs that haven't been selected
         for ki in [k for k, v in seqPool.items() if v[0] == 0]:
             del seqPool[ki]
@@ -166,8 +166,7 @@ class Selection:
     # total sequence number and stringency factor and returns full selected pool
     # Input: np.array(), int(), stats.obj(), int()
     # Output: np.array()
-    def selectionProcess(self, seqPool, selectionDist, seqLength,
-                         stringency):
+    def selectionProcess(self, seqPool, selectionDist, seqLength):
         selectedSeqs = 0
         # until all sites are occupied
         print("Drawing sample batch")
@@ -177,7 +176,7 @@ class Selection:
             for randIdx in selectionDist.rvs(size=Nrsamples):
                 # carry out stochastic selection
                 # draw random affinities
-                if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-stringency)):
+                if(int(seqPool[randIdx][1]) < utils.randint(0, seqLength-self.stringency)):
                     seqPool[randIdx][0] += 1
                     selectedSeqs += 1
                     if selectedSeqs % Nrsamples == 0:

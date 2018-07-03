@@ -64,7 +64,7 @@ def main_sim(settings_file, postprocess_only):
         call_post_process(aptamerSeq)
         sys.exit()
 
-    S = Selection(distanceMeasure, selectionThreshold, initialSamples)
+    S = Selection(distanceMeasure, selectionThreshold, initialSamples, samplingSize, stringency)
 
     if rng_seed == 0:
         rng_seed = random.randint(0, 2**32)
@@ -102,15 +102,12 @@ def main_sim(settings_file, postprocess_only):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
-            amplfdSeqs = S.stochasticSelection_initial(Apt, aptamerSeqs, initialSeqNum,
-                                                       samplingSize, outputFileNames, r, stringency)
+            amplfdSeqs = S.stochasticSelection_initial(Apt, aptamerSeqs, initialSeqNum, outputFileNames, r)
         else:
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
-            # extra argument uniqSeqNum compared to the init function
-            amplfdSeqs = S.stochasticSelection(Apt, amplfdSeqs,
-                                               samplingSize, outputFileNames, r, stringency)
+            amplfdSeqs = S.stochasticSelection(Apt, amplfdSeqs, outputFileNames, r)
         print("Selection carried out for R"+str(r+1))
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, pcrCycleNum, pcrYield, pcrErrorRate,
                                                           aptamerSeqs, Apt, distanceMeasure)
