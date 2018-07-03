@@ -8,21 +8,21 @@ from Mutation import Mutation
 # Initiate class
 class Amplification:
     def randomPCR_with_ErrorsAndBias(self, slctdSeqs,
-                                     seqLength, pcrCycleNum,
+                                     pcrCycleNum,
                                      pcrYld, errorRate,
-                                     aptamerSeqs, alphabetSet, distance):
+                                     aptamerSeqs, apt, distance):
         #return self.randomPCR_with_ErrorsAndBias_FASTv2(slctdSeqs,
         return self.randomPCR_with_ErrorsAndBias_FASTv3(slctdSeqs,
-                                                        seqLength, pcrCycleNum,
+                                                        pcrCycleNum,
                                                         pcrYld, errorRate,
-                                                        aptamerSeqs, alphabetSet, distance)
+                                                        aptamerSeqs, apt, distance)
 
     def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs,
-                                            seqLength, pcrCycleNum,
+                                            pcrCycleNum,
                                             pcrYld, errorRate,
-                                            aptamerSeqs, alphabetSet, distance):
+                                            aptamerSeqs, apt, distance):
         # initialize Mutation object from class
-        mut = Mutation(seqLength=seqLength, errorRate=errorRate,
+        mut = Mutation(seqLength=apt.seqLength, errorRate=errorRate,
                        pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
         # count number of seqs in selected pool
         totalseqs = 0
@@ -48,7 +48,7 @@ class Amplification:
         print("Amplification has started...")
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
-            mutatedPool[seqIdx] = np.zeros(seqLength)
+            mutatedPool[seqIdx] = np.zeros(apt.seqLength)
             sn = slctdSeqs[seqIdx][0]
             # random PCR with bias using brute force
             for n in range(pcrCycleNum):
@@ -61,14 +61,14 @@ class Amplification:
             slctdSeqs[seqIdx][3:] = seqPop / seqPop.sum()
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
-                # for each possible number of mutations in any seq copy (1-seqLength)
+                # for each possible number of mutations in any seq copy (1-apt.seqLength)
                 # approximate the proportion of copies that will be mutated using
                 # corresponding probability p(M=mutNum)
-                mutatedPool[seqIdx][:seqLength] = mutNumProbs[1:seqLength+1]*seqPop.sum()
+                mutatedPool[seqIdx][:apt.seqLength] = mutNumProbs[1:apt.seqLength+1]*seqPop.sum()
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
-                muts = poisson(errorRate*seqLength, int(np.sum(seqPop)))  # SLOW STEP
+                muts = poisson(errorRate*apt.seqLength, int(np.sum(seqPop)))  # SLOW STEP
                 # remove all drawn numbers equal to zero
                 muts = muts[muts != 0]
                 # for each non-zero mutation number
@@ -93,11 +93,11 @@ class Amplification:
         return slctdSeqs
 
     def randomPCR_with_ErrorsAndBias_FASTv3(self, slctdSeqs,
-                                            seqLength, pcrCycleNum,
+                                            pcrCycleNum,
                                             pcrYld, errorRate,
                                             aptamerSeqs, apt, distance):
         # initialize Mutation object from class
-        mut = Mutation(seqLength=seqLength, errorRate=errorRate,
+        mut = Mutation(seqLength=apt.seqLength, errorRate=errorRate,
                        pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
         # count number of seqs in selected pool
         totalseqs = 0

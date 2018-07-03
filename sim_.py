@@ -72,8 +72,6 @@ def main_sim(settings_file, postprocess_only):
     random.seed(rng_seed)
     np.random.seed(rng_seed)
 
-    assert len(aptamerSeq) == seqLength
-
     # SELEX simulation based on random aptamer assignment, hamming-based definite selection, and
     # non-ideal stochastic amplfication with no bias.
     if(aptamerType == 'DNA'):
@@ -85,11 +83,11 @@ def main_sim(settings_file, postprocess_only):
         sys.exit()
 
     # Instantiating classes
-    Apt = Aptamers(alphabetSet)
+    Apt = Aptamers(alphabetSet, seqLength)
     Amplify = Amplification()
 
     if aptamerNum > 0:
-        aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, seqLength)
+        aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum)
     else:
         aptamerSeqs = aptamerSeq
         initialSeqNum = len(alphabetSet)**len(aptamerSeq)
@@ -97,29 +95,31 @@ def main_sim(settings_file, postprocess_only):
         print("optimum sequences have been chosen: {}".format(aptamerSeqs))
     else:
         print("optimum sequence has been chosen: {}".format(aptamerSeqs))
+    assert len(aptamerSeq) == seqLength
+    print("seq length = "+str(seqLength))
 
     for r in range(roundNum):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
-            amplfdSeqs = S.stochasticSelection_initial(Apt, seqLength, aptamerSeqs, initialSeqNum,
+            amplfdSeqs = S.stochasticSelection_initial(Apt, aptamerSeqs, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
         else:
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             # extra argument uniqSeqNum compared to the init function
-            amplfdSeqs = S.stochasticSelection(Apt, seqLength, amplfdSeqs,
+            amplfdSeqs = S.stochasticSelection(Apt, amplfdSeqs,
                                                samplingSize, outputFileNames, r, stringency)
         print("Selection carried out for R"+str(r+1))
-        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
+        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, pcrCycleNum, pcrYield, pcrErrorRate,
                                                           aptamerSeqs, Apt, distanceMeasure)
         print("Amplification carried out for R"+str(r+1))
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
-            seq = Apt.pseudoAptamerGenerator(seqIdx, seqLength)
+            seq = Apt.pseudoAptamerGenerator(seqIdx)
             # write seq, distance, and count for now
             nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
         nxtRnd.close()

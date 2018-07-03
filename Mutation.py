@@ -166,7 +166,7 @@ class Mutation(object):
                     # draw random cycle numbers after which the sequences were drawn for mutation
                     cycleNums = cycleNumDist.rvs(size=mutFreq)
                     # generate the wild-type sequence string
-                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
+                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx)
                     # for each copy to be mutated
                     for mut in range(mutFreq):
                         wildTypeCount = 1
@@ -181,8 +181,7 @@ class Mutation(object):
                             mutatedSeq = mutatedSeq[:(pos-1)] + apt.alphabetSet[randNucs[posNum]] + \
                                          mutatedSeq[pos:]
                         # generate index of mutant based on string
-                        mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq,
-                                                                        seqLength)
+                        mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq)
                         # if mutant not found in amplified pool
                         if mutatedSeqIdx not in amplfdSeqs:
                             # add seq and its info to the amplified pool
@@ -223,8 +222,7 @@ class Mutation(object):
                             # if the mutated seq is not found in amplified pool
                             if mutatedSeqIdx not in amplfdSeqs:
                                 # generate seq string using its index
-                                mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx,
-                                                                        seqLength)
+                                mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx)
                                 mutDist = md(mutatedSeq)
                                 # compute bias score of seq
                                 mutBias = d.bias_func(mutatedSeq, seqLength)
@@ -249,7 +247,6 @@ class Mutation(object):
     def generate_mutants_new(self, amplfdSeqs, aptamerSeqs, apt, distname):
         pcrCycleNum = self.pcrCycleNum
         pcrYld = self.pcrYld
-        seqLength = self.seqLength
         # calculate probabilities of different possible mutation numbers
         mutNumProbs = self.get_mutation_probabilities_original()
         # initialize distance class
@@ -262,7 +259,7 @@ class Mutation(object):
         # keep track of sequence count after each pcr cycle (except last one)
         seqPop = np.zeros(pcrCycleNum)
         # for each seq in the mutation pool
-        mutatedPool = np.zeros(seqLength, dtype=np.int)
+        mutatedPool = np.zeros(self.seqLength, dtype=np.int)
         for si, (seqIdx, sc) in enumerate(zip(prevSeqs, prevCopies)):
             sn = sc
             # random PCR with bias using brute force
@@ -277,15 +274,15 @@ class Mutation(object):
             cycleNumProbs = seqPop / seqPop.sum()
             # if accumulated seq count is greater than 10,000
             if np.sum(seqPop) > 10000:
-                # for each possible number of mutations in any seq copy (1-seqLength)
+                # for each possible number of mutations in any seq copy (1-self.seqLength)
                 # approximate the proportion of copies that will be mutated using
                 # corresponding probability p(M=mutNum)
-                mutatedPool = mutNumProbs[1:seqLength+1]*seqPop.sum()
+                mutatedPool = mutNumProbs[1:self.seqLength+1]*seqPop.sum()
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
                 # poisson call returns mostly 0, should be optimisable
-                muts = poisson(self.errorRate*seqLength, int(np.sum(seqPop)))  # SLOW STEP
+                muts = poisson(self.errorRate*self.seqLength, int(np.sum(seqPop)))  # SLOW STEP
                 # remove all drawn numbers equal to zero
                 muts = muts[muts != 0]
                 # for each non-zero mutation number
@@ -306,13 +303,13 @@ class Mutation(object):
                     # draw random cycle numbers after which the sequences were drawn for mutation
                     cycleNums = random.choice(np.arange(pcrCycleNum), p=cycleNumProbs, size=mutFreq)
                     # generate the wild-type sequence string
-                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
+                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx)
                     # for each copy to be mutated
                     for mut in range(mutFreq):
                         wildTypeCount = 1
                         mutantCount = 1
                         # draw random positions on the seq to mutate
-                        randPos = random.randint(1, seqLength+1, size=mutNum+1)
+                        randPos = random.randint(1, self.seqLength+1, size=mutNum+1)
                         # draw a random nucleotide for each position
                         randNucs = random.randint(apt.La, size=mutNum+1)
                         mutatedSeq = wildTypeSeq
@@ -321,13 +318,12 @@ class Mutation(object):
                             mutatedSeq = mutatedSeq[:(pos-1)] + apt.alphabetSet[randNucs[posNum]] + \
                                          mutatedSeq[pos:]
                         # generate index of mutant based on string
-                        mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq,
-                                                                        seqLength)
+                        mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq)
                         # if mutant not found in amplified pool
                         if mutatedSeqIdx not in amplfdSeqs:
                             # add seq and its info to the amplified pool
                             mutDist = md(mutatedSeq)
-                            mutBias = d.bias_func(mutatedSeq, seqLength)
+                            mutBias = d.bias_func(mutatedSeq, self.seqLength)
                             amplfdSeqs[mutatedSeqIdx] = np.array([mutantCount,
                                                                   mutDist, mutBias])
                         # mutantNum = (1+pcrYld)**(pcrCycleNum - cycleNums[mut])
@@ -346,11 +342,11 @@ class Mutation(object):
                 # if mutation carried out on more than 10,000 copies, avoid drawing random nums
                 elif mutFreq > 10000:
                     # calculate fraction of mutants for each possible mutation
-                    initialMutCount = int(0.333*mutFreq/seqLength)
+                    initialMutCount = int(0.333*mutFreq/self.seqLength)
                     # for each possible position that mutation can occur
-                    for seqPos in range(seqLength):
+                    for seqPos in range(self.seqLength):
                         # grab the sequence encoding array
-                        seqArray = apt.get_seqArray(seqIdx, seqLength)
+                        seqArray = self.get_seqArray(seqIdx)
                         # original nucleotide index
                         oni = seqArray[seqPos]
                         # mutated nucleotide index
@@ -359,15 +355,14 @@ class Mutation(object):
                             if mni == oni:
                                 continue
                             mnd = mni-oni
-                            mutatedSeqIdx = seqIdx+(4**(seqLength-seqPos-1)*mnd)
+                            mutatedSeqIdx = seqIdx+(4**(self.seqLength-seqPos-1)*mnd)
                             # if the mutated seq is not found in amplified pool
                             if mutatedSeqIdx not in amplfdSeqs:
                                 # generate seq string using its index
-                                mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx,
-                                                                        seqLength)
+                                mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx)
                                 mutDist = md(mutatedSeq)
                                 # compute bias score of seq
-                                mutBias = d.bias_func(mutatedSeq, seqLength)
+                                mutBias = d.bias_func(mutatedSeq, self.seqLength)
                                 # add to amplified pool
                                 amplfdSeqs[mutatedSeqIdx] = np.array([0, mutDist, mutBias])
                             for cycleNum, cycleNumProb in enumerate(cycleNumProbs):

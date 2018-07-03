@@ -41,39 +41,39 @@ class Selection:
     # Output: dict()
     def selectionProcess_loop_initial(self, slctdSeqs, aptSeq,
                                       aptStruct, aptLoop,
-                                      apt, seqLength,
+                                      apt,
                                       totalSeqNum, stringency):
         selectedSeqs = 0
         print("Drawing sample batch of {} sequences".format(self.initialSize))
         while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
+            randHamms = utils.randint(0, apt.seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
-                randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
-                randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
+                randSeq = apt.pseudoAptamerGenerator(randIdx)
+                randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, apt.seqLength, randSeq)
                 if(selectedSeqs == self.initialSize):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
                     if(randIdx in slctdSeqs):
                         slctdSeqs[randIdx][0] += 1
                     else:
-                        randSeqBias = D.bias_func(randSeq, seqLength)
+                        randSeqBias = D.bias_func(randSeq, apt.seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
             print("{:6.2f}% completed".format(100.0*selectedSeqs/self.initialSize), flush=True)
         return
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
-                                    apt, seqLength,
+                                    apt,
                                     totalSeqNum, stringency,
                                     distf=D.hamming_func):
         selectedSeqs = 0
         print("Drawing sample batch of {} sequences".format(self.initialSize))
         while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
-            randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
+            randHamms = utils.randint(0, apt.seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
-                randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
+                randSeq = apt.pseudoAptamerGenerator(randIdx)
                 # distance to optimal aptamer (stored in aptPool)
                 randSeqDist = distf(aptPool, randSeq)
                 if(selectedSeqs == self.initialSize):
@@ -82,14 +82,13 @@ class Selection:
                     if(randIdx in slctdSeqs):
                         slctdSeqs[randIdx][0] += 1
                     else:
-                        randSeqBias = D.bias_func(randSeq, seqLength)
+                        randSeqBias = D.bias_func(randSeq, apt.seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
             print("{:6.2f}% completed".format(100.0*selectedSeqs/self.initialSize), flush=True)
         return
 
-    def stochasticSelection_initial(self, apt, seqLength,
-                                    aptPool,
+    def stochasticSelection_initial(self, apt, aptPool,
                                     totalSeqNum, samplingSize,
                                     outputFileNames, rnd, stringency):
         slctdSeqs = {}
@@ -102,54 +101,48 @@ class Selection:
         if self.distname == "loop":
             aptStruct = RNA.fold(aptPool)[0]
             print("Optimum aptamer structure: {}".format(aptStruct))
-            aptLoop = utils.apt_loopFinder(aptPool, aptStruct, seqLength)
+            aptLoop = utils.apt_loopFinder(aptPool, aptStruct, apt.seqLength)
             self.selectionProcess_loop_initial(slctdSeqs, aptPool,
                                                aptStruct, aptLoop,
-                                               apt, seqLength,
-                                               totalSeqNum, stringency)
+                                               apt, totalSeqNum, stringency)
         else:
             self.selectionProcess_1D_initial(slctdSeqs, ref,
-                                             apt, seqLength,
-                                             totalSeqNum, stringency,
+                                             apt, totalSeqNum, stringency,
                                              distf=self.distance)
         print("sequence selection has been carried out")
         # sampling
         selectionDist = utils.rv_int(slctdSeqs, "selectionDist")
         print("sampling from initial round...")
-        self.samplingProcess(apt, seqLength, slctdSeqs,
+        self.samplingProcess(apt, slctdSeqs,
                              selectionDist, samplingSize,
                              outputFileNames, rnd)
         print("Sampling completed")
         return slctdSeqs
 
-    def stochasticSelection(self, apt, seqLength,
-                            seqPool,
-                            samplingSize,
+    def stochasticSelection(self, apt, seqPool, samplingSize,
                             outputFileNames, rnd, stringency):
         # initialize selected sequence pool
-        print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(self.selectionThreshold))
         # compute sampling distribution for selection
         # using count of each unique seq
         selectionDist = utils.rv_int(seqPool, "selectionDist")
         print("Sampling has started...")
-        self.samplingProcess(apt, seqLength, seqPool,
-                             selectionDist, samplingSize,
+        self.samplingProcess(apt, seqPool, selectionDist, samplingSize,
                              outputFileNames, rnd)
         print("Sampling has completed")
         # reset all seq counts prior to selection
         for k in seqPool:
             seqPool[k][0] = 0
         # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionDist,
-                              seqLength, stringency)
+        self.selectionProcess(seqPool, selectionDist, apt.seqLength,
+                              stringency)
         # remove all seqs that haven't been selected
         for ki in [k for k, v in seqPool.items() if v[0] == 0]:
             del seqPool[ki]
         print("sequence selection has been carried out")
         return seqPool
 
-    def samplingProcess(self, apt, seqLength,
+    def samplingProcess(self, apt,
                         seqPool, selectionDist, samplingSize,
                         outputFileNames, rnd):
         samps = dict()
@@ -163,7 +156,7 @@ class Selection:
         # write to samples file
         with open(sampleFileName, 'w') as s:
             for seqIdx, N in samps.items():
-                seq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
+                seq = apt.pseudoAptamerGenerator(seqIdx)
                 s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
         print("Sampling has completed")
         return
@@ -173,8 +166,7 @@ class Selection:
     # total sequence number and stringency factor and returns full selected pool
     # Input: np.array(), int(), stats.obj(), int()
     # Output: np.array()
-    def selectionProcess(self, seqPool,
-                         selectionDist, seqLength,
+    def selectionProcess(self, seqPool, selectionDist, seqLength,
                          stringency):
         selectedSeqs = 0
         # until all sites are occupied
