@@ -103,7 +103,7 @@ def main_sim(settings_file, postprocess_only):
     assert len(aptamerSeq) == seqLength
     print("seq length = "+str(seqLength))
 
-    for r in range(roundNum):
+    for r in range(roundNum+1):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
@@ -113,10 +113,10 @@ def main_sim(settings_file, postprocess_only):
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             amplfdSeqs = S.stochasticSelection(Apt, amplfdSeqs, outputFileNames, r)
-        print("Selection carried out for R"+str(r+1))
+            print("Selection carried out for R"+str(r))
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, mut, aptamerSeqs, Apt, distanceMeasure)
-        print("Amplification carried out for R"+str(r+1))
-        outFile = outputFileNames + "_R{:03d}".format(r+1)
+        print("Amplification carried out for R"+str(r))
+        outFile = outputFileNames + "_R{:03d}".format(r)
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
