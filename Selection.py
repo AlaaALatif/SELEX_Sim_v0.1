@@ -32,10 +32,6 @@ class Selection:
             self.distance = D.loop_func
         elif self.distname == "random":
             self.distance = D.nodist_func
-        self.select_init = dict(zip(self.distances, (self.stochasticSelection_initial,
-                                                     self.stochasticSelection_initial,
-                                                     self.stochasticSelection_initial,
-                                                     self.stochasticSelection_initial)))
 
     # This function takes an empty selected pool, aptamer sequence structure and loop,
     # number of target binding sites, the alphabet set of the molecule, length,

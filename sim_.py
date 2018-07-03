@@ -100,11 +100,8 @@ def main_sim(settings_file, postprocess_only):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
-            slctdSeqs = S.select_init[distanceMeasure](alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
+            amplfdSeqs = S.stochasticSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
-            print("selection carried out for R1")
-            amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
-                                                              aptamerSeqs, alphabetSet, distanceMeasure)
         else:
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
@@ -112,9 +109,9 @@ def main_sim(settings_file, postprocess_only):
             # extra argument uniqSeqNum compared to the init function
             amplfdSeqs = S.stochasticSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
                                                samplingSize, outputFileNames, r, stringency)
-            print("Selection carried for R"+str(r+1))
-            amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
-                                                              aptamerSeqs, alphabetSet, distanceMeasure)
+        print("Selection carried out for R"+str(r+1))
+        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
+                                                          aptamerSeqs, alphabetSet, distanceMeasure)
         print("Amplification carried out for R"+str(r+1))
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
