@@ -209,7 +209,7 @@ class Mutation(object):
                     # for each possible position that mutation can occur
                     for seqPos in range(seqLength):
                         # grab the sequence encoding array
-                        seqArray = apt.get_seqArray(seqIdx, seqLength)
+                        seqArray = apt.get_seqArray(seqIdx)
                         # original nucleotide index
                         oni = seqArray[seqPos]
                         # mutated nucleotide index
@@ -346,7 +346,7 @@ class Mutation(object):
                     # for each possible position that mutation can occur
                     for seqPos in range(self.seqLength):
                         # grab the sequence encoding array
-                        seqArray = self.get_seqArray(seqIdx)
+                        seqArray = apt.get_seqArray(seqIdx)
                         # original nucleotide index
                         oni = seqArray[seqPos]
                         # mutated nucleotide index

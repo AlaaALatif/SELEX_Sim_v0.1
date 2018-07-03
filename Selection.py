@@ -75,7 +75,7 @@ class Selection:
             aptLoop = utils.apt_loopFinder(aptPool, aptStruct, apt.seqLength)
             slctdSeqs = self.createInitialLibrary_loop(apt, totalSeqNum, aptPool, aptStruct, aptLoop)
         else:
-            slctdSeqs = self.createInitialLibrary(apt, totalSeqNum, aptPool, aptStruct, aptLoop)
+            slctdSeqs = self.createInitialLibrary(apt, totalSeqNum, ref)
         print("Initial library created")
         selectionDist = utils.rv_int(slctdSeqs, "selectionDist")
         print("Sampling has started...")
