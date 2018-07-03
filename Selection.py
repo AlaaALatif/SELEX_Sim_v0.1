@@ -158,7 +158,6 @@ class Selection:
             for seqIdx, N in samps.items():
                 seq = apt.pseudoAptamerGenerator(seqIdx)
                 s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
-        print("Sampling has completed")
         return
 
     # This function takes an empty selected pool, aptamer sequence structure and loop,
