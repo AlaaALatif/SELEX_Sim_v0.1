@@ -124,7 +124,7 @@ class Selection:
 
     def stochasticSelection(self, apt, seqLength,
                             seqPool,
-                            uniqSeqNum, totalSeqNum, samplingSize,
+                            samplingSize,
                             outputFileNames, rnd, stringency):
         # initialize selected sequence pool
         print("seq length = "+str(seqLength))
