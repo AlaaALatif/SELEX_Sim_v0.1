@@ -117,12 +117,11 @@ class Selection:
                                              distf=self.distance)
         print("sequence selection has been carried out")
         # sampling
-        print("sampling from initial library...")
-        sampleFileName = outputFileNames+"_samples_R{:03d}".format(rnd+1)
-        with open(sampleFileName, 'w') as s:
-            for sidx, x in slctdSeqs.items():
-                seq = Apt.pseudoAptamerGenerator(sidx, alphabetSet, seqLength)
-                s.write(str(seq)+'\t'+str(int(x[1]))+'\t'+str(int(x[0]))+'\n')
+        selectionDist = utils.rv_int(slctdSeqs, "selectionDist")
+        print("sampling from initial round...")
+        self.samplingProcess(alphabetSet, seqLength, slctdSeqs,
+                             selectionDist, samplingSize,
+                             outputFileNames, rnd)
         print("Sampling completed")
         return slctdSeqs
 
@@ -133,13 +132,29 @@ class Selection:
         # initialize selected sequence pool
         print("seq length = "+str(seqLength))
         print("seq selection threshold = "+str(selectionThreshold))
-        print("parameters for selection have been initialized")
-        print("Selection sample distribution being computed...")
         # compute sampling distribution for selection
         # using count of each unique seq
-        selectionDist = utils.rv_int(seqPool, totalSeqNum, "selectionDist")
-        print("Selection sample distribution computed")
+        selectionDist = utils.rv_int(seqPool, "selectionDist")
         print("Sampling has started...")
+        self.samplingProcess(alphabetSet, seqLength, seqPool,
+                             selectionDist, samplingSize,
+                             outputFileNames, rnd)
+        print("Sampling has completed")
+        # reset all seq counts prior to selection
+        for k in seqPool:
+            seqPool[k][0] = 0
+        # draw a bunch of random seqs
+        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
+                              seqLength, stringency)
+        # remove all seqs that haven't been selected
+        for ki in [k for k, v in seqPool.items() if v[0] == 0]:
+            del seqPool[ki]
+        print("sequence selection has been carried out")
+        return seqPool
+
+    def samplingProcess(self, alphabetSet, seqLength,
+                        seqPool, selectionDist, samplingSize,
+                        outputFileNames, rnd):
         samps = dict()
         # draw random samples from distribution
         for seqIdx in selectionDist.rvs(size=samplingSize):
@@ -154,17 +169,7 @@ class Selection:
                 seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
                 s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
         print("Sampling has completed")
-        # reset all seq counts prior to selection
-        for k in seqPool:
-            seqPool[k][0] = 0
-        # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
-                              seqLength, stringency)
-        # remove all seqs that haven't been selected
-        for ki in [k for k, v in seqPool.items() if v[0] == 0]:
-            del seqPool[ki]
-        print("sequence selection has been carried out")
-        return seqPool
+        return
 
     # This function takes an empty selected pool, aptamer sequence structure and loop,
     # number of target binding sites, the alphabet set of the molecule, length,

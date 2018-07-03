@@ -66,7 +66,7 @@ def rvd(X, X_sum, distName):
 
 
 class rv_int():
-    def __init__(self, seqPool, X_sum, distName):
+    def __init__(self, seqPool, distName):
         self.si = list(seqPool)
         self.probas = np.array([seqPool[i][0] for i in self.si], dtype=np.float64)
         npb = self.probas[self.probas < -0.1]
