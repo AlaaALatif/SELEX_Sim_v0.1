@@ -15,9 +15,10 @@ Nrsamples = 10**4
 
 
 class Selection:
-    def __init__(self, distname):
+    def __init__(self, distname, selectionThreshold):
         self.distances = ("hamming", "basepair", "loop", "random")
         self.distname = distname
+        self.selectionThreshold = selectionThreshold
         if self.distname not in self.distances:
             print("Invalid argument for distance measure")
             raise
@@ -39,19 +40,18 @@ class Selection:
     # Output: dict()
     def selectionProcess_loop_initial(self, slctdSeqs, aptSeq,
                                       aptStruct, aptLoop,
-                                      selectionThreshold,
                                       apt, seqLength,
                                       totalSeqNum, stringency):
         selectedSeqs = 0
         print("Drawing sample batch")
-        while(selectedSeqs < selectionThreshold):
-            print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
+        while(selectedSeqs < self.selectionThreshold):
+            print("{}% completed".format(100.0*selectedSeqs/self.electionThreshold))
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
-                if(selectedSeqs == selectionThreshold):
+                if(selectedSeqs == self.selectionThreshold):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
                     if(randIdx in slctdSeqs):
@@ -62,20 +62,19 @@ class Selection:
                     selectedSeqs += 1
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
-                                    selectionThreshold,
                                     apt, seqLength,
                                     totalSeqNum, stringency,
                                     distf=D.hamming_func):
         selectedSeqs = 0
-        print("Drawing sample batch of {} sequences".format(selectionThreshold))
-        while(selectedSeqs < selectionThreshold):
+        print("Drawing sample batch of {} sequences".format(self.selectionThreshold))
+        while(selectedSeqs < self.selectionThreshold):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 # distance to optimal aptamer (stored in aptPool)
                 randSeqDist = distf(aptPool, randSeq)
-                if(selectedSeqs == selectionThreshold):
+                if(selectedSeqs == self.selectionThreshold):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
                     if(randIdx in slctdSeqs):
@@ -84,11 +83,11 @@ class Selection:
                         randSeqBias = D.bias_func(randSeq, seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
-            print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold), flush=True)
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/self.selectionThreshold), flush=True)
         return
 
     def stochasticSelection_initial(self, apt, seqLength,
-                                    aptPool, selectionThreshold,
+                                    aptPool,
                                     totalSeqNum, samplingSize,
                                     outputFileNames, rnd, stringency):
         slctdSeqs = {}
@@ -104,12 +103,10 @@ class Selection:
             aptLoop = utils.apt_loopFinder(aptPool, aptStruct, seqLength)
             self.selectionProcess_loop_initial(slctdSeqs, aptPool,
                                                aptStruct, aptLoop,
-                                               selectionThreshold,
                                                apt, seqLength,
                                                totalSeqNum, stringency)
         else:
             self.selectionProcess_1D_initial(slctdSeqs, ref,
-                                             selectionThreshold,
                                              apt, seqLength,
                                              totalSeqNum, stringency,
                                              distf=self.distance)
@@ -124,12 +121,12 @@ class Selection:
         return slctdSeqs
 
     def stochasticSelection(self, apt, seqLength,
-                            seqPool, selectionThreshold,
+                            seqPool,
                             uniqSeqNum, totalSeqNum, samplingSize,
                             outputFileNames, rnd, stringency):
         # initialize selected sequence pool
         print("seq length = "+str(seqLength))
-        print("seq selection threshold = "+str(selectionThreshold))
+        print("seq selection threshold = "+str(self.selectionThreshold))
         # compute sampling distribution for selection
         # using count of each unique seq
         selectionDist = utils.rv_int(seqPool, "selectionDist")
@@ -142,7 +139,7 @@ class Selection:
         for k in seqPool:
             seqPool[k][0] = 0
         # draw a bunch of random seqs
-        self.selectionProcess(seqPool, selectionThreshold, selectionDist,
+        self.selectionProcess(seqPool, selectionDist,
                               seqLength, stringency)
         # remove all seqs that haven't been selected
         for ki in [k for k, v in seqPool.items() if v[0] == 0]:
@@ -174,13 +171,13 @@ class Selection:
     # total sequence number and stringency factor and returns full selected pool
     # Input: np.array(), int(), stats.obj(), int()
     # Output: np.array()
-    def selectionProcess(self, seqPool, selectionThreshold,
+    def selectionProcess(self, seqPool,
                          selectionDist, seqLength,
                          stringency):
         selectedSeqs = 0
         # until all sites are occupied
         print("Drawing sample batch")
-        while(selectedSeqs < selectionThreshold):
+        while(selectedSeqs < self.selectionThreshold):
             # draw random sequences
             # warning: looping here causes large memory consumption
             for randIdx in selectionDist.rvs(size=Nrsamples):
@@ -190,5 +187,5 @@ class Selection:
                     seqPool[randIdx][0] += 1
                     selectedSeqs += 1
                     if selectedSeqs % Nrsamples == 0:
-                        print("{}% completed".format(100.0*selectedSeqs/selectionThreshold))
+                        print("{}% completed".format(100.0*selectedSeqs/self.selectionThreshold))
         return
