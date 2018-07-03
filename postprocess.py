@@ -49,8 +49,11 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
     print(wpdf)
     print(wpdf.sum(axis=1))
     print(pstats)
-    with open(outputFileNames+"_processed_results", 'w') as p:
+    with open(outputFileNames+"_stats.csv", 'w') as p:
         pstats.to_csv(p)
+    with open(outputFileNames+"_dists.csv", 'w') as p:
+        pdf.to_csv(p)
+        wpdf.to_csv(p)
     # If the user requested generating plots
     if plots:
         # 30 colors
@@ -81,7 +84,8 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
         n1 = "{}_SELEX_Analytics_distFreqs.{}".format(outputFileNames, imgformat)
         n2 = "{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat)
         for pdf_, oname, tname in zip([pdf, wpdf], [n1, n2], ["Total", "Unique"]):
-            idxs = pdf_.index[:pdf_.sum(axis=1).idxmax()]
+            ps = pdf_.sum(axis=1).cumsum()
+            idxs = ps[ps < np.percentile(ps, 80)].index
             s = len(idxs)//6
             fig1, axes = plt.subplots(2, 3, sharex=True, sharey=True)
             for i, ax in enumerate(axes.reshape(-1)):
