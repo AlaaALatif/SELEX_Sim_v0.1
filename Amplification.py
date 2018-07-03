@@ -89,14 +89,13 @@ class Amplification:
         mut.generate_mutants(mutatedPool=mutatedPool,
                              amplfdSeqs=slctdSeqs,
                              aptamerSeqs=aptamerSeqs,
-                             alphabetSet=alphabetSet,
                              distname=distance)
         return slctdSeqs
 
     def randomPCR_with_ErrorsAndBias_FASTv3(self, slctdSeqs,
                                             seqLength, pcrCycleNum,
                                             pcrYld, errorRate,
-                                            aptamerSeqs, alphabetSet, distance):
+                                            aptamerSeqs, apt, distance):
         # initialize Mutation object from class
         mut = Mutation(seqLength=seqLength, errorRate=errorRate,
                        pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
@@ -125,6 +124,6 @@ class Amplification:
         # generate mutants and add to the amplfied sequence pool
         mut.generate_mutants_new(amplfdSeqs=slctdSeqs,
                                  aptamerSeqs=aptamerSeqs,
-                                 alphabetSet=alphabetSet,
+                                 apt=apt,
                                  distname=distance)
         return slctdSeqs

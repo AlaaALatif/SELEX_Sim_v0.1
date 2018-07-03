@@ -6,8 +6,8 @@ from itertools import islice, product
 
 class Aptamers:
     # Add __init__ constructor here
-    def __init__(self):
-        self.alphabetSet = "ATCG"
+    def __init__(self, alphabetSet):
+        self.alphabetSet = alphabetSet
         self.La = len(self.alphabetSet)
         self.td = str.maketrans(dict(zip(self.alphabetSet, "0123")))
 
@@ -15,47 +15,45 @@ class Aptamers:
     # Sequences are indexed in order of alphabet set provided
     # Ex1:   if alphabetSet = 'ATCG', length = 4, index = 0 --> 'AAAA'
     # Ex2:   index = 15 --> 'GGGG'
-    def pseudoAptamerGenerator_(self, seqIdx, alphabetSet, seqLen):
+    def pseudoAptamerGenerator_(self, seqIdx, seqLen):
         seq = str()  # initialize seq
         seqArray = np.zeros(seqLen)
-        alphabetSetSize = len(alphabetSet)
         assert seqIdx >= 0
-        assert seqIdx <= alphabetSetSize**(seqLen) - 1
+        assert seqIdx <= self.La**(seqLen) - 1
         while seqIdx > 0:
-            charIdx = int(math.floor(math.log(seqIdx, alphabetSetSize)))
+            charIdx = int(math.floor(math.log(seqIdx, self.La)))
             if charIdx > 0:
                 seqArray[charIdx] += 1  # mutate lexicographically
-                seqIdx -= alphabetSetSize**charIdx  # next seqIdx
+                seqIdx -= self.La**charIdx  # next seqIdx
             else:
                 seqArray[charIdx] = seqIdx
                 break
         for charCode in seqArray:
-            for char in alphabetSet:
-                if(charCode == alphabetSet.index(char)):
-                    seq += alphabetSet[int(charCode)]
+            for char in self.alphabetSet:
+                if(charCode == self.alphabetSet.index(char)):
+                    seq += self.alphabetSet[int(charCode)]
         seq = seq[::-1]  # reverse string
         assert len(seq) == seqLen
         return seq
 
-    def pseudoAptamerGenerator(self, sn, alphabetSet, seqLen):
+    def pseudoAptamerGenerator(self, sn, seqLen):
         sn = int(sn)
         sl = ""
         for i in range(seqLen):
-            sl += alphabetSet[sn % self.La]
+            sl += self.alphabetSet[sn % self.La]
             sn = sn // self.La
         return sl[::-1]
 
     # method to get seqArray given seq index
-    def get_seqArray(self, seqIdx, alphabetSet, seqLen):
+    def get_seqArray(self, seqIdx, seqLen):
         seqArray = np.zeros(seqLen)
-        alphabetSetSize = len(alphabetSet)
         assert seqIdx > 0
-        assert seqIdx <= alphabetSetSize**(seqLen) - 1
+        assert seqIdx <= self.La**(seqLen) - 1
         while seqIdx > 0:
-            charIdx = int(math.floor(math.log(seqIdx, alphabetSetSize)))
+            charIdx = int(math.floor(math.log(seqIdx, self.La)))
             if charIdx > 0:
                 seqArray[charIdx] += 1  # mutate lexicographically
-                seqIdx -= alphabetSetSize**charIdx  # next seqIdx
+                seqIdx -= self.La**charIdx  # next seqIdx
             else:
                 seqArray[charIdx] = seqIdx
                 break
@@ -66,20 +64,19 @@ class Aptamers:
     # Sequences are indexed in order of alphabet set provided
     # Ex1:   if alphabetSet = 'ATCG', length = 4, seq = 'AAAA' --> 0
     # Ex2:   seq = 'GGGG' --> 15
-    def pseudoAptamerIndexGenerator_(self, seq, alphabetSet, seqLen):
+    def pseudoAptamerIndexGenerator_(self, seq, seqLen):
         assert len(seq) == seqLen
-        alphabetSize = len(alphabetSet)
         seq = seq[::-1]  # reverse seq
         seqIdx = 0
         for ntPos, nt in enumerate(seq):
-            seqIdx += alphabetSet.index(nt)*(alphabetSize)**(ntPos)
+            seqIdx += self.alphabetSet.index(nt)*(self.La)**(ntPos)
         return seqIdx
 
-    def pseudoAptamerIndexGenerator(self, seq, alphabetSet, seqLen):
-        return int(seq.translate(self.td), len(alphabetSet))
+    def pseudoAptamerIndexGenerator(self, seq, seqLen):
+        return int(seq.translate(self.td), self.La)
 
-    def pseudoAptamerIterator(self, alphabetSet, seqLen):
-        initLibrary = product(alphabetSet, repeat=seqLen)
+    def pseudoAptamerIterator(self, seqLen):
+        initLibrary = product(self.alphabetSet, repeat=seqLen)
         return initLibrary
 
 
@@ -100,8 +97,8 @@ class Aptamers:
         return optimumAptamers, initialSeqNum
 
     # Generate all possible sequences
-    def aptamerGenerator(self, alphabetSet, seqLength, start, finish, outFile):
-        initialLibrary = product(alphabetSet, repeat=seqLength)
+    def aptamerGenerator(self, seqLength, start, finish, outFile):
+        initialLibrary = product(self.alphabetSet, repeat=seqLength)
         # poolFraction = list(islice(initialLibrary, start, finish))
         with open(outFile, 'w') as o:
             for i in range(start, finish, 1000000):
@@ -117,23 +114,22 @@ class Aptamers:
 
 ###NEED TO MODIFY TO ALLOW MULTIPLE OPTIMUM APTAMERS
 
-    def optimumAptamerGenerator(self, aptamerNum, alphabetSet, seqLen):
+    def optimumAptamerGenerator(self, aptamerNum, seqLen):
         seq = str()  # initialize seq
         seqArray = np.zeros(seqLen)
-        alphabetSetSize = len(alphabetSet)
-        initialSeqNum = alphabetSetSize**(seqLen)
+        initialSeqNum = self.La**(seqLen)
         seqIdx = random.randint(0, initialSeqNum - 1)
         while seqIdx > 0:
-            charIdx = int(math.floor(math.log(seqIdx, alphabetSetSize)))
+            charIdx = int(math.floor(math.log(seqIdx, self.La)))
             if(charIdx > 0):
                 seqArray[charIdx] += 1  # mutate lexicographically
-                seqIdx -= alphabetSetSize**charIdx  # next seqIdx
+                seqIdx -= self.La**charIdx  # next seqIdx
             else:
                 seqArray[charIdx] = seqIdx
                 break
         for charCode in seqArray:
-            for char in alphabetSet:
-                if(charCode == alphabetSet.index(char)):
-                    seq += alphabetSet[int(charCode)]
+            for char in self.alphabetSet:
+                if(charCode == self.alphabetSet.index(char)):
+                    seq += self.alphabetSet[int(charCode)]
         seq = seq[::-1]  # reverse string
         return seq, initialSeqNum

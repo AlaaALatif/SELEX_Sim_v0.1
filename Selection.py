@@ -1,5 +1,4 @@
 import numpy as np
-import Aptamers
 import Distance
 import utils
 
@@ -8,7 +7,6 @@ import RNA
 
 
 D = Distance.Distance()
-Apt = Aptamers.Aptamers()
 
 # NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
@@ -42,7 +40,7 @@ class Selection:
     def selectionProcess_loop_initial(self, slctdSeqs, aptSeq,
                                       aptStruct, aptLoop,
                                       selectionThreshold,
-                                      alphabetSet, seqLength,
+                                      apt, seqLength,
                                       totalSeqNum, stringency):
         selectedSeqs = 0
         print("Drawing sample batch")
@@ -51,7 +49,7 @@ class Selection:
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
-                randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
+                randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
                 if(selectedSeqs == selectionThreshold):
                     return slctdSeqs
@@ -65,7 +63,7 @@ class Selection:
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
                                     selectionThreshold,
-                                    alphabetSet, seqLength,
+                                    apt, seqLength,
                                     totalSeqNum, stringency,
                                     distf=D.hamming_func):
         selectedSeqs = 0
@@ -74,7 +72,7 @@ class Selection:
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
-                randSeq = Apt.pseudoAptamerGenerator(randIdx, alphabetSet, seqLength)
+                randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 # distance to optimal aptamer (stored in aptPool)
                 randSeqDist = distf(aptPool, randSeq)
                 if(selectedSeqs == selectionThreshold):
@@ -89,7 +87,7 @@ class Selection:
             print("{:6.2f}% completed".format(100.0*selectedSeqs/selectionThreshold), flush=True)
         return
 
-    def stochasticSelection_initial(self, alphabetSet, seqLength,
+    def stochasticSelection_initial(self, apt, seqLength,
                                     aptPool, selectionThreshold,
                                     totalSeqNum, samplingSize,
                                     outputFileNames, rnd, stringency):
@@ -107,25 +105,25 @@ class Selection:
             self.selectionProcess_loop_initial(slctdSeqs, aptPool,
                                                aptStruct, aptLoop,
                                                selectionThreshold,
-                                               alphabetSet, seqLength,
+                                               apt, seqLength,
                                                totalSeqNum, stringency)
         else:
             self.selectionProcess_1D_initial(slctdSeqs, ref,
                                              selectionThreshold,
-                                             alphabetSet, seqLength,
+                                             apt, seqLength,
                                              totalSeqNum, stringency,
                                              distf=self.distance)
         print("sequence selection has been carried out")
         # sampling
         selectionDist = utils.rv_int(slctdSeqs, "selectionDist")
         print("sampling from initial round...")
-        self.samplingProcess(alphabetSet, seqLength, slctdSeqs,
+        self.samplingProcess(apt, seqLength, slctdSeqs,
                              selectionDist, samplingSize,
                              outputFileNames, rnd)
         print("Sampling completed")
         return slctdSeqs
 
-    def stochasticSelection(self, alphabetSet, seqLength,
+    def stochasticSelection(self, apt, seqLength,
                             seqPool, selectionThreshold,
                             uniqSeqNum, totalSeqNum, samplingSize,
                             outputFileNames, rnd, stringency):
@@ -136,7 +134,7 @@ class Selection:
         # using count of each unique seq
         selectionDist = utils.rv_int(seqPool, "selectionDist")
         print("Sampling has started...")
-        self.samplingProcess(alphabetSet, seqLength, seqPool,
+        self.samplingProcess(apt, seqLength, seqPool,
                              selectionDist, samplingSize,
                              outputFileNames, rnd)
         print("Sampling has completed")
@@ -152,7 +150,7 @@ class Selection:
         print("sequence selection has been carried out")
         return seqPool
 
-    def samplingProcess(self, alphabetSet, seqLength,
+    def samplingProcess(self, apt, seqLength,
                         seqPool, selectionDist, samplingSize,
                         outputFileNames, rnd):
         samps = dict()
@@ -166,7 +164,7 @@ class Selection:
         # write to samples file
         with open(sampleFileName, 'w') as s:
             for seqIdx, N in samps.items():
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+                seq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
                 s.write(str(seq)+'\t'+str(int(seqPool[seqIdx][1]))+'\t'+str(N)+'\n')
         print("Sampling has completed")
         return

@@ -50,10 +50,6 @@ def main_sim(settings_file, postprocess_only):
     pcrYield = settings.getfloat('amplificationparams', 'pcr_efficiency')
     pcrErrorRate = settings.getfloat('amplificationparams', 'pcr_error_rate')
 
-    # Instantiating classes
-    Apt = Aptamers()
-    Amplify = Amplification()
-
     def call_post_process(target):
         print("Data post-processing has started...")
         postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
@@ -87,8 +83,13 @@ def main_sim(settings_file, postprocess_only):
     else:
         print("Error: Simulation of %.s aptamers not supported" % aptamerType)
         sys.exit()
+
+    # Instantiating classes
+    Apt = Aptamers(alphabetSet)
+    Amplify = Amplification()
+
     if aptamerNum > 0:
-        aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
+        aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, seqLength)
     else:
         aptamerSeqs = aptamerSeq
         initialSeqNum = len(alphabetSet)**len(aptamerSeq)
@@ -96,28 +97,29 @@ def main_sim(settings_file, postprocess_only):
         print("optimum sequences have been chosen: {}".format(aptamerSeqs))
     else:
         print("optimum sequence has been chosen: {}".format(aptamerSeqs))
+
     for r in range(roundNum):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
-            amplfdSeqs = S.stochasticSelection_initial(alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
+            amplfdSeqs = S.stochasticSelection_initial(Apt, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
         else:
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             # extra argument uniqSeqNum compared to the init function
-            amplfdSeqs = S.stochasticSelection(alphabetSet, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
+            amplfdSeqs = S.stochasticSelection(Apt, seqLength, amplfdSeqs, selectionThreshold, uniqSeqNum, totalSeqNum,
                                                samplingSize, outputFileNames, r, stringency)
         print("Selection carried out for R"+str(r+1))
         amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
-                                                          aptamerSeqs, alphabetSet, distanceMeasure)
+                                                          aptamerSeqs, Apt, distanceMeasure)
         print("Amplification carried out for R"+str(r+1))
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')
         print("writing R"+str(r+1)+" seqs to file")
         for seqIdx in amplfdSeqs:
-            seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+            seq = Apt.pseudoAptamerGenerator(seqIdx, seqLength)
             # write seq, distance, and count for now
             nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
         nxtRnd.close()

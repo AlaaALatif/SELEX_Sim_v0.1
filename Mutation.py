@@ -7,7 +7,6 @@ from numpy.random import binomial as binom, poisson
 from math import factorial as fact
 from sklearn.preprocessing import normalize
 import utils
-from Aptamers import Aptamers
 from Distance import Distance
 
 # append ViennaRNA package to python path
@@ -18,17 +17,14 @@ class Mutation(object):
     # constructor
     def __init__(self, seqLength=0,
                  mutatedPool=None,
-                 amplfdSeqs=None,
                  aptamerSeqs=None,
-                 alphabetSet=None, errorRate=0,
+                 errorRate=0,
                  pcrCycleNum=0, pcrYld=0,
                  seqPop=None):
         # initialize parameters
         self.seqLength = seqLength
         self.mutatedPool = mutatedPool
-        self.amplfdSeqs = amplfdSeqs
         self.aptamerSeqs = aptamerSeqs
-        self.alphabetSet = alphabetSet
         self.errorRate = errorRate
         self.pcrCycleNum = pcrCycleNum
         self.pcrYld = pcrYld
@@ -144,14 +140,10 @@ class Mutation(object):
     # mutated variants to take into account pcr amplification during the process
     def generate_mutants(self,
                          mutatedPool, amplfdSeqs,
-                         aptamerSeqs, alphabetSet, distname):
+                         aptamerSeqs, apt, distname):
         pcrCycleNum = self.pcrCycleNum
         pcrYld = self.pcrYld
         seqLength = self.seqLength
-        # compute size of alphabet (i.e. 4 for DNA/RNA, 20 for peptides)
-        alphabetSize = len(alphabetSet)
-        # initialize aptamers class
-        apt = Aptamers()
         # initialize distance class
         d = Distance()
         md = self.choose_dist(distname, d, aptamerSeqs)
@@ -174,7 +166,7 @@ class Mutation(object):
                     # draw random cycle numbers after which the sequences were drawn for mutation
                     cycleNums = cycleNumDist.rvs(size=mutFreq)
                     # generate the wild-type sequence string
-                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
                     # for each copy to be mutated
                     for mut in range(mutFreq):
                         wildTypeCount = 1
@@ -182,15 +174,14 @@ class Mutation(object):
                         # draw random positions on the seq to mutate
                         randPos = random.randint(1, seqLength+1, size=mutNum+1)
                         # draw a random nucleotide for each position
-                        randNucs = random.randint(alphabetSize, size=mutNum+1)
+                        randNucs = random.randint(apt.La, size=mutNum+1)
                         mutatedSeq = wildTypeSeq
                         # for each position in seq, replace with random nucleotide
                         for posNum, pos in enumerate(randPos):
-                            mutatedSeq = mutatedSeq[:(pos-1)] + alphabetSet[randNucs[posNum]] + \
+                            mutatedSeq = mutatedSeq[:(pos-1)] + apt.alphabetSet[randNucs[posNum]] + \
                                          mutatedSeq[pos:]
                         # generate index of mutant based on string
                         mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq,
-                                                                        alphabetSet,
                                                                         seqLength)
                         # if mutant not found in amplified pool
                         if mutatedSeqIdx not in amplfdSeqs:
@@ -219,7 +210,7 @@ class Mutation(object):
                     # for each possible position that mutation can occur
                     for seqPos in range(seqLength):
                         # grab the sequence encoding array
-                        seqArray = apt.get_seqArray(seqIdx, alphabetSet, seqLength)
+                        seqArray = apt.get_seqArray(seqIdx, seqLength)
                         # original nucleotide index
                         oni = seqArray[seqPos]
                         # mutated nucleotide index
@@ -233,7 +224,6 @@ class Mutation(object):
                             if mutatedSeqIdx not in amplfdSeqs:
                                 # generate seq string using its index
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx,
-                                                                        alphabetSet,
                                                                         seqLength)
                                 mutDist = md(mutatedSeq)
                                 # compute bias score of seq
@@ -256,16 +246,12 @@ class Mutation(object):
     # This method aims to carry out the mutations on the pool of sequences that are in
     # the given mutated pool. It also updates the counts of the wild-type sequence and their
     # mutated variants to take into account pcr amplification during the process
-    def generate_mutants_new(self, amplfdSeqs, aptamerSeqs, alphabetSet, distname):
+    def generate_mutants_new(self, amplfdSeqs, aptamerSeqs, apt, distname):
         pcrCycleNum = self.pcrCycleNum
         pcrYld = self.pcrYld
         seqLength = self.seqLength
         # calculate probabilities of different possible mutation numbers
         mutNumProbs = self.get_mutation_probabilities_original()
-        # compute size of alphabet (i.e. 4 for DNA/RNA, 20 for peptides)
-        alphabetSize = len(alphabetSet)
-        # initialize aptamers class
-        apt = Aptamers()
         # initialize distance class
         d = Distance()
         md = self.choose_dist(distname, d, aptamerSeqs)
@@ -320,7 +306,7 @@ class Mutation(object):
                     # draw random cycle numbers after which the sequences were drawn for mutation
                     cycleNums = random.choice(np.arange(pcrCycleNum), p=cycleNumProbs, size=mutFreq)
                     # generate the wild-type sequence string
-                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+                    wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx, seqLength)
                     # for each copy to be mutated
                     for mut in range(mutFreq):
                         wildTypeCount = 1
@@ -328,15 +314,14 @@ class Mutation(object):
                         # draw random positions on the seq to mutate
                         randPos = random.randint(1, seqLength+1, size=mutNum+1)
                         # draw a random nucleotide for each position
-                        randNucs = random.randint(alphabetSize, size=mutNum+1)
+                        randNucs = random.randint(apt.La, size=mutNum+1)
                         mutatedSeq = wildTypeSeq
                         # for each position in seq, replace with random nucleotide
                         for posNum, pos in enumerate(randPos):
-                            mutatedSeq = mutatedSeq[:(pos-1)] + alphabetSet[randNucs[posNum]] + \
+                            mutatedSeq = mutatedSeq[:(pos-1)] + apt.alphabetSet[randNucs[posNum]] + \
                                          mutatedSeq[pos:]
                         # generate index of mutant based on string
                         mutatedSeqIdx = apt.pseudoAptamerIndexGenerator(mutatedSeq,
-                                                                        alphabetSet,
                                                                         seqLength)
                         # if mutant not found in amplified pool
                         if mutatedSeqIdx not in amplfdSeqs:
@@ -365,7 +350,7 @@ class Mutation(object):
                     # for each possible position that mutation can occur
                     for seqPos in range(seqLength):
                         # grab the sequence encoding array
-                        seqArray = apt.get_seqArray(seqIdx, alphabetSet, seqLength)
+                        seqArray = apt.get_seqArray(seqIdx, seqLength)
                         # original nucleotide index
                         oni = seqArray[seqPos]
                         # mutated nucleotide index
@@ -379,7 +364,6 @@ class Mutation(object):
                             if mutatedSeqIdx not in amplfdSeqs:
                                 # generate seq string using its index
                                 mutatedSeq = apt.pseudoAptamerGenerator(mutatedSeqIdx,
-                                                                        alphabetSet,
                                                                         seqLength)
                                 mutDist = md(mutatedSeq)
                                 # compute bias score of seq
