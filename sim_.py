@@ -11,6 +11,7 @@ import numpy as np
 from Aptamers import Aptamers
 from Selection import Selection
 from Amplification import Amplification
+from Mutation import Mutation
 import postprocess
 import utils
 
@@ -86,6 +87,10 @@ def main_sim(settings_file, postprocess_only):
     Apt = Aptamers(alphabetSet, seqLength)
     Amplify = Amplification()
 
+    # initialize Mutation object from class
+    mut = Mutation(seqLength=Apt.seqLength, errorRate=pcrErrorRate,
+                   pcrCycleNum=pcrCycleNum, pcrYld=pcrYield)
+
     if aptamerNum > 0:
         aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum)
     else:
@@ -109,8 +114,7 @@ def main_sim(settings_file, postprocess_only):
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
             amplfdSeqs = S.stochasticSelection(Apt, amplfdSeqs, outputFileNames, r)
         print("Selection carried out for R"+str(r+1))
-        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, pcrCycleNum, pcrYield, pcrErrorRate,
-                                                          aptamerSeqs, Apt, distanceMeasure)
+        amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, mut, aptamerSeqs, Apt, distanceMeasure)
         print("Amplification carried out for R"+str(r+1))
         outFile = outputFileNames + "_R{:03d}".format(r+1)
         nxtRnd = open(outFile, 'w')

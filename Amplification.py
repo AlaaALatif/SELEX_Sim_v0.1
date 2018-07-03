@@ -2,28 +2,18 @@ import numpy as np
 from numpy.random import binomial as binom
 from numpy.random import poisson
 
-from Mutation import Mutation
-
 
 # Initiate class
 class Amplification:
-    def randomPCR_with_ErrorsAndBias(self, slctdSeqs,
-                                     pcrCycleNum,
-                                     pcrYld, errorRate,
+    def randomPCR_with_ErrorsAndBias(self, slctdSeqs, mut,
                                      aptamerSeqs, apt, distance):
-        #return self.randomPCR_with_ErrorsAndBias_FASTv2(slctdSeqs,
-        return self.randomPCR_with_ErrorsAndBias_FASTv3(slctdSeqs,
-                                                        pcrCycleNum,
-                                                        pcrYld, errorRate,
+        # return self.randomPCR_with_ErrorsAndBias_FASTv2(
+        return self.randomPCR_with_ErrorsAndBias_FASTv3(
+                                                        slctdSeqs, mut,
                                                         aptamerSeqs, apt, distance)
 
-    def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs,
-                                            pcrCycleNum,
-                                            pcrYld, errorRate,
+    def randomPCR_with_ErrorsAndBias_FASTv2(self, slctdSeqs, mut,
                                             aptamerSeqs, apt, distance):
-        # initialize Mutation object from class
-        mut = Mutation(seqLength=apt.seqLength, errorRate=errorRate,
-                       pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
         # count number of seqs in selected pool
         totalseqs = 0
         uniqSeqs = 0
@@ -32,7 +22,7 @@ class Amplification:
             uniqSeqs += 1
             totalseqs += int(slctdSeqs[seqIdx][0])
         for seqIdx in slctdSeqs:
-            slctdSeqs[seqIdx].resize(pcrCycleNum+3)
+            slctdSeqs[seqIdx].resize(mut.pcrCycleNum+3)
         print("number of unique seqs in selected pool prior to amplification: "+str(uniqSeqs))
         print("number of seqs in selected pool prior to amplification: "+str(totalseqs))
         # calculate probabilities of different possible mutation numbers
@@ -44,18 +34,18 @@ class Amplification:
         # initialize dictionary to keep info on seqs to be mutated
         mutatedPool = {}
         # keep track of sequence count after each pcr cycle (except last one)
-        seqPop = np.zeros(pcrCycleNum)
+        seqPop = np.zeros(mut.pcrCycleNum)
         print("Amplification has started...")
         # for each sequence in the selected pool
         for i, seqIdx in enumerate(slctdSeqs):
             mutatedPool[seqIdx] = np.zeros(apt.seqLength)
             sn = slctdSeqs[seqIdx][0]
             # random PCR with bias using brute force
-            for n in range(pcrCycleNum):
+            for n in range(mut.pcrCycleNum):
                 # sequence count after n cycles
                 seqPop[n] = sn
                 # amplify count using initial count, polymerase yield, and bias score
-                sn += int(binom(sn, min(0.9999, pcrYld+slctdSeqs[seqIdx][2])))
+                sn += int(binom(sn, min(0.9999, mut.pcrYld+slctdSeqs[seqIdx][2])))
             slctdSeqs[seqIdx][0] = sn
             # compute cycle number probabilities
             slctdSeqs[seqIdx][3:] = seqPop / seqPop.sum()
@@ -68,7 +58,7 @@ class Amplification:
             # if seq count is less than 10,000
             else:
                 # draw random mutNum from the mutation distribution for each seq copy
-                muts = poisson(errorRate*apt.seqLength, int(np.sum(seqPop)))  # SLOW STEP
+                muts = poisson(mut.errorRate*apt.seqLength, int(np.sum(seqPop)))  # SLOW STEP
                 # remove all drawn numbers equal to zero
                 muts = muts[muts != 0]
                 # for each non-zero mutation number
@@ -92,13 +82,8 @@ class Amplification:
                              distname=distance)
         return slctdSeqs
 
-    def randomPCR_with_ErrorsAndBias_FASTv3(self, slctdSeqs,
-                                            pcrCycleNum,
-                                            pcrYld, errorRate,
+    def randomPCR_with_ErrorsAndBias_FASTv3(self, slctdSeqs, mut,
                                             aptamerSeqs, apt, distance):
-        # initialize Mutation object from class
-        mut = Mutation(seqLength=apt.seqLength, errorRate=errorRate,
-                       pcrCycleNum=pcrCycleNum, pcrYld=pcrYld)
         # count number of seqs in selected pool
         totalseqs = 0
         uniqSeqs = 0
