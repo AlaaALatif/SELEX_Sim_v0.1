@@ -15,10 +15,11 @@ Nrsamples = 10**4
 
 
 class Selection:
-    def __init__(self, distname, selectionThreshold):
+    def __init__(self, distname, selectionThreshold, initialSize):
         self.distances = ("hamming", "basepair", "loop", "random")
         self.distname = distname
         self.selectionThreshold = selectionThreshold
+        self.initialSize = initialSize
         if self.distname not in self.distances:
             print("Invalid argument for distance measure")
             raise
@@ -43,15 +44,14 @@ class Selection:
                                       apt, seqLength,
                                       totalSeqNum, stringency):
         selectedSeqs = 0
-        print("Drawing sample batch")
-        while(selectedSeqs < self.selectionThreshold):
-            print("{}% completed".format(100.0*selectedSeqs/self.electionThreshold))
+        print("Drawing sample batch of {} sequences".format(self.initialSize))
+        while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 randSeqDist = D.loop_func(aptSeq, aptStruct, aptLoop, seqLength, randSeq)
-                if(selectedSeqs == self.selectionThreshold):
+                if(selectedSeqs == self.initialSize):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
                     if(randIdx in slctdSeqs):
@@ -60,21 +60,23 @@ class Selection:
                         randSeqBias = D.bias_func(randSeq, seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/self.initialSize), flush=True)
+        return
 
     def selectionProcess_1D_initial(self, slctdSeqs, aptPool,
                                     apt, seqLength,
                                     totalSeqNum, stringency,
                                     distf=D.hamming_func):
         selectedSeqs = 0
-        print("Drawing sample batch of {} sequences".format(self.selectionThreshold))
-        while(selectedSeqs < self.selectionThreshold):
+        print("Drawing sample batch of {} sequences".format(self.initialSize))
+        while(selectedSeqs < self.initialSize):
             randIdxs = utils.randint(0, int(totalSeqNum-1), size=Nrsamples)
             randHamms = utils.randint(0, seqLength-stringency, size=Nrsamples)
             for i, randIdx in enumerate(randIdxs):
                 randSeq = apt.pseudoAptamerGenerator(randIdx, seqLength)
                 # distance to optimal aptamer (stored in aptPool)
                 randSeqDist = distf(aptPool, randSeq)
-                if(selectedSeqs == self.selectionThreshold):
+                if(selectedSeqs == self.initialSize):
                     return slctdSeqs
                 elif(randSeqDist < randHamms[i]):
                     if(randIdx in slctdSeqs):
@@ -83,7 +85,7 @@ class Selection:
                         randSeqBias = D.bias_func(randSeq, seqLength)
                         slctdSeqs[randIdx] = np.array([1, randSeqDist, randSeqBias])
                     selectedSeqs += 1
-            print("{:6.2f}% completed".format(100.0*selectedSeqs/self.selectionThreshold), flush=True)
+            print("{:6.2f}% completed".format(100.0*selectedSeqs/self.initialSize), flush=True)
         return
 
     def stochasticSelection_initial(self, apt, seqLength,

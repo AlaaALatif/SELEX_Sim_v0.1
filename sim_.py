@@ -64,7 +64,7 @@ def main_sim(settings_file, postprocess_only):
         call_post_process(aptamerSeq)
         sys.exit()
 
-    S = Selection(distanceMeasure, selectionThreshold)
+    S = Selection(distanceMeasure, selectionThreshold, initialSamples)
 
     if rng_seed == 0:
         rng_seed = random.randint(0, 2**32)
@@ -102,7 +102,7 @@ def main_sim(settings_file, postprocess_only):
         print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
-            amplfdSeqs = S.stochasticSelection_initial(Apt, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
+            amplfdSeqs = S.stochasticSelection_initial(Apt, seqLength, aptamerSeqs, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
         else:
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
