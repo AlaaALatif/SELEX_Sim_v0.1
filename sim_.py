@@ -80,42 +80,32 @@ def main_sim(settings_file, postprocess_only):
 
     # SELEX simulation based on random aptamer assignment, hamming-based definite selection, and
     # non-ideal stochastic amplfication with no bias.
+    if(aptamerType == 'DNA'):
+        alphabetSet = 'ACGT'
+    elif(aptamerType == 'RNA'):
+        alphabetSet = 'ACGU'
+    else:
+        print("Error: Simulation of %.s aptamers not supported" % aptamerType)
+        sys.exit()
+    if aptamerNum > 0:
+        aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
+    else:
+        aptamerSeqs = aptamerSeq
+        initialSeqNum = len(alphabetSet)**len(aptamerSeq)
+    if len(aptamerSeqs) > 1:
+        print("optimum sequences have been chosen: {}".format(aptamerSeqs))
+    else:
+        print("optimum sequence has been chosen: {}".format(aptamerSeqs))
     for r in range(roundNum):
+        print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
-            if(aptamerType == 'DNA'):
-                alphabetSet = 'ACGT'
-            elif(aptamerType == 'RNA'):
-                alphabetSet = 'ACGU'
-            else:
-                print("Error: Simulation of %.s aptamers not supported" % aptamerType)
-                break
-            if aptamerNum > 0:
-                aptamerSeqs, initialSeqNum = Apt.optimumAptamerGenerator(aptamerNum, alphabetSet, seqLength)
-            else:
-                aptamerSeqs = aptamerSeq
-                initialSeqNum = len(alphabetSet)**len(aptamerSeq)
-            pl_ = ''
-            if len(aptamerSeqs) > 1:
-                pl_ = 's'
-            print("optimum sequence{} have been chosen: {}".format(pl_, aptamerSeqs))
-            print("SELEX Round 1 has started")
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
             slctdSeqs = S.select_init[distanceMeasure](alphabetSet, seqLength, aptamerSeqs, initialSamples, initialSeqNum,
                                                        samplingSize, outputFileNames, r, stringency)
             print("selection carried out for R1")
             amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(slctdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
                                                               aptamerSeqs, alphabetSet, distanceMeasure)
-            print("amplification carried out for R1")
-            outFile = outputFileNames + "_R{:03d}".format(r+1)
-            nxtRnd = open(outFile, 'w')
-            print("writing R1 seqs to file")
-            for seqIdx in amplfdSeqs:
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                # write seqIdx, count, distance, and bias...for now
-                nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
-            nxtRnd.close()
         else:
-            print("SELEX Round "+str(r+1)+" has started")
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
@@ -125,15 +115,15 @@ def main_sim(settings_file, postprocess_only):
             print("Selection carried for R"+str(r+1))
             amplfdSeqs = Amplify.randomPCR_with_ErrorsAndBias(amplfdSeqs, seqLength, pcrCycleNum, pcrYield, pcrErrorRate,
                                                               aptamerSeqs, alphabetSet, distanceMeasure)
-            print("Amplification carried for R"+str(r+1))
-            outFile = outputFileNames + "_R{:03d}".format(r+1)
-            nxtRnd = open(outFile, 'w')
-            print("writing R"+str(r+1)+" seqs to file")
-            for seqIdx in amplfdSeqs:
-                seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
-                # write idx and count for now
-                nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
-            nxtRnd.close()
+        print("Amplification carried out for R"+str(r+1))
+        outFile = outputFileNames + "_R{:03d}".format(r+1)
+        nxtRnd = open(outFile, 'w')
+        print("writing R"+str(r+1)+" seqs to file")
+        for seqIdx in amplfdSeqs:
+            seq = Apt.pseudoAptamerGenerator(seqIdx, alphabetSet, seqLength)
+            # write seq, distance, and count for now
+            nxtRnd.write(str(seq)+'\t'+str(int(amplfdSeqs[seqIdx][1]))+'\t'+str(int(amplfdSeqs[seqIdx][0]))+'\n')
+        nxtRnd.close()
     print("SELEX completed")
 
     if post_process:
