@@ -29,7 +29,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
     for rnd in range(roundNum):
         data = pd.read_table("{}_R{:03d}".format(outputFileNames, rnd+1), names=["seq", "dist", "count"])
         data["wdist"] = data["dist"]*data["count"]
-        bin_edges = range(data["dist"].min(), data["dist"].max())
+        bin_edges = range(data["dist"].min(), max(0, data["dist"].max()))
         c, v = np.histogram(data["dist"], bins=bin_edges, density=True)
         wc, wv = np.histogram(data["dist"], bins=bin_edges, density=True, weights=data["count"])
         for vi, ci in zip(v, c):
@@ -152,13 +152,14 @@ def plot_histo_(Nrounds, prefix, target, axes, method=None):
         ax.hist(rd, bins=bins, normed=True, weights=data["count"], orientation="horizontal", label="weighted")
         # # plot unweighted graph if weights present
         # if sum(wsamp) > len(wsamp):
-        #     ax.hist(rd, bins=bins, normed=True, orientation="horizontal", histtype="step", color="C1", linewidth=2, label="unweighted")
+        #     ax.hist(rd, bins=bins, normed=True, orientation="horizontal", histtype="step", color="C1",
+        #              linewidth=2, label="unweighted")
         ax.set_ylim((0, len(target)))
         # ax.set_xscale("log")
         ax.set_xticklabels([])
         ax.set_xlabel("R {:d}".format(i+1))
-        #if i > 0 and (i+1) < Nrounds:
-        #    ax.set_yticklabels([])
+        # if i > 0 and (i+1) < Nrounds:
+        #     ax.set_yticklabels([])
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
