@@ -306,8 +306,6 @@ class Mutation(object):
                     wildTypeSeq = apt.pseudoAptamerGenerator(seqIdx)
                     # for each copy to be mutated
                     for mut in range(mutFreq):
-                        wildTypeCount = 1
-                        mutantCount = 1
                         # draw random positions on the seq to mutate
                         randPos = random.randint(1, self.seqLength+1, size=mutNum+1)
                         # draw a random nucleotide for each position
@@ -324,8 +322,9 @@ class Mutation(object):
                             # add seq and its info to the amplified pool
                             mutDist = md(mutatedSeq)
                             mutBias = d.bias_func(mutatedSeq, self.seqLength)
-                            amplfdSeqs[mutatedSeqIdx] = np.array([mutantCount,
-                                                                  mutDist, mutBias])
+                            amplfdSeqs[mutatedSeqIdx] = np.array([1, mutDist, mutBias])
+                        wildTypeCount = 1
+                        mutantCount = 1
                         # mutantNum = (1+pcrYld)**(pcrCycleNum - cycleNums[mut])
                         # for each pcr cycle after mutation has occured
                         for n in range(pcrCycleNum-cycleNums[mut]):
