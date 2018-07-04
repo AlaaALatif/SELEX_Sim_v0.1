@@ -39,7 +39,7 @@ def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
         pstats.loc["avdist", rnd] = data["dist"].mean()
         pstats.loc["wavdist", rnd] = data["wdist"].sum() / data["count"].sum()
         pstats.loc["total", rnd] = data["count"].sum()
-        pstats.loc["unique", rnd] = data["count"].sum()
+        pstats.loc["unique", rnd] = len(data["count"])
     pdf[pdf.isnull()] = 0
     pdf.sort_index(inplace=True)
     wpdf[wpdf.isnull()] = 0
