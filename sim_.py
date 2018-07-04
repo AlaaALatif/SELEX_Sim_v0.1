@@ -38,7 +38,7 @@ def main_sim(settings_file, postprocess_only):
     outputFileNames = settings.get('general', 'experiment_name')
     # how many sampled sequence to output each round, stored in output_samples_Ri.txt
     samplingSize = settings.getint('general', 'sampling_size')
-    post_process = settings.get('general', 'post_process')
+    post_process = settings.getboolean('general', 'post_process')
     img_format = settings.get('general', 'img_format')
 
     # how many sequence to select each round
