@@ -104,11 +104,16 @@ def main_sim(settings_file, postprocess_only):
     print("seq length = "+str(seqLength))
 
     for r in range(roundNum+1):
-        print("SELEX Round "+str(r+1)+" has started")
         if(r == 0):
+            header = "Creating initial library"
+            print(header)
+            print("-"*len(header))
             print("total number of sequences in initial library = "+str(initialSeqNum), flush=True)
             amplfdSeqs = S.stochasticSelection_initial(Apt, aptamerSeqs, initialSeqNum, outputFileNames, r)
         else:
+            header = "SELEX Round "+str(r)+" has started"
+            print(header)
+            print("-"*len(header))
             totalSeqNum, uniqSeqNum = utils.seqNumberCounter(amplfdSeqs)
             print("total number of sequences in initial pool = "+str(totalSeqNum))
             print("total number of unique sequences in initial pool = "+str(int(uniqSeqNum)), flush=True)
@@ -118,7 +123,7 @@ def main_sim(settings_file, postprocess_only):
         print("Amplification carried out for R"+str(r))
         outFile = outputFileNames + "_R{:03d}".format(r)
         nxtRnd = open(outFile, 'w')
-        print("writing R"+str(r+1)+" seqs to file")
+        print("writing R"+str(r)+" seqs to file")
         for seqIdx in amplfdSeqs:
             seq = Apt.pseudoAptamerGenerator(seqIdx)
             # write seq, distance, and count for now
