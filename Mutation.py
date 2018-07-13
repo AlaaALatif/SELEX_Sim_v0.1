@@ -267,7 +267,7 @@ class Mutation(object):
                 # sequence count after n cycles
                 seqPop[n] = sn
                 # amplify count using initial count, polymerase yield, and bias score
-                sn += int(binom(sn, min(0.9999, pcrYld+amplfdSeqs[seqIdx][2])))
+                sn += int(binom(sn, min(0.99999, pcrYld+amplfdSeqs[seqIdx][2])))
             amplfdSeqs[seqIdx][0] = sn
             # compute cycle number probabilities
             # grab probabilities to draw it after each pcr cycle
@@ -330,10 +330,10 @@ class Mutation(object):
                         for n in range(pcrCycleNum-cycleNums[mut]):
                             # compute amplified mutant count
                             mutantCount += int(binom(mutantCount,
-                                               pcrYld+amplfdSeqs[mutatedSeqIdx][2]))
+                                               min(0.99999, pcrYld+amplfdSeqs[mutatedSeqIdx][2])))
                             # compute loss of count from wild-type
                             wildTypeCount += int(binom(wildTypeCount,
-                                                 pcrYld+amplfdSeqs[seqIdx][2]))
+                                                 min(0.99999, pcrYld+amplfdSeqs[seqIdx][2])))
                         # increment mutant seq count in amplified pool
                         amplfdSeqs[mutatedSeqIdx][0] += mutantCount
                         # decrement wild-type seq count in amplfied pool
