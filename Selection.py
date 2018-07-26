@@ -1,12 +1,9 @@
 import numpy as np
-import Distance
 import utils
 
 # append path for ViennaRNA module
 import RNA
 
-
-D = Distance.Distance()
 
 # NEED TO CHANGE SAMPLING FOR SELECTION TO BE WEIGHTED BY COUNT OF EACH UNIQUE SEQ
 
@@ -15,9 +12,10 @@ Nrsamples = 10**4
 
 
 class Selection:
-    def __init__(self, distname, selectionThreshold, initialSize, samplingSize, stringency):
+    def __init__(self, distname, selectionThreshold, initialSize, samplingSize, stringency, dist):
         self.distances = ("hamming", "basepair", "loop", "random")
         self.distname = distname
+        self.dist = dist
         self.selectionThreshold = selectionThreshold
         self.initialSize = initialSize
         self.samplingSize = samplingSize
@@ -27,13 +25,13 @@ class Selection:
             raise
         self.distance = None
         if self.distname == "hamming":
-            self.distance = D.hamming_func
+            self.distance = self.dist.hamming_func
         elif self.distname == "basepair":
-            self.distance = D.bp_func
+            self.distance = self.dist.bp_func
         elif self.distname == "loop":
-            self.distance = D.loop_func
+            self.distance = self.dist.loop_func
         elif self.distname == "random":
-            self.distance = D.nodist_func
+            self.distance = self.dist.nodist_func
 
     def createInitialLibrary(self, apt, totalSeqNum, aptref):
         seqPool = dict()
@@ -42,7 +40,7 @@ class Selection:
                 seqPool[randIdx][0] += 1
             else:
                 randSeq = apt.pseudoAptamerGenerator(randIdx)
-                randSeqBias = D.bias_func(randSeq, apt.seqLength)
+                randSeqBias = self.dist.bias_func(randSeq, apt.seqLength)
                 randSeqDist = self.distance(aptref, randSeq)
                 seqPool[randIdx] = np.array([1, randSeqDist, randSeqBias])
         return seqPool
@@ -54,8 +52,8 @@ class Selection:
                 seqPool[randIdx][0] += 1
             else:
                 randSeq = apt.pseudoAptamerGenerator(randIdx)
-                randSeqBias = D.bias_func(randSeq, apt.seqLength)
-                randSeqDist = D.loop_func(seqref, structref, loopref, apt.seqLength, randSeq)
+                randSeqBias = self.dist.bias_func(randSeq, apt.seqLength)
+                randSeqDist = self.dist.loop_func(seqref, structref, loopref, apt.seqLength, randSeq)
                 seqPool[randIdx] = np.array([1, randSeqDist, randSeqBias])
         return seqPool
 

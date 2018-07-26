@@ -10,6 +10,7 @@ import numpy as np
 
 from Aptamers import Aptamers
 from Selection import Selection
+from Distance import Distance
 from Amplification import Amplification
 from Mutation import Mutation
 import postprocess
@@ -22,7 +23,8 @@ import configparser
 def main_sim(settings_file, postprocess_only):
     settings = configparser.ConfigParser({"initial_samples": "100000",
                                           "random_seed": "0",
-                                          "img_format": "pdf"},
+                                          "img_format": "pdf",
+                                          "pcr_bias": "0.1"},
                                          inline_comment_prefixes=(';',))
     settings.read(settings_file)
 
@@ -50,6 +52,7 @@ def main_sim(settings_file, postprocess_only):
     pcrCycleNum = settings.getint('amplificationparams', 'number_of_pcr')
     pcrYield = settings.getfloat('amplificationparams', 'pcr_efficiency')
     pcrErrorRate = settings.getfloat('amplificationparams', 'pcr_error_rate')
+    pcrBias = settings.getfloat('amplificationparams', 'pcr_bias')
 
     def call_post_process(target):
         print("Data post-processing has started...")
@@ -65,7 +68,8 @@ def main_sim(settings_file, postprocess_only):
         call_post_process(aptamerSeq)
         sys.exit()
 
-    S = Selection(distanceMeasure, selectionThreshold, initialSamples, samplingSize, stringency)
+    D = Distance(pcrBias)
+    S = Selection(distanceMeasure, selectionThreshold, initialSamples, samplingSize, stringency, D)
 
     if rng_seed == 0:
         rng_seed = random.randint(0, 2**32)
@@ -88,7 +92,7 @@ def main_sim(settings_file, postprocess_only):
     Amplify = Amplification()
 
     # initialize Mutation object from class
-    mut = Mutation(seqLength=Apt.seqLength, errorRate=pcrErrorRate,
+    mut = Mutation(D, seqLength=Apt.seqLength, errorRate=pcrErrorRate,
                    pcrCycleNum=pcrCycleNum, pcrYld=pcrYield)
 
     if aptamerNum > 0:

@@ -4,6 +4,9 @@ import numpy as np
 
 
 class Distance:
+    def __init__(self, bias=0.1):
+        # maximum absolute value of bias
+        self.bias = bias
     # This function takes the sequences of two loop regions and returns
     # their Lavenshtein distance
     # Input: str(), str()
@@ -122,7 +125,7 @@ class Distance:
     # Output: float()
     def bias_func(self, seq, seqLen):
         pyrNum = seq.count('T', 0, -1) + seq.count('C', 0, -1)
-        return 0.1*(2*pyrNum - seqLen)/seqLen  # compute bias
+        return self.bias*(2*pyrNum - seqLen)/seqLen  # compute bias
 
     def nodist_func(self, seq1, seq2):
         return -1

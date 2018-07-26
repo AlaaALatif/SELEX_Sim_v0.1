@@ -7,7 +7,6 @@ from numpy.random import binomial as binom, poisson
 from math import factorial as fact
 from sklearn.preprocessing import normalize
 import utils
-from Distance import Distance
 
 # append ViennaRNA package to python path
 import RNA
@@ -15,13 +14,16 @@ import RNA
 
 class Mutation(object):
     # constructor
-    def __init__(self, seqLength=0,
+    def __init__(self,
+                 dist,
+                 seqLength=0,
                  mutatedPool=None,
                  aptamerSeqs=None,
                  errorRate=0,
                  pcrCycleNum=0, pcrYld=0,
                  seqPop=None):
         # initialize parameters
+        self.dist = dist
         self.seqLength = seqLength
         self.mutatedPool = mutatedPool
         self.aptamerSeqs = aptamerSeqs
@@ -125,15 +127,15 @@ class Mutation(object):
         # compute 2D structure of aptamer(s)
         # find loop in 2D structure
         if distname == "hamming":
-            return functools.partial(distance.hamming_func, aptamerSeqs)
+            return functools.partial(self.dist.hamming_func, aptamerSeqs)
         if distname == "random":
-            return functools.partial(distance.nodist_func, aptamerSeqs)
+            return functools.partial(self.dist.nodist_func, aptamerSeqs)
         aptamerSeqsStruct = RNA.fold(str(aptamerSeqs))[0]
         if distname == "basepair":
-            return functools.partial(distance.bp_func, aptamerSeqsStruct)
+            return functools.partial(self.dist.bp_func, aptamerSeqsStruct)
         aptamerLoop = utils.apt_loopFinder(aptamerSeqs, aptamerSeqsStruct, self.seqLength)
         if distname == "loop":
-            return functools.partial(distance.loop_func, aptamerSeqs, aptamerSeqsStruct, aptamerLoop, self.seqLength)
+            return functools.partial(self.dist.loop_func, aptamerSeqs, aptamerSeqsStruct, aptamerLoop, self.seqLength)
 
     # This method aims to carry out the mutations on the pool of sequences that are in
     # the given mutated pool. It also updates the counts of the wild-type sequence and their
@@ -145,7 +147,7 @@ class Mutation(object):
         pcrYld = self.pcrYld
         seqLength = self.seqLength
         # initialize distance class
-        d = Distance()
+        d = self.dist
         md = self.choose_dist(distname, d, aptamerSeqs)
         # for each seq in the mutation pool
         for si, seqIdx in enumerate(mutatedPool):
@@ -250,7 +252,7 @@ class Mutation(object):
         # calculate probabilities of different possible mutation numbers
         mutNumProbs = self.get_mutation_probabilities_original()
         # initialize distance class
-        d = Distance()
+        d = self.dist
         md = self.choose_dist(distname, d, aptamerSeqs)
         # save copy number
         prevSeqs = [k for k in amplfdSeqs.keys()]
