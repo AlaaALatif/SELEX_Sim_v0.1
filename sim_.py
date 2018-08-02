@@ -13,7 +13,6 @@ from Selection import Selection
 from Distance import Distance
 from Amplification import Amplification
 from Mutation import Mutation
-import postprocess
 import utils
 
 # Fetch experiment parameters from the settings file
@@ -55,6 +54,7 @@ def main_sim(settings_file, postprocess_only):
     pcrBias = settings.getfloat('amplificationparams', 'pcr_bias')
 
     def call_post_process(target):
+        import postprocess
         print("Data post-processing has started...")
         postprocess.dataAnalysis(seqLength, roundNum, outputFileNames, post_process, distanceMeasure, imgformat=img_format)
         # postprocess.dataAnalysis(seqLength, roundNum, "{}_samples".format(outputFileNames),
