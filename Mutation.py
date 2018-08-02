@@ -374,7 +374,7 @@ class Mutation(object):
                                 # compute expected decrease in no. of wild type seq
                                 amplfdSeqs[seqIdx][0] -= int(cycleNumProb*initialMutCount *
                                                              (1+pcrYld)**(pcrCycleNum-cycleNum))
-            if si % int(Lc/20) == 0:
+            if int(Lc/20) == 0 or si % int(Lc/20) == 0:
                 print("Mutated {:6.2f}%".format(100.0*si/Lc))
         print("Mutation has been carried out")
         return amplfdSeqs
