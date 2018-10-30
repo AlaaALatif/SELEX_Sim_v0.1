@@ -1,110 +1,165 @@
-import sys
 import numpy as np
-import matplotlib
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
+import pandas as pd
+
+import RNA
+
+import Distance
+
+D = Distance.Distance()
+
+dpival = 300
+params = {'legend.fontsize': 'medium',
+          # 'figure.figsize': (15, 5),
+          'axes.labelsize': 'small',
+          'axes.titlesize': 'small',
+          'xtick.labelsize': 'xx-small',
+          'ytick.labelsize': 'xx-small'}
+plt.rcParams.update(params)
 
 
-def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure):
-    avgDist_per_rnd = np.zeros(roundNum)
-    weighted_avgDist_per_rnd = np.zeros(roundNum)
-    total_seqs_freqs = np.zeros(roundNum)
-    uniq_seqs_freqs = np.zeros(roundNum)
-    distFreqs = np.zeros((roundNum, seqLength+1))
-    weighted_distFreqs = np.zeros((roundNum, seqLength+1))
-    for rnd in xrange(roundNum):
-        total_seq_num = 0
-        uniq_seq_num = 0
-        distance = 0
-        weighted_distance = 0
-        with open(outputFileNames+"_R"+str(rnd+1)) as SELEX_round:
-            for line in SELEX_round:
-                columns = line.split()
-                distance += int(columns[2])
-                weighted_distance += int(columns[1])*int(columns[2])
-                total_seq_num += int(columns[1])
-                uniq_seq_num += 1
-                distFreqs[rnd][int(columns[2])] += 1
-                weighted_distFreqs[rnd][int(columns[2])] += int(columns[1])
-        total_seqs_freqs[rnd] = total_seq_num
-        avgDist_per_rnd[rnd] = int(distance/uniq_seq_num)
-        weighted_avgDist_per_rnd[rnd] = int(weighted_distance/total_seq_num)
-        uniq_seqs_freqs[rnd] = uniq_seq_num
-	for i in xrange(seqLength+1):
-		distFreqs[rnd][i] /= uniq_seqs_freqs[rnd]
-		weighted_distFreqs[rnd][i] /= total_seqs_freqs[rnd]
-    print(weighted_avgDist_per_rnd)
-    print(avgDist_per_rnd)
-    with open(outputFileNames+"_processed_results", 'w') as p:
-        for rnd in xrange(roundNum): 
-            p.write(str(int(total_seqs_freqs[rnd]))+'\t')
-            p.write(str(int(uniq_seqs_freqs[rnd]))+'\t')
-            p.write(str(int(avgDist_per_rnd[rnd]))+'\t')
-            p.write(str(int(weighted_avgDist_per_rnd[rnd]))+'\t')
-            for l in xrange(seqLength+1):
-                p.write(str(int(distFreqs[rnd][l]))+'\t')
-                p.write(str(int(weighted_distFreqs[rnd][l]))+'\t')
-            p.write('\n')
-    if(plots==True):
-        if(distanceMeasure=="hamming"):
-            roundNumAxis = np.linspace(1, roundNum, roundNum)
-            fig0, axes = plt.subplots(2, 2)
-            plotsList = [total_seqs_freqs, uniq_seqs_freqs, weighted_avgDist_per_rnd, avgDist_per_rnd]
+# This generate the main plots from the simulation results
+# The plots include changes in total and unique sequence numbers, in average distance
+# and changes in the average distance of each affinity group
+def dataAnalysis(seqLength, roundNum, outputFileNames, plots, distanceMeasure,
+                 aptSeq=None, aptStruct=None, aptLoop=None, imgformat="pdf"):
+    pstats = pd.DataFrame(columns=range(roundNum), index=["total", "unique", "avdist", "wavdist"])
+    pdf = pd.DataFrame(columns=range(roundNum))
+    wpdf = pd.DataFrame(columns=range(roundNum))
+    for rnd in range(roundNum):
+        data = pd.read_table("{}_R{:03d}".format(outputFileNames, rnd+1), names=["seq", "dist", "count"])
+        data["wdist"] = data["dist"]*data["count"]
+        bin_edges = range(data["dist"].min(), max(0, data["dist"].max()))
+        c, v = np.histogram(data["dist"], bins=bin_edges, density=True)
+        wc, wv = np.histogram(data["dist"], bins=bin_edges, density=True, weights=data["count"])
+        for vi, ci in zip(v, c):
+            pdf.loc[vi, rnd] = ci
+        for vi, ci in zip(wv, wc):
+            wpdf.loc[vi, rnd] = ci
+        pstats.loc["avdist", rnd] = data["dist"].mean()
+        pstats.loc["wavdist", rnd] = data["wdist"].sum() / data["count"].sum()
+        pstats.loc["total", rnd] = data["count"].sum()
+        pstats.loc["unique", rnd] = len(data["count"])
+    pdf[pdf.isnull()] = 0
+    pdf.sort_index(inplace=True)
+    wpdf[wpdf.isnull()] = 0
+    wpdf.sort_index(inplace=True)
+    print(pstats)
+    with open(outputFileNames+"_stats.csv", 'w') as p:
+        pstats.to_csv(p)
+    with open(outputFileNames+"_dists.csv", 'w') as p:
+        pdf.to_csv(p)
+        wpdf.to_csv(p)
+    # If the user requested generating plots
+    if plots:
+        # 30 colors
+        # co30 = plt.cm.jet(np.linspace(0,1,30))
+        Ncolors = 2**7-1
+        co30 = plt.cm.rainbow(np.linspace(0, 1, Ncolors+1))
+        # generates indices as far apart from each other as possible
+        cidx = [int("{:0>7}".format(bin(Ncolors ^ i)[2:])[::-1], base=2) for i in range(Ncolors)]
+        co30 = co30[cidx]
+        # linestyles = ['-', '--', '-.', ':']
+        # change line below to change color palette used
+        # plt.style.use("seaborn-white")
+        # If Hamming distances were used
+        fig0, axes = plt.subplots(2, 2, sharex=True)
+        plotsList = ["total", "unique", "wavdist", "avdist"]
+        pstats = pstats.T
+        for i, ax in enumerate(axes.reshape(-1)):
+            ax.plot(pstats.index, pstats[plotsList[i]], color='C{}'.format(i))
+            if i <= 1:
+                ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        axes[0, 0].set_title('Total sequences')
+        axes[0, 0].set_ylabel('Counts')
+        axes[1, 0].set_xlabel('Round Number')
+        axes[1, 0].set_ylabel('Average Distance')
+        axes[0, 1].set_title('Unique sequences')
+        plt.tight_layout()
+        fig0.savefig("{}_SELEX_Analytics_distance.{}".format(outputFileNames, imgformat), dpi=dpival)
+        n1 = "{}_SELEX_Analytics_distFreqs.{}".format(outputFileNames, imgformat)
+        n2 = "{}_SELEX_Analytics_weighted_distFreqs.{}".format(outputFileNames, imgformat)
+        for pdf_, oname, tname in zip([pdf, wpdf], [n1, n2], ["Total", "Unique"]):
+            ps = pdf_.sum(axis=1).cumsum()
+            idxs = ps[ps < np.percentile(ps, 80)].index
+            s = len(idxs)//6
+            fig1, axes = plt.subplots(2, 3, sharex=True, sharey=True)
             for i, ax in enumerate(axes.reshape(-1)):
-                ax.plot(roundNumAxis, plotsList[i])
-            fig0.text(0.5, 0.04, 'Round Number', ha='center')
-            fig0.text(0.04, 0.5, 'Average Distance', va='center', rotation='vertical')
-            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance.pdf")
-            fig1, axes = plt.subplots(2, 3)
-            for i, ax in enumerate(axes.reshape(-1)):
-                for d in range(3):
-                    ax.plot(roundNumAxis, distFreqs[:,d+(3*i)+1], label='d = '+str(d+(3*i)+1))
-                ax.ticklabel_format(syle='sci', axis='y', scilimits=(0,0))
-                ax.legend(prop={'size':6})
-            fig1.text(0.5, 0.04, 'Round Number', ha='center')
-            fig1.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs.pdf")
-            # weighted fractional sequency plots
-            fig2, axes = plt.subplots(2, 3)
-            for i, ax in enumerate(axes.reshape(-1)):
-                for d in range(3):
-                    ax.plot(roundNumAxis, weighted_distFreqs[:,d+(3*i)+1], label='d = '+str(d+(3*i)+1))
-                ax.ticklabel_format(syle='sci', axis='y', scilimits=(0,0))
-                ax.legend(prop={'size':6})
-            fig2.text(0.5, 0.04, 'Round Number', ha='center')
-            fig2.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs.pdf")
-        elif(distanceMeasure=="basepair"):
-            roundNumAxis = np.linspace(1, roundNum, roundNum)
-            plotsList = [total_seqs_freqs, uniq_seqs_freqs, weighted_avgDist_per_rnd, avgDist_per_rnd]
-            fig0, axes = plt.subplots(2, 2)
-            for i, ax in enumerate(axes.reshape(-1)):
-                ax.plot(roundNumAxis, plotsList[i])
-            fig0.text(0.5, 0.04, 'Round Number', ha='center')
-            fig0.text(0.04, 0.5, 'Average Distance', va='center', rotation='vertical')
-            fig0.savefig(str(outputFileNames)+"_SELEX_Analytics_distance.pdf")
-            #figures for distance analytics
-            fig1, axes = plt.subplots(2, 3)
-            for i, ax in enumerate(axes.reshape(-1)):
-                for d in range(3):
-                    ax.plot(roundNumAxis, distFreqs[:,d+(3*i)+1], label='d = '+str(d+(3*i)+1))
-                ax.ticklabel_format(syle='sci', axis='y', scilimits=(0,0))
-                ax.legend(prop={'size':6})
-            fig1.text(0.5, 0.04, 'Round Number', ha='center')
-            fig1.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig1.savefig(str(outputFileNames)+"_SELEX_Analytics_distFreqs.pdf")
-            # weighted fractional sequency plots
-            fig2, axes = plt.subplots(2, 3)
-            for i, ax in enumerate(axes.reshape(-1)):
-                for d in range(3):
-                    ax.plot(roundNumAxis, weighted_distFreqs[:,d+(3*i)+1], label='d = '+str(d+(3*i)+1))
-                ax.ticklabel_format(syle='sci', axis='y', scilimits=(0,0))
-                ax.legend(prop={'size':6})
-            fig2.text(0.5, 0.04, 'Round Number', ha='center')
-            fig2.text(0.04, 0.5, 'Fractional Frequency', va='center', rotation='vertical')
-            fig2.savefig(str(outputFileNames)+"_SELEX_Analytics_weighted_distFreqs.pdf")
+                for si in range(s):
+                    idx = idxs[s*i+si]
+                    ax.plot(pdf_.columns, pdf_.loc[idx], label='d = {}'.format(idx), color=co30[si])
+                ax.ticklabel_format(syle='sci', axis='y', scilimits=(0, 0))
+                ax.legend(prop={'size': 6})
+            axes[0, 0].set_ylim((pdf_.min().min(), pdf_.max().max()))
+            fig1.suptitle(f"{tname} Sequences")
+            axes[0, 0].set_ylabel('Fractional Frequency')
+            axes[1, 1].set_xlabel('Round Number')
+            plt.tight_layout()
+            plt.subplots_adjust(top=0.90)
+            fig1.savefig(oname, dpi=dpival)
+
+
+# for loop only
+#            if(aptSeq != None and aptStruct != None and aptLoop != None):
+#                dist_matrx = np.zeros((roundNum, seqLength+1, seqLength-6))
+#                uniq_dist_matrx = np.zeros((roundNum, seqLength+1, seqLength-6))
+#                for rnd in xrange(roundNum):
+#                    with open(outputFileNames + "_R{:03d}_dist_components_results".format(rnd+1), 'r') as p:
+#                        for line in p:
+#                            row = line.split()
+#                            loop_dist = float(row[0])
+#                            bp_dist = float(row[1])
+#                            count = float(row[2])
+#                            uniq = float(row[3])
+#                            dist_matrx[rnd][int(loop_dist)][int(bp_dist)] += int(count)
+#                            uniq_dist_matrx[rnd][int(loop_dist)][int(bp_dist)] += int(uniq)
+#                fig3, axes = plt.subplots(2, 4)
+#                for i, ax in enumerate(axes.reshape(-1)):
+#                    if(i == 0):
+#                        cax = ax.imshow(dist_matrx[i+1], interpolation='nearest',
+#                                                                cmap=cm.coolwarm)
+#                        cbar = fig3.colorbar(cax, ticks=[np.min(uniq_dist_matrx[i+1]),np.max(uniq_dist_matrx[i+1])], ax=ax)
+#                        ax.set_title('Round '+str(i+1))
+#                    else:
+#                        cax = ax.imshow(dist_matrx[i*5], interpolation='nearest',
+#                                                                cmap=cm.coolwarm)
+#                        cbar = fig3.colorbar(cax, ticks=[np.min(uniq_dist_matrx[i*5]),np.max(uniq_dist_matrx[i*5])], ax=ax)
+#                        ax.set_title('Round '+str(i*5))
+#                fig3.savefig(str("pp2"+outputFileNames)+"_SELEX_Analytics_dist_heatmap.pdf", format='pdf')
+#                fig3.text(0.5, 0.98, 'Total Sequences', ha='center')
+
+
+def plot_histo(Nrounds, prefix, target, imgformat="pdf", method=None):
+    plt.style.use("seaborn-white")
+    fig, axes = plt.subplots(1, Nrounds, figsize=(2.1*Nrounds, 10), sharey=True)
+    plot_histo_(Nrounds, prefix, target, axes, method)
+    fig.suptitle("Distribution of the distance over %d rounds" % Nrounds)
+    plt.savefig("{}_SELEX_histo.{}".format(prefix, imgformat))
+
+
+def plot_histo_(Nrounds, prefix, target, axes, method=None):
+    bins = range(len(target))
+    for i, ax in enumerate(axes):
+        data = pd.read_table("{}_R{:03d}".format(prefix, i+1), names=["seq", "dist", "count"])
+        if method is not None:
+            if method == "hamming":
+                rd = [D.hamming_func(target, i_) for i_ in data["seq"]]
+            else:
+                struct_target = RNA.fold(target)[0]
+                rd = [RNA.bp_distance(struct_target, RNA.fold(i_)[0]) for i_ in data["seq"]]
         else:
-            return
-#TEST
-#dataAnalysis(20, 15, "complex", True, "basepair")
+            rd = data["dist"]
+        ax.hist(rd, bins=bins, normed=True, weights=data["count"], orientation="horizontal", label="weighted")
+        # # plot unweighted graph if weights present
+        # if sum(wsamp) > len(wsamp):
+        #     ax.hist(rd, bins=bins, normed=True, orientation="horizontal", histtype="step", color="C1",
+        #              linewidth=2, label="unweighted")
+        ax.set_ylim((0, len(target)))
+        # ax.set_xscale("log")
+        ax.set_xticklabels([])
+        ax.set_xlabel("R {:d}".format(i+1))
+        # if i > 0 and (i+1) < Nrounds:
+        #     ax.set_yticklabels([])
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.90)
